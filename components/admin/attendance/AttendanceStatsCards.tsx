@@ -46,15 +46,15 @@ export default function AttendanceStatsCards({
           className="p-6 rounded-[1rem] border border-slate-200 flex items-center gap-4 bg-white shadow-sm hover:border-slate-300 transition-all group"
         >
           <div
-            className={`p-3.5 ${card.bgColor} ${card.borderColor} border rounded-xl transition-colors group-hover:bg-white`}
+            className={`p-3.5 ${card.bgColor} ${card.borderColor} border rounded-[1rem] group-hover:scale-110 transition-transform`}
           >
             {card.icon}
           </div>
-          <div className="space-y-1">
-            <p className="text-[11px] font-bold uppercase text-slate-500 tracking-wider leading-none">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
               {card.title}
             </p>
-            <p className={`text-2xl font-bold ${card.color} leading-none`}>
+            <p className={`text-2xl font-black ${card.color} leading-none`}>
               {card.value}
             </p>
           </div>

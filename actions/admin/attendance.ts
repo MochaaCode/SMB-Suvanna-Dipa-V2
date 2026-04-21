@@ -3,10 +3,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-// IMPORT TIPE KETAT
-import type { AttendanceLogWithProfile, AttendanceStatus } from "@/types";
+import type {
+  AttendanceLogWithProfile,
+  AttendanceStatus,
+  Profile,
+} from "@/types";
 
-// HELPER: Proteksi Admin
 async function ensureAdmin() {
   const supabase = await createClient();
   const {
@@ -23,16 +25,13 @@ async function ensureAdmin() {
 
   if (profile?.role !== "admin") throw new Error("Akses ditolak: Terlarang!");
 
-  return supabase;
+  return { supabase, user };
 }
 
-/**
- * 1. MENGAMBIL LOG KEHADIRAN HARI INI
- */
 export async function getTodayAttendanceLogs(
   scheduleId: number,
 ): Promise<AttendanceLogWithProfile[]> {
-  const supabase = await ensureAdmin();
+  const { supabase } = await ensureAdmin();
   const { data, error } = await supabase
     .from("attendance_logs")
     .select(`*, profiles:profile_id ( full_name, role )`)
@@ -40,89 +39,107 @@ export async function getTodayAttendanceLogs(
     .order("scan_time", { ascending: false });
 
   if (error) return [];
-
-  // Type Casting yang aman
   return data as unknown as AttendanceLogWithProfile[];
 }
 
-/**
- * 2. STATISTIK PRESENSI (Live Dashboard)
- */
-export async function getAttendanceStats(scheduleId: number): Promise<{
-  hadir: number;
-  terlambat: number;
-  totalScan: number;
-}> {
-  const supabase = await ensureAdmin();
-  const { data: logs, error } = await supabase
+export async function getAttendanceStats(scheduleId: number) {
+  const { supabase } = await ensureAdmin();
+  const { data, error } = await supabase
     .from("attendance_logs")
     .select("status")
     .eq("schedule_id", scheduleId);
 
-  if (error || !logs) return { hadir: 0, terlambat: 0, totalScan: 0 };
+  if (error || !data) return { hadir: 0, terlambat: 0, totalScan: 0 };
 
   return {
-    hadir: logs.filter((l) => l.status === "hadir").length,
-    terlambat: logs.filter((l) => l.status === "terlambat").length,
-    totalScan: logs.length,
+    hadir: data.filter((d) => d.status === "hadir").length,
+    terlambat: data.filter((d) => d.status === "terlambat").length,
+    totalScan: data.length,
   };
 }
 
-/**
- * 3. UPDATE STATUS MANUAL (Admin Fix)
- */
-export async function updateAttendanceManual(
-  logId: number,
-  status: AttendanceStatus, // FIX: Menggunakan literal type bukan sekadar string
-) {
-  const supabase = await ensureAdmin();
-  const { error } = await supabase
-    .from("attendance_logs")
-    .update({
-      status,
-      method: "manual",
-      notes: "Diubah manual oleh admin",
-    })
-    .eq("id", logId);
+export async function getEligibleStudents(
+  classId: number | null,
+): Promise<Profile[]> {
+  const { supabase } = await ensureAdmin();
+  let query = supabase
+    .from("profiles")
+    .select("id, full_name, role")
+    .eq("role", "siswa")
+    .eq("is_deleted", false)
+    .order("full_name", { ascending: true });
 
-  if (error) throw new Error(error.message);
+  if (classId) {
+    query = query.eq("class_id", classId);
+  }
+
+  const { data, error } = await query;
+  if (error) return [];
+  return data as Profile[];
+}
+
+// ==========================================
+// FUNGSI ABSENSI MANUAL (TANPA INJEKSI POIN MANUAL)
+// ==========================================
+export async function recordManualAttendance(payload: {
+  scheduleId: number;
+  profileId: string;
+  status: AttendanceStatus;
+  notes: string;
+}) {
+  const { supabase, user } = await ensureAdmin();
+
+  const { data: existingLog } = await supabase
+    .from("attendance_logs")
+    .select("id")
+    .eq("schedule_id", payload.scheduleId)
+    .eq("profile_id", payload.profileId)
+    .single();
+
+  if (existingLog) {
+    const { error } = await supabase
+      .from("attendance_logs")
+      .update({
+        status: payload.status,
+        method: "manual",
+        notes: payload.notes,
+        recorded_by: user.id,
+      })
+      .eq("id", existingLog.id);
+    if (error) throw new Error(error.message);
+  } else {
+    const { error } = await supabase.from("attendance_logs").insert({
+      schedule_id: payload.scheduleId,
+      profile_id: payload.profileId,
+      status: payload.status,
+      method: "manual",
+      notes: payload.notes,
+      recorded_by: user.id,
+    });
+    if (error) throw new Error(error.message);
+  }
+
   revalidatePath("/admin/attendance");
   return { success: true };
 }
 
-/**
- * 4. FINALISASI ALPA OTOMATIS
- * Membandingkan daftar siswa dengan yang sudah tap kartu
- */
 export async function finalizeAttendance(
   scheduleId: number,
   classId: number | null,
 ) {
-  const supabase = await ensureAdmin();
+  const { supabase } = await ensureAdmin();
 
-  // A. Ambil semua profil dengan role 'siswa'
-  let studentQuery = supabase
+  let query = supabase
     .from("profiles")
     .select("id")
     .eq("role", "siswa")
     .eq("is_deleted", false);
 
-  if (classId) studentQuery = studentQuery.eq("class_id", classId);
+  if (classId) query = query.eq("class_id", classId);
 
-  const { data: allStudents, error: studentErr } = await studentQuery;
-  if (studentErr) throw new Error("Gagal menarik daftar siswa.");
+  const { data: allStudents, error: studentErr } = await query;
+  if (studentErr || !allStudents) throw new Error("Gagal menarik data siswa.");
 
-  if (!allStudents || allStudents.length === 0) {
-    await supabase
-      .from("schedules")
-      .update({ is_active: false })
-      .eq("id", scheduleId);
-
-    revalidatePath("/admin/attendance");
-    return { success: true, count: 0, message: "Tidak ada siswa ditemukan" };
-  }
-
-  // B. Cek siapa yang sudah masuk log (Hadir/Terlambat/Izin)
   const { data: presentLogs, error: logErr } = await supabase
     .from("attendance_logs")
     .select("profile_id")
@@ -134,7 +151,6 @@ export async function finalizeAttendance(
     presentLogs?.map((log) => log.profile_id) || [],
   );
 
-  // C. Tandai yang tidak ada sebagai ALPA
   const alpaStudents = allStudents
     .filter((student) => !presentStudentIds.has(student.id))
     .map((student) => ({
@@ -142,7 +158,7 @@ export async function finalizeAttendance(
       schedule_id: scheduleId,
       status: "alpa" as AttendanceStatus,
       method: "manual" as const,
-      notes: "Sesi ditutup otomatis oleh admin (Siswa tidak tap kartu)",
+      notes: "Sesi ditutup otomatis oleh admin (Siswa tidak hadir)",
     }));
 
   if (alpaStudents.length > 0) {
@@ -152,14 +168,12 @@ export async function finalizeAttendance(
     if (insertErr) throw insertErr;
   }
 
-  // D. Tutup gerbang presensi
-  const { error: closeErr } = await supabase
+  await supabase
     .from("schedules")
     .update({ is_active: false })
     .eq("id", scheduleId);
-  if (closeErr) throw closeErr;
 
   revalidatePath("/admin/attendance");
   revalidatePath("/admin/schedules");
-  return { success: true, count: alpaStudents.length };
+  return { success: true, count: alpaStudents.length, message: "Sesi Selesai" };
 }

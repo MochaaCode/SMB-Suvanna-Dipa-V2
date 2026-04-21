@@ -1,8 +1,9 @@
 import { Metadata } from "next";
-import { getTodaySchedule } from "@/actions/admin/schedules";
+import { getSchedules } from "@/actions/admin/schedules";
 import {
   getTodayAttendanceLogs,
   getAttendanceStats,
+  getEligibleStudents,
 } from "@/actions/admin/attendance";
 
 import { AttendanceManagementUI } from "@/components/admin/attendance/AttendanceManagementUI";
@@ -10,28 +11,30 @@ import AttendanceEmptyState from "@/components/admin/attendance/AttendanceEmptyS
 
 export const metadata: Metadata = {
   title: "Manajemen Kehadiran Siswa",
-  description: "Monitoring kehadiran siswa secara real-time via RFID",
+  description: "Monitoring kehadiran siswa secara real-time via RFID & Manual",
 };
 
 export default async function AttendancePage() {
-  // 1. Ambil jadwal aktif hari ini
-  const activeSchedule = await getTodaySchedule();
+  const activeSchedule = await getSchedules().then((schedules) =>
+    schedules.find((s) => s.is_active && !s.is_deleted),
+  );
 
-  // 2. Jika tidak ada jadwal yang dibuka, tampilkan Empty State
   if (!activeSchedule) {
     return <AttendanceEmptyState />;
   }
 
-  // 3. Ambil data awal (SSR) untuk logs dan statistik
-  const initialLogs = await getTodayAttendanceLogs(activeSchedule.id);
-  const stats = await getAttendanceStats(activeSchedule.id);
+  const [initialLogs, stats, eligibleStudents] = await Promise.all([
+    getTodayAttendanceLogs(activeSchedule.id),
+    getAttendanceStats(activeSchedule.id),
+    getEligibleStudents(activeSchedule.class_id),
+  ]);
 
   return (
-    // Panggil ManagementUI layaknya menu lain di aplikasi ini
     <AttendanceManagementUI
       activeSchedule={activeSchedule}
       initialLogs={initialLogs}
       stats={stats}
+      eligibleStudents={eligibleStudents}
     />
   );
 }

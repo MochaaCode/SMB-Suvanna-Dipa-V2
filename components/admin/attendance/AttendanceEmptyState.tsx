@@ -15,10 +15,10 @@ export default function AttendanceEmptyState() {
       </h1>
       <p className="text-slate-500 max-w-sm mb-8 font-medium leading-relaxed">
         Sepertinya belum ada jadwal aktif hari ini. Silakan tentukan agenda dan
-        buka gerbang presensi terlebih dahulu.
+        buka gerbang presensi di Menu Jadwal terlebih dahulu.
       </p>
       <Link href="/admin/schedules">
-        <AppButton className="group h-11 px-6 font-bold text-sm">
+        <AppButton className="group h-11 px-6 font-bold text-sm rounded-[1rem]">
           Pergi ke Jadwal{" "}
           <ArrowRight
             size={16}

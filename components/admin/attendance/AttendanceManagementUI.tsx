@@ -1,35 +1,47 @@
 "use client";
 
+import { useState } from "react";
 import AttendanceHeader from "./AttendanceHeader";
 import AttendanceStatsCards from "./AttendanceStatsCards";
 import AttendanceTableCard from "./AttendanceTableCard";
+import ManualAttendanceModal from "./ManualAttendanceModal";
 
-// IMPORT TIPE KETAT
-import type { Schedule, AttendanceLogWithProfile } from "@/types";
+import type { Schedule, AttendanceLogWithProfile, Profile } from "@/types";
 
 interface AttendanceManagementUIProps {
   activeSchedule: Schedule;
   initialLogs: AttendanceLogWithProfile[];
   stats: { hadir: number; terlambat: number; totalScan: number };
+  eligibleStudents: Profile[];
 }
 
 export function AttendanceManagementUI({
   activeSchedule,
   initialLogs,
   stats,
+  eligibleStudents,
 }: AttendanceManagementUIProps) {
+  const [isManualOpen, setIsManualOpen] = useState(false);
+
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
-      {/* 1. HEADER KONTROL */}
-      <AttendanceHeader schedule={activeSchedule} />
+      <AttendanceHeader
+        schedule={activeSchedule}
+        onOpenManual={() => setIsManualOpen(true)}
+      />
 
-      {/* 2. STATISTIK ANGKA LIVE */}
       <AttendanceStatsCards stats={stats} />
 
-      {/* 3. TABEL LOG RFID */}
       <AttendanceTableCard
         initialLogs={initialLogs}
         scheduleId={activeSchedule.id}
+      />
+
+      <ManualAttendanceModal
+        isOpen={isManualOpen}
+        onClose={() => setIsManualOpen(false)}
+        scheduleId={activeSchedule.id}
+        eligibleStudents={eligibleStudents}
       />
     </div>
   );
