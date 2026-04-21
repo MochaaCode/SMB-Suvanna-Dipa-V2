@@ -102,6 +102,7 @@ export interface PasswordResetToken {
   expires_at: string;
   is_used: boolean;
   created_at: string;
+  profiles?: Partial<Profile> | null;
 }
 
 export interface DailyVisitorStat {

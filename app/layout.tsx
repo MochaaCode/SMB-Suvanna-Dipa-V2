@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { PageTracker } from "@/components/shared/PageTracker";
 
-// Inisialisasi Plus Jakarta Sans
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
@@ -30,6 +30,7 @@ export default function RootLayout({
       )}
     >
       <body className="min-h-full flex flex-col bg-slate-50/50 text-slate-900">
+        <PageTracker />
         {children}
       </body>
     </html>

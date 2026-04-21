@@ -27,17 +27,19 @@ export default function ForgotPasswordForm() {
 
     setIsLoading(true);
     const tid = toast.loading("Memproses permintaan...");
+
     try {
       const result = await forgotPasswordAction(email);
+
       if (result.success) {
         toast.success("Token 8-digit berhasil dikirim!", { id: tid });
         router.push(`/reset-password?email=${encodeURIComponent(email)}`);
       } else {
         toast.error(result.error as string, { id: tid });
+        setIsLoading(false);
       }
     } catch (error) {
       toast.error("Gagal terhubung ke peladen.", { id: tid });
-    } finally {
       setIsLoading(false);
     }
   };

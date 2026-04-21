@@ -1,6 +1,12 @@
 "use client";
 
-import { ShieldAlert, KeyRound, CheckCircle2, XCircle } from "lucide-react";
+import {
+  ShieldAlert,
+  KeyRound,
+  CheckCircle2,
+  XCircle,
+  User,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { id } from "date-fns/locale";
 
@@ -12,7 +18,6 @@ interface PasswordResetLogsCardProps {
 
 export function PasswordResetLogsCard({ logs }: PasswordResetLogsCardProps) {
   const getStatus = (log: PasswordResetToken) => {
-    // Menghilangkan italic dan font-black
     const baseStyle =
       "flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-[9px] font-bold uppercase tracking-wider shrink-0";
 
@@ -65,17 +70,19 @@ export function PasswordResetLogsCard({ logs }: PasswordResetLogsCardProps) {
           logs.map((log) => {
             const status = getStatus(log);
             const StatusIcon = status.icon;
+            const displayName = log.profiles?.full_name || log.email;
 
             return (
               <div
                 key={log.id}
                 className="flex items-center justify-between p-3.5 bg-slate-50/50 rounded-xl border border-slate-100 hover:border-slate-300 hover:bg-slate-50 transition-colors"
               >
-                <div className="space-y-1 truncate pr-4">
-                  <p className="text-sm font-semibold text-slate-800 truncate">
-                    {log.email}
+                <div className="space-y-1.5 truncate pr-4">
+                  <p className="text-sm font-bold text-slate-800 truncate flex items-center gap-1.5">
+                    <User size={14} className="text-slate-400" /> {displayName}
                   </p>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  <p className="text-[10px] font-semibold text-slate-500 tracking-wider truncate">
+                    {log.email} •{" "}
                     {formatDistanceToNow(new Date(log.created_at), {
                       addSuffix: true,
                       locale: id,

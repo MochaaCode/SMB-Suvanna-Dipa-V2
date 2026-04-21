@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-// 1. IMPORT TIPE DATA KETAT YANG SUDAH KITA BUAT
 import type {
   ProductOrderWithRelations,
   AttendanceLogWithProfile,
@@ -13,7 +13,6 @@ import type {
   PasswordResetToken,
 } from "@/types";
 
-// Proteksi Dashboard
 async function ensureAdmin() {
   const supabase = await createClient();
   const {
@@ -40,6 +39,7 @@ export async function getLiveDashboardData() {
     timeZone: "Asia/Jakarta",
   });
 
+  // HILANGKAN query join `profiles:user_id(full_name)` dari reset_tokens untuk menghindari crash
   const [
     ordersRes,
     attendanceRes,
@@ -49,7 +49,6 @@ export async function getLiveDashboardData() {
     topPagesRes,
     resetTokensRes,
   ] = await Promise.all([
-    // 1. Antrean Hadiah (Pending)
     supabaseAdmin
       .from("product_orders")
       .select(
@@ -59,7 +58,6 @@ export async function getLiveDashboardData() {
       .order("created_at", { ascending: true })
       .limit(5),
 
-    // 2. Live Presensi
     supabaseAdmin
       .from("attendance_logs")
       .select("id, created_at, status, profiles:profile_id(full_name)")
@@ -67,7 +65,6 @@ export async function getLiveDashboardData() {
       .order("created_at", { ascending: false })
       .limit(5),
 
-    // 3. Mutasi Poin
     supabaseAdmin
       .from("point_history")
       .select(
@@ -76,31 +73,28 @@ export async function getLiveDashboardData() {
       .order("created_at", { ascending: false })
       .limit(5),
 
-    // 4. Daftar Siswa (Ultah Check)
     supabaseAdmin
       .from("profiles")
       .select("id, full_name, birth_date, gender")
       .eq("role", "siswa")
       .eq("is_deleted", false),
 
-    // 5. Statistik Pengunjung
     supabaseAdmin
       .from("daily_visitor_stats")
       .select("date, views")
       .order("date", { ascending: false })
       .limit(7),
 
-    // 6. Top Pages (Audit UX)
     supabaseAdmin
       .from("page_views")
       .select("page_path, page_name")
       .order("created_at", { ascending: false })
       .limit(50),
 
-    // 7. Reset Tokens (Security Log)
+    // AMBIL DATA MURNI DULU (TANPA JOIN)
     supabaseAdmin
       .from("password_reset_tokens")
-      .select("id, email, created_at, expires_at, is_used")
+      .select("id, user_id, email, created_at, expires_at, is_used")
       .order("created_at", { ascending: false })
       .limit(5),
   ]);
@@ -117,7 +111,30 @@ export async function getLiveDashboardData() {
     .slice(0, 5)
     .map(([name, views]) => ({ name, views }));
 
-  // 2. TYPE CASTING: Menjembatani hasil Supabase dengan Strict Types kita
+  // ==========================================
+  // LOGIC BYPASS: MANUAL JOIN UNTUK NAMA USER
+  // ==========================================
+  const resetLogsRaw = resetTokensRes.data || [];
+
+  // 1. Kumpulkan user_id yang tidak NULL
+  const userIdsToFetch = resetLogsRaw.map((r) => r.user_id).filter(Boolean);
+
+  let tokenProfiles: any[] = [];
+  // 2. Tarik nama-namanya dari tabel profiles jika ada
+  if (userIdsToFetch.length > 0) {
+    const { data } = await supabaseAdmin
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", userIdsToFetch);
+    tokenProfiles = data || [];
+  }
+
+  // 3. Gabungkan manual
+  const resetLogsWithProfiles = resetLogsRaw.map((log) => ({
+    ...log,
+    profiles: tokenProfiles.find((p) => p.id === log.user_id) || null,
+  }));
+
   return {
     pendingOrders:
       (ordersRes.data as unknown as ProductOrderWithRelations[]) || [],
@@ -130,6 +147,6 @@ export async function getLiveDashboardData() {
       (visitorRes.data as unknown as DailyVisitorStat[]) || []
     ).reverse(),
     topPages: topPages,
-    resetLogs: (resetTokensRes.data as unknown as PasswordResetToken[]) || [],
+    resetLogs: (resetLogsWithProfiles as unknown as PasswordResetToken[]) || [],
   };
 }
