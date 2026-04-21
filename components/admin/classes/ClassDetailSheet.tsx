@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useTransition, useState } from "react";
+import { useTransition, useState, useMemo } from "react";
 import { updateClassStaff, promoteStudentsBulk } from "@/actions/admin/classes";
+import { useDebounce } from "@/hooks/useDebounce"; // IMPORT CUSTOM HOOK KITA
 import {
   Sheet,
   SheetContent,
@@ -66,42 +67,52 @@ export function ClassDetailSheet({
   const [isPending, startTransition] = useTransition();
   const [searchTerm, setSearchTerm] = useState("");
 
+  // 1. TERAPKAN DEBOUNCE: Nilai ini hanya akan berubah jika user berhenti ngetik selama 300ms
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
   const [confirmMove, setConfirmMove] = useState<ConfirmMoveState>({
     isOpen: false,
     data: null,
   });
-
-  const currentYear = new Date().getFullYear();
-  const cutoffDate = new Date(currentYear, 6, 1);
 
   const [selectedTeacher, setSelectedTeacher] = useState(cls.teacher_id || "");
   const [selectedAssistants, setSelectedAssistants] = useState<string[]>(
     cls.assistant_ids || [],
   );
 
-  // LOGIKA PENCARIAN & PERHITUNGAN UMUR YANG AMAN
-  const filteredStudents =
-    cls.students
-      ?.filter((s) =>
-        s.full_name?.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-      .map((s) => {
-        if (!s.birth_date) {
-          return { ...s, ageAtCutoff: 0, isDueForPromotion: false };
-        }
-        const birth = new Date(s.birth_date);
-        let ageAtCutoff = currentYear - birth.getFullYear();
-        if (
-          new Date(currentYear, birth.getMonth(), birth.getDate()) > cutoffDate
-        ) {
-          ageAtCutoff--;
-        }
-        return {
-          ...s,
-          ageAtCutoff,
-          isDueForPromotion: cls.max_age !== null && ageAtCutoff > cls.max_age,
-        };
-      }) || [];
+  // 2. TERAPKAN USEMEMO: Logika berat ini hanya berjalan JIKA daftar murid, umur maksimal, atau KATA KUNCI DEBOUNCE berubah.
+  const filteredStudents = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const cutoffDate = new Date(currentYear, 6, 1); // 1 Juli
+
+    return (
+      cls.students
+        ?.filter((s) =>
+          s.full_name
+            ?.toLowerCase()
+            .includes(debouncedSearchTerm.toLowerCase()),
+        )
+        .map((s) => {
+          if (!s.birth_date) {
+            return { ...s, ageAtCutoff: 0, isDueForPromotion: false };
+          }
+          const birth = new Date(s.birth_date);
+          let ageAtCutoff = currentYear - birth.getFullYear();
+          if (
+            new Date(currentYear, birth.getMonth(), birth.getDate()) >
+            cutoffDate
+          ) {
+            ageAtCutoff--;
+          }
+          return {
+            ...s,
+            ageAtCutoff,
+            isDueForPromotion:
+              cls.max_age !== null && ageAtCutoff > cls.max_age,
+          };
+        }) || []
+    );
+  }, [cls.students, debouncedSearchTerm, cls.max_age]);
 
   const executeMove = () => {
     if (!confirmMove.data) return;
@@ -117,7 +128,7 @@ export function ClassDetailSheet({
             currentClassId: cls.id,
             targetClassId,
             targetClassName: targetName,
-            age: 0, // Age is not strictly needed for the database update payload
+            age: 0,
           },
         ]);
         toast.success(`Berhasil dipindahkan ke kelas baru.`, { icon: "✅" });
@@ -149,7 +160,7 @@ export function ClassDetailSheet({
         <SheetTrigger asChild>
           <AppButton
             variant="orange"
-            className="w-full h-10 font-bold rounded-lg text-xs"
+            className="w-full h-10 font-bold rounded-[1rem] text-xs"
           >
             Kelola Detail Kelas
           </AppButton>
@@ -158,7 +169,7 @@ export function ClassDetailSheet({
         <SheetContent className="sm:max-w-lg p-0 flex flex-col h-full bg-white border-none shadow-xl">
           <SheetHeader className="p-6 bg-slate-900 text-white shrink-0">
             <div className="flex items-center gap-4">
-              <div className="p-2.5 bg-slate-800 rounded-lg border border-slate-700">
+              <div className="p-2.5 bg-slate-800 rounded-[1rem] border border-slate-700">
                 <GraduationCap size={24} className="text-orange-500" />
               </div>
               <div className="text-left">
@@ -174,16 +185,16 @@ export function ClassDetailSheet({
 
           <Tabs defaultValue="murid" className="flex-1 flex flex-col min-h-0">
             <div className="px-6 py-3 bg-slate-50 border-b border-slate-200 shrink-0">
-              <TabsList className="grid w-full grid-cols-2 bg-slate-200/50 p-1 rounded-lg">
+              <TabsList className="grid w-full grid-cols-2 bg-slate-200/50 p-1 rounded-[1rem]">
                 <TabsTrigger
                   value="murid"
-                  className="text-xs font-bold data-[state=active]:bg-white data-[state=active]:text-slate-800 data-[state=active]:shadow-sm rounded-md transition-all"
+                  className="text-xs font-bold data-[state=active]:bg-white data-[state=active]:text-slate-800 data-[state=active]:shadow-sm rounded-[0.8rem] transition-all"
                 >
                   Daftar Siswa
                 </TabsTrigger>
                 <TabsTrigger
                   value="pengajar"
-                  className="text-xs font-bold data-[state=active]:bg-white data-[state=active]:text-slate-800 data-[state=active]:shadow-sm rounded-md transition-all"
+                  className="text-xs font-bold data-[state=active]:bg-white data-[state=active]:text-slate-800 data-[state=active]:shadow-sm rounded-[0.8rem] transition-all"
                 >
                   Staf Pengajar
                 </TabsTrigger>
@@ -200,7 +211,7 @@ export function ClassDetailSheet({
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <Input
                     placeholder="Cari nama siswa..."
-                    className="pl-9 h-10 rounded-lg border-slate-200 bg-slate-50 font-medium text-sm focus-visible:ring-slate-300"
+                    className="pl-9 h-10 rounded-[1rem] border-slate-200 bg-slate-50 font-medium text-sm focus-visible:ring-slate-300"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
@@ -217,7 +228,7 @@ export function ClassDetailSheet({
                     filteredStudents.map((student) => (
                       <div
                         key={student.id}
-                        className="p-4 rounded-xl bg-white border border-slate-200 hover:border-slate-300 shadow-sm transition-all text-left"
+                        className="p-4 rounded-[1rem] bg-white border border-slate-200 hover:border-slate-300 shadow-sm transition-all text-left"
                       >
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex items-center gap-3">
@@ -273,7 +284,7 @@ export function ClassDetailSheet({
                                       },
                                     })
                                   }
-                                  className="px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200 text-[10px] font-semibold text-slate-600 hover:bg-slate-800 hover:text-white hover:border-slate-800 transition-colors"
+                                  className="px-2.5 py-1 rounded-[1rem] bg-slate-50 border border-slate-200 text-[10px] font-semibold text-slate-600 hover:bg-slate-800 hover:text-white hover:border-slate-800 transition-colors"
                                 >
                                   {target.name}
                                 </button>
@@ -298,7 +309,7 @@ export function ClassDetailSheet({
                   Utama
                 </label>
                 <select
-                  className="w-full h-11 px-3 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-700 focus:border-slate-400 outline-none cursor-pointer shadow-sm"
+                  className="w-full h-11 px-3 rounded-[1rem] border border-slate-200 bg-white text-sm font-medium text-slate-700 focus:border-slate-400 outline-none cursor-pointer shadow-sm"
                   value={selectedTeacher}
                   onChange={(e) => setSelectedTeacher(e.target.value)}
                 >
@@ -316,7 +327,7 @@ export function ClassDetailSheet({
                   <Users size={14} className="text-orange-500" /> Group Leaders
                   (Asisten)
                 </label>
-                <div className="flex flex-wrap gap-2 min-h-11 p-2.5 bg-white rounded-lg border border-slate-200 shadow-sm">
+                <div className="flex flex-wrap gap-2 min-h-11 p-2.5 bg-white rounded-[1rem] border border-slate-200 shadow-sm">
                   {selectedAssistants.length === 0 && (
                     <span className="text-xs text-slate-400 italic flex items-center px-2">
                       Belum ada asisten.
@@ -344,7 +355,7 @@ export function ClassDetailSheet({
                   })}
                 </div>
                 <select
-                  className="w-full h-11 px-3 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-500 focus:border-slate-400 outline-none cursor-pointer shadow-sm mt-2"
+                  className="w-full h-11 px-3 rounded-[1rem] border border-slate-200 bg-white text-xs font-medium text-slate-500 focus:border-slate-400 outline-none cursor-pointer shadow-sm mt-2"
                   onChange={(e) => {
                     if (e.target.value) {
                       setSelectedAssistants([
@@ -377,7 +388,7 @@ export function ClassDetailSheet({
             <AppButton
               onClick={handleSave}
               isLoading={isPending}
-              className="w-full h-11 text-sm font-bold rounded-lg shadow-sm"
+              className="w-full h-11 text-sm font-bold rounded-[1rem] shadow-sm"
               leftIcon={<CheckCircle2 size={18} />}
             >
               Simpan Perubahan
@@ -411,12 +422,12 @@ export function ClassDetailSheet({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6 gap-2 sm:gap-0">
-            <AlertDialogCancel className="rounded-lg font-bold text-xs h-10 border-slate-200 text-slate-600 hover:bg-slate-50">
+            <AlertDialogCancel className="rounded-[1rem] font-bold text-xs h-10 border-slate-200 text-slate-600 hover:bg-slate-50">
               Batal
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={executeMove}
-              className="bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-bold text-xs h-10 shadow-sm"
+              className="bg-orange-600 hover:bg-orange-700 text-white rounded-[1rem] font-bold text-xs h-10 shadow-sm"
             >
               Ya, Pindahkan
             </AlertDialogAction>

@@ -63,7 +63,7 @@ export function PromotionAlarm({ promotions }: PromotionAlarmProps) {
       <AppButton
         variant="red"
         onClick={() => setIsModalOpen(true)}
-        className="animate-pulse shadow-red-100 font-bold"
+        className="animate-pulse shadow-red-100 font-bold rounded-[1rem]"
         leftIcon={<AlertCircle size={16} />}
       >
         {promotions.length} Siswa Perlu Tindakan
@@ -75,13 +75,13 @@ export function PromotionAlarm({ promotions }: PromotionAlarmProps) {
         title="Saran Promosi Mutasi"
         description="Daftar siswa yang telah melewati batas usia kelas (Cutoff: 1 Juli)."
         variant="red"
-        maxWidth="2xl" // DIBUAT JAUH LEBIH LEBAR (LANDSCAPE)
+        maxWidth="2xl"
         footer={
           <div className="w-full space-y-4">
             <AppButton
               onClick={() => setIsConfirmOpen(true)}
               isLoading={isPending}
-              className="w-full h-12 bg-orange-600 hover:bg-orange-700 font-bold shadow-md"
+              className="w-full h-12 bg-orange-600 hover:bg-orange-700 font-bold shadow-md rounded-[1rem]"
               leftIcon={<CheckCircle2 size={18} />}
             >
               Eksekusi Mutasi Massal
@@ -100,7 +100,7 @@ export function PromotionAlarm({ promotions }: PromotionAlarmProps) {
             {promotions.map((promo, idx) => (
               <div
                 key={idx}
-                className="group flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 hover:border-orange-200 shadow-sm transition-all gap-3 sm:gap-0"
+                className="group flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-[1rem] border border-slate-200 bg-white hover:bg-slate-50 hover:border-orange-200 shadow-sm transition-all gap-3 sm:gap-0"
               >
                 <div className="space-y-1.5 flex-1 min-w-0">
                   <p className="text-sm font-bold text-slate-800 group-hover:text-orange-600 transition-colors truncate">
@@ -113,7 +113,7 @@ export function PromotionAlarm({ promotions }: PromotionAlarmProps) {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0 bg-slate-50 p-2 rounded-lg border border-slate-100 group-hover:border-orange-100 transition-colors">
+                <div className="flex items-center gap-2 shrink-0 bg-slate-50 p-2 rounded-[1rem] border border-slate-100 group-hover:border-orange-100 transition-colors">
                   <ArrowRight
                     size={14}
                     className="text-slate-400 group-hover:text-orange-500 transition-colors"
@@ -136,7 +136,7 @@ export function PromotionAlarm({ promotions }: PromotionAlarmProps) {
         <AlertDialogContent className="rounded-[1rem] border border-slate-200 p-8 shadow-xl max-w-md">
           <AlertDialogHeader>
             <div className="flex items-center gap-3 mb-3">
-              <div className="p-2.5 bg-orange-50 rounded-lg text-orange-600 border border-orange-100">
+              <div className="p-2.5 bg-orange-50 rounded-[1rem] text-orange-600 border border-orange-100">
                 <Users size={20} />
               </div>
               <AlertDialogTitle className="text-xl font-bold text-slate-800">
@@ -158,12 +158,12 @@ export function PromotionAlarm({ promotions }: PromotionAlarmProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6 gap-2 sm:gap-0">
-            <AlertDialogCancel className="rounded-lg border-slate-200 font-bold text-xs px-6 hover:bg-slate-50 text-slate-600 h-10">
+            <AlertDialogCancel className="rounded-[1rem] border-slate-200 font-bold text-xs px-6 hover:bg-slate-50 text-slate-600 h-10">
               Batal
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleExecute}
-              className="bg-slate-900 hover:bg-orange-600 text-white rounded-lg font-bold text-xs px-6 shadow-sm border-none h-10 transition-colors"
+              className="bg-slate-900 hover:bg-orange-600 text-white rounded-[1rem] font-bold text-xs px-6 shadow-sm border-none h-10 transition-colors"
             >
               Ya, Eksekusi
             </AlertDialogAction>
