@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -22,6 +22,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Star,
+  CheckSquare,
 } from "lucide-react";
 import {
   toggleDeleteUsers,
@@ -62,16 +63,31 @@ export function UserTable({
   isTrashMode = false,
   classes,
 }: UserTableProps) {
+  // STATE KONTROL BARIS TUNGGAL
   const [targetUser, setTargetUser] = useState<ProfileWithEmailAndClass | null>(
     null,
   );
+
+  // STATE KONTROL BULK (BANYAK BARIS)
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  // JENIS MODAL (Ditambah varian Bulk)
   const [modalType, setModalType] = useState<
-    "soft-delete" | "restore" | "hard-delete" | "credentials" | null
+    | "soft-delete"
+    | "restore"
+    | "hard-delete"
+    | "credentials"
+    | "bulk-soft-delete"
+    | "bulk-restore"
+    | "bulk-hard-delete"
+    | null
   >(null);
+
   const [activeTab, setActiveTab] = useState<"email" | "password">("email");
   const [inputValue, setInputValue] = useState("");
   const [isPending, setIsPending] = useState(false);
 
+  // STATE MODAL DETAIL & EDIT
   const [viewUser, setViewUser] = useState<ProfileWithEmailAndClass | null>(
     null,
   );
@@ -81,13 +97,24 @@ export function UserTable({
   );
   const [isEditOpen, setIsEditOpen] = useState(false);
 
+  // PAGINATION
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const totalPages = Math.max(1, Math.ceil(users.length / itemsPerPage));
 
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(users.length / itemsPerPage)),
+    [users.length],
+  );
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return users.slice(startIndex, startIndex + itemsPerPage);
+  }, [users, currentPage]);
+
+  // RESET SELECTION KALAU PINDAH MODE / GANTI HALAMAN
   useEffect(() => {
     setCurrentPage(1);
-  }, [users]);
+    setSelectedIds([]);
+  }, [users, isTrashMode]);
 
   const closeModal = () => {
     setTargetUser(null);
@@ -95,17 +122,51 @@ export function UserTable({
     setInputValue("");
   };
 
+  // LOGIKA CHECKBOX ALL
+  const isAllOnPageSelected =
+    paginatedUsers.length > 0 &&
+    paginatedUsers.every((u) => selectedIds.includes(u.id));
+  const toggleSelectAll = () => {
+    if (isAllOnPageSelected) {
+      setSelectedIds(
+        selectedIds.filter((id) => !paginatedUsers.find((u) => u.id === id)),
+      );
+    } else {
+      const newIds = new Set([
+        ...selectedIds,
+        ...paginatedUsers.map((u) => u.id),
+      ]);
+      setSelectedIds(Array.from(newIds));
+    }
+  };
+
+  const toggleSelectRow = (id: string) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter((itemId) => itemId !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
+    }
+  };
+
+  // EKSEKUTOR AKSI (Support Single & Bulk)
   const executeAction = async () => {
-    if (!targetUser || !modalType) return;
-    const tid = toast.loading("Memproses...");
+    if ((!targetUser && !modalType?.startsWith("bulk")) || !modalType) return;
+
+    const tid = toast.loading("Memproses data...");
     setIsPending(true);
+
+    // Tentukan ID yang akan diproses (Satu atau Banyak)
+    const idsToProcess = modalType.startsWith("bulk")
+      ? selectedIds
+      : [targetUser!.id];
+
     try {
       if (modalType === "credentials") {
         const payload =
           activeTab === "email"
             ? { email: inputValue }
             : { password: inputValue };
-        await updateCredentials(targetUser.id, payload);
+        await updateCredentials(idsToProcess[0], payload);
         toast.success(
           `${activeTab === "email" ? "Email" : "Password"} berhasil diperbarui!`,
           { id: tid },
@@ -113,22 +174,34 @@ export function UserTable({
       } else {
         switch (modalType) {
           case "soft-delete":
-            await toggleDeleteUsers([targetUser.id], true);
-            toast.success("Pengguna dipindahkan ke tempat sampah.", {
+          case "bulk-soft-delete":
+            await toggleDeleteUsers(idsToProcess, true);
+            toast.success(
+              `${idsToProcess.length} Pengguna dipindahkan ke tempat sampah.`,
+              { id: tid },
+            );
+            break;
+          case "restore":
+          case "bulk-restore":
+            await toggleDeleteUsers(idsToProcess, false);
+            toast.success(
+              `${idsToProcess.length} Pengguna berhasil dipulihkan.`,
+              { id: tid },
+            );
+            break;
+          case "hard-delete":
+          case "bulk-hard-delete":
+            if (inputValue !== "HAPUS") throw new Error("Konfirmasi salah!");
+            await hardDeleteUsers(idsToProcess);
+            toast.success(`${idsToProcess.length} Pengguna dihapus permanen.`, {
               id: tid,
             });
             break;
-          case "restore":
-            await toggleDeleteUsers([targetUser.id], false);
-            toast.success("Pengguna berhasil dipulihkan.", { id: tid });
-            break;
-          case "hard-delete":
-            if (inputValue !== "HAPUS") throw new Error("Konfirmasi salah!");
-            await hardDeleteUsers([targetUser.id]);
-            toast.success("Pengguna dihapus permanen.", { id: tid });
-            break;
         }
       }
+
+      // Bersihkan state setelah berhasil
+      if (modalType.startsWith("bulk")) setSelectedIds([]);
       closeModal();
     } catch (error: any) {
       toast.error(error.message, { id: tid });
@@ -137,18 +210,61 @@ export function UserTable({
     }
   };
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedUsers = users.slice(startIndex, startIndex + itemsPerPage);
-
   return (
-    <div className="w-full overflow-hidden flex flex-col h-full">
+    <div className="w-full overflow-hidden flex flex-col h-full rounded-[1rem] relative">
+      {/* BULK ACTION BAR (Muncul kalau ada yang dicentang) */}
+      {selectedIds.length > 0 && (
+        <div className="absolute top-0 left-0 right-0 z-10 bg-orange-100 border-b border-orange-200 px-6 py-3 flex items-center justify-between animate-in slide-in-from-top-2">
+          <div className="flex items-center gap-2 text-orange-800 font-bold text-sm">
+            <CheckSquare size={18} />
+            {selectedIds.length} Pengguna Terpilih
+          </div>
+          <div className="flex items-center gap-2">
+            {isTrashMode ? (
+              <>
+                <AppButton
+                  variant="default"
+                  className="h-8 text-xs rounded-[1rem]"
+                  onClick={() => setModalType("bulk-restore")}
+                >
+                  Pulihkan
+                </AppButton>
+                <AppButton
+                  variant="red"
+                  className="h-8 text-xs rounded-[1rem]"
+                  onClick={() => setModalType("bulk-hard-delete")}
+                >
+                  Hapus Permanen
+                </AppButton>
+              </>
+            ) : (
+              <AppButton
+                variant="red"
+                className="h-8 text-xs rounded-[1rem]"
+                onClick={() => setModalType("bulk-soft-delete")}
+              >
+                Hapus Terpilih
+              </AppButton>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="overflow-x-auto">
         <Table>
           <TableHeader
             className={isTrashMode ? "bg-red-50" : "bg-orange-50/50"}
           >
             <TableRow className="border-slate-200">
-              <TableHead className="w-24 text-center text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
+              <TableHead className="w-12 text-center py-4">
+                <input
+                  type="checkbox"
+                  checked={isAllOnPageSelected}
+                  onChange={toggleSelectAll}
+                  className="w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
+                />
+              </TableHead>
+              <TableHead className="w-20 text-center text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
                 Profil
               </TableHead>
               <TableHead className="text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
@@ -169,7 +285,7 @@ export function UserTable({
             {paginatedUsers.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="h-32 text-center text-slate-400 font-medium text-sm"
                 >
                   Data tidak ditemukan.
@@ -181,18 +297,26 @@ export function UserTable({
                   !user.full_name || user.full_name === "NULL"
                     ? "Tanpa Nama"
                     : user.full_name;
-
-                const classData = user.classes;
+                const isSelected = selectedIds.includes(user.id);
 
                 return (
                   <TableRow
                     key={user.id}
-                    className="group hover:bg-slate-50/50 transition-colors border-b border-slate-100"
+                    className={`group hover:bg-slate-50/50 transition-colors border-b border-slate-100 ${isSelected ? "bg-orange-50/30" : ""}`}
                   >
                     <TableCell className="text-center">
-                      <Avatar className="h-10 w-10 border border-slate-200 shadow-sm mx-auto group-hover:scale-105 transition-transform">
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSelectRow(user.id)}
+                        className="w-4 h-4 rounded border-slate-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
+                      />
+                    </TableCell>
+
+                    <TableCell className="text-center">
+                      <Avatar className="h-10 w-10 border border-slate-200 shadow-sm mx-auto group-hover:scale-105 transition-transform rounded-[1rem]">
                         <AvatarImage src={user.avatar_url || ""} />
-                        <AvatarFallback className="bg-orange-100 text-orange-700 font-bold text-xs">
+                        <AvatarFallback className="bg-orange-100 text-orange-700 font-bold text-xs rounded-[1rem]">
                           {displayName.substring(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
@@ -211,13 +335,7 @@ export function UserTable({
                     <TableCell className="text-center">
                       <div className="flex flex-col items-center gap-1.5">
                         <span
-                          className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${
-                            user.role === "admin"
-                              ? "bg-red-50 text-red-700 border-red-200"
-                              : user.role === "pembina"
-                                ? "bg-blue-50 text-blue-700 border-blue-200"
-                                : "bg-green-50 text-green-700 border-green-200"
-                          }`}
+                          className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${user.role === "admin" ? "bg-red-50 text-red-700 border-red-200" : user.role === "pembina" ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-green-50 text-green-700 border-green-200"}`}
                         >
                           {user.role || "siswa"}
                         </span>
@@ -229,9 +347,9 @@ export function UserTable({
                     </TableCell>
 
                     <TableCell className="text-center">
-                      {classData?.name ? (
+                      {user.classes?.name ? (
                         <Badge className="bg-slate-100 text-slate-700 rounded-md font-bold uppercase text-[10px] border border-slate-200 shadow-none">
-                          {classData.name}
+                          {user.classes.name}
                         </Badge>
                       ) : (
                         <span className="text-[11px] font-medium text-slate-400">
@@ -247,7 +365,7 @@ export function UserTable({
                             <AppButton
                               variant="secondary"
                               size="icon"
-                              className="h-8 w-8 text-orange-600 hover:text-orange-700 hover:bg-orange-50 bg-white border border-slate-200"
+                              className="h-8 w-8 text-orange-600 hover:text-orange-700 hover:bg-orange-50 bg-white border border-slate-200 rounded-[1rem]"
                               onClick={() => {
                                 setTargetUser(user);
                                 setModalType("credentials");
@@ -259,7 +377,7 @@ export function UserTable({
                             <AppButton
                               variant="secondary"
                               size="icon"
-                              className="h-8 w-8 text-slate-600 hover:text-slate-900 bg-white border border-slate-200"
+                              className="h-8 w-8 text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded-[1rem]"
                               onClick={() => {
                                 setViewUser(user);
                                 setIsDetailOpen(true);
@@ -271,7 +389,7 @@ export function UserTable({
                             <AppButton
                               variant="secondary"
                               size="icon"
-                              className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 bg-white border border-slate-200"
+                              className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 bg-white border border-slate-200 rounded-[1rem]"
                               onClick={() => {
                                 setEditTarget(user);
                                 setIsEditOpen(true);
@@ -283,7 +401,7 @@ export function UserTable({
                             <AppButton
                               variant="secondary"
                               size="icon"
-                              className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 bg-white border border-slate-200"
+                              className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 bg-white border border-slate-200 rounded-[1rem]"
                               onClick={() => {
                                 setTargetUser(user);
                                 setModalType("soft-delete");
@@ -297,7 +415,7 @@ export function UserTable({
                           <div className="flex gap-2">
                             <AppButton
                               variant="secondary"
-                              className="h-8 px-3 text-xs bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+                              className="h-8 px-3 text-xs bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-[1rem]"
                               onClick={() => {
                                 setTargetUser(user);
                                 setModalType("restore");
@@ -308,7 +426,7 @@ export function UserTable({
                             </AppButton>
                             <AppButton
                               variant="red"
-                              className="h-8 px-3 text-xs"
+                              className="h-8 px-3 text-xs rounded-[1rem]"
                               onClick={() => {
                                 setTargetUser(user);
                                 setModalType("hard-delete");
@@ -329,19 +447,19 @@ export function UserTable({
         </Table>
       </div>
 
-      <div className="flex items-center justify-between px-6 py-4 bg-slate-50 border-t border-slate-200 mt-auto">
+      <div className="flex items-center justify-between px-6 py-4 bg-slate-50 border-t border-slate-200 mt-auto rounded-b-[1rem]">
         <p className="text-xs font-medium text-slate-500">
           Menampilkan{" "}
           <span className="font-bold text-slate-900">
-            {users.length === 0 ? 0 : startIndex + 1}-
-            {Math.min(startIndex + itemsPerPage, users.length)}
+            {users.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1}-
+            {Math.min(currentPage * itemsPerPage, users.length)}
           </span>{" "}
           dari {users.length} data
         </p>
         <div className="flex gap-2">
           <AppButton
             variant="outline"
-            className="h-8 w-8 p-0"
+            className="h-8 w-8 p-0 rounded-[1rem]"
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
           >
@@ -349,7 +467,7 @@ export function UserTable({
           </AppButton>
           <AppButton
             variant="outline"
-            className="h-8 w-8 p-0"
+            className="h-8 w-8 p-0 rounded-[1rem]"
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages || totalPages === 0}
           >
@@ -358,6 +476,7 @@ export function UserTable({
         </div>
       </div>
 
+      {/* MODAL KREDENSIAL */}
       <AppModal
         isOpen={modalType === "credentials"}
         onClose={closeModal}
@@ -370,6 +489,7 @@ export function UserTable({
               variant="outline"
               onClick={closeModal}
               disabled={isPending}
+              className="rounded-[1rem]"
             >
               Batal
             </AppButton>
@@ -378,6 +498,7 @@ export function UserTable({
               isLoading={isPending}
               disabled={!inputValue}
               variant="default"
+              className="rounded-[1rem]"
             >
               Simpan Perubahan
             </AppButton>
@@ -392,16 +513,16 @@ export function UserTable({
           }}
           className="w-full"
         >
-          <TabsList className="grid w-full grid-cols-2 bg-slate-100 p-1 rounded-lg mb-6">
+          <TabsList className="grid w-full grid-cols-2 bg-slate-100 p-1 rounded-[1rem] mb-6">
             <TabsTrigger
               value="email"
-              className="text-xs font-bold data-[state=active]:bg-orange-600 data-[state=active]:text-white rounded-md transition-all"
+              className="text-xs font-bold data-[state=active]:bg-orange-600 data-[state=active]:text-white rounded-[0.8rem] transition-all"
             >
               Ubah Email
             </TabsTrigger>
             <TabsTrigger
               value="password"
-              className="text-xs font-bold data-[state=active]:bg-orange-600 data-[state=active]:text-white rounded-md transition-all"
+              className="text-xs font-bold data-[state=active]:bg-orange-600 data-[state=active]:text-white rounded-[0.8rem] transition-all"
             >
               Reset Sandi
             </TabsTrigger>
@@ -417,7 +538,7 @@ export function UserTable({
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="user@smb.com"
-              className="h-11 rounded-lg border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
+              className="h-11 rounded-[1rem] border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
             />
           </TabsContent>
           <TabsContent
@@ -432,29 +553,36 @@ export function UserTable({
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="••••••"
-              className="h-11 rounded-lg border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
+              className="h-11 rounded-[1rem] border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
             />
           </TabsContent>
         </Tabs>
       </AppModal>
 
+      {/* MODAL KONFIRMASI (BISA SINGLE & BULK) */}
       <AlertDialog
-        open={["soft-delete", "restore", "hard-delete"].includes(
-          modalType as string,
-        )}
+        open={[
+          "soft-delete",
+          "restore",
+          "hard-delete",
+          "bulk-soft-delete",
+          "bulk-restore",
+          "bulk-hard-delete",
+        ].includes(modalType as string)}
         onOpenChange={closeModal}
       >
         <AlertDialogContent className="rounded-[1rem] p-8 border-slate-200 shadow-xl max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl font-bold text-slate-800">
-              {modalType === "hard-delete"
+              {modalType?.includes("hard-delete")
                 ? "Hapus Permanen?"
                 : "Konfirmasi Aksi"}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-sm font-medium text-slate-600 mt-2">
-              {modalType === "hard-delete" && (
+              {/* Pesan Khusus Hard Delete */}
+              {modalType?.includes("hard-delete") && (
                 <div className="space-y-4">
-                  <p className="text-red-600 font-bold leading-relaxed bg-red-50 p-3 rounded-lg border border-red-100">
+                  <p className="text-red-600 font-bold leading-relaxed bg-red-50 p-3 rounded-[1rem] border border-red-100">
                     Peringatan: Data profil dan akses login akan dihapus secara
                     permanen dari database. Aksi ini tidak dapat dibatalkan.
                   </p>
@@ -467,21 +595,36 @@ export function UserTable({
                       value={inputValue}
                       onChange={(e) => setInputValue(e.target.value)}
                       placeholder="HAPUS"
-                      className="h-10 rounded-lg border-slate-200 text-center font-bold focus-visible:ring-red-500"
+                      className="h-10 rounded-[1rem] border-slate-200 text-center font-bold focus-visible:ring-red-500"
                     />
                   </div>
                 </div>
               )}
+
+              {/* Pesan Dinamis Berdasarkan Tipe dan Jumlah */}
               {modalType === "soft-delete" && (
                 <span>
                   Pindahkan <strong>{targetUser?.full_name}</strong> ke tempat
-                  sampah sementara? Data masih bisa dipulihkan nanti.
+                  sampah sementara?
                 </span>
               )}
+              {modalType === "bulk-soft-delete" && (
+                <span>
+                  Pindahkan <strong>{selectedIds.length} pengguna</strong>{" "}
+                  terpilih ke tempat sampah sementara?
+                </span>
+              )}
+
               {modalType === "restore" && (
                 <span>
                   Aktifkan kembali akun <strong>{targetUser?.full_name}</strong>{" "}
                   ke dalam sistem?
+                </span>
+              )}
+              {modalType === "bulk-restore" && (
+                <span>
+                  Aktifkan kembali <strong>{selectedIds.length} akun</strong>{" "}
+                  terpilih ke dalam sistem?
                 </span>
               )}
             </AlertDialogDescription>
@@ -492,21 +635,21 @@ export function UserTable({
                 variant="outline"
                 onClick={closeModal}
                 disabled={isPending}
-                className="h-10 text-xs"
+                className="h-10 text-xs rounded-[1rem]"
               >
                 Batal
               </AppButton>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
               <AppButton
-                variant={modalType === "restore" ? "default" : "red"}
+                variant={modalType?.includes("restore") ? "default" : "red"}
                 onClick={executeAction}
                 isLoading={isPending}
                 disabled={
                   isPending ||
-                  (modalType === "hard-delete" && inputValue !== "HAPUS")
+                  (modalType?.includes("hard-delete") && inputValue !== "HAPUS")
                 }
-                className="h-10 text-xs"
+                className="h-10 text-xs rounded-[1rem]"
               >
                 Ya, Eksekusi
               </AppButton>

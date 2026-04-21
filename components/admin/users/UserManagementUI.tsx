@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 import { UserTable } from "./UserTable";
 import { AddUserModal } from "./AddUserModal";
 import { StagingTable } from "./StagingTable";
@@ -8,7 +9,7 @@ import { AppCard } from "../../shared/AppCard";
 import { PageHeader } from "../../shared/PageHeader";
 import { AppButton } from "../../shared/AppButton";
 import { Input } from "@/components/ui/input";
-import { Users, Trash2, Plus, Search, ArrowLeft } from "lucide-react";
+import { Users, Trash2, Plus, Search, ArrowLeft, Filter } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -33,29 +34,62 @@ export function UserManagementUI({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [draftUsers, setDraftUsers] = useState<BulkUserPayload[]>([]);
   const [isTrashMode, setIsTrashMode] = useState(false);
+
+  // STATE FILTERING & SORTING
   const [searchQuery, setSearchQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [classFilter, setClassFilter] = useState("all");
   const [sortOrder, setSortOrder] = useState("terbaru");
 
-  const baseUsers = isTrashMode
-    ? initialUsers.filter((u) => u.is_deleted)
-    : initialUsers.filter((u) => !u.is_deleted);
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-  let processedUsers = [...baseUsers];
-  if (searchQuery) {
-    processedUsers = processedUsers.filter((u) =>
-      u.full_name?.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
-  }
+  // LOGIKA FILTERING & SORTING MEMOIZED (Super Cepat)
+  const processedUsers = useMemo(() => {
+    let result = isTrashMode
+      ? initialUsers.filter((u) => u.is_deleted)
+      : initialUsers.filter((u) => !u.is_deleted);
 
-  if (sortOrder === "az") {
-    processedUsers.sort((a, b) =>
-      (a.full_name || "").localeCompare(b.full_name || ""),
-    );
-  } else if (sortOrder === "za") {
-    processedUsers.sort((a, b) =>
-      (b.full_name || "").localeCompare(a.full_name || ""),
-    );
-  }
+    // 1. Filter Pencarian Nama
+    if (debouncedSearchQuery) {
+      result = result.filter((u) =>
+        u.full_name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()),
+      );
+    }
+
+    // 2. Filter Role Akses
+    if (roleFilter !== "all") {
+      result = result.filter((u) => u.role === roleFilter);
+    }
+
+    // 3. Filter Kelas
+    if (classFilter !== "all") {
+      if (classFilter === "none") {
+        result = result.filter((u) => !u.class_id); // Tidak ada kelas
+      } else {
+        result = result.filter((u) => String(u.class_id) === classFilter);
+      }
+    }
+
+    // 4. Sorting
+    if (sortOrder === "az") {
+      result.sort((a, b) =>
+        (a.full_name || "").localeCompare(b.full_name || ""),
+      );
+    } else if (sortOrder === "za") {
+      result.sort((a, b) =>
+        (b.full_name || "").localeCompare(a.full_name || ""),
+      );
+    }
+
+    return result;
+  }, [
+    initialUsers,
+    isTrashMode,
+    debouncedSearchQuery,
+    roleFilter,
+    classFilter,
+    sortOrder,
+  ]);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
@@ -71,9 +105,10 @@ export function UserManagementUI({
         themeColor={isTrashMode ? "red" : "orange"}
       />
 
-      <AppCard className="p-4 md:p-5 flex flex-col md:flex-row items-center justify-between gap-4 border-slate-200 shadow-sm">
-        <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto text-left">
-          <div className="relative w-full md:w-72">
+      <AppCard className="p-5 border-slate-200 shadow-sm rounded-[1rem] space-y-4">
+        {/* BARIS 1: PENCARIAN & TOMBOL AKSI UTAMA */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="relative w-full md:w-96">
             <Search
               className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
               size={16}
@@ -82,12 +117,70 @@ export function UserManagementUI({
               placeholder="Cari nama pengguna..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-10 pl-10 rounded-lg border-slate-200 bg-slate-50 font-medium text-sm focus-visible:ring-orange-500 transition-all shadow-sm"
+              className="h-10 pl-10 rounded-[1rem] border-slate-200 bg-slate-50 font-medium text-sm focus-visible:ring-orange-500 transition-all shadow-sm"
             />
           </div>
 
+          <div className="flex items-center gap-3 w-full md:w-auto justify-end shrink-0">
+            <AppButton
+              variant={isTrashMode ? "secondary" : "red"}
+              onClick={() => setIsTrashMode(!isTrashMode)}
+              className="h-10 text-xs rounded-[1rem]"
+              leftIcon={
+                isTrashMode ? <ArrowLeft size={16} /> : <Trash2 size={16} />
+              }
+            >
+              {isTrashMode ? "Kembali" : "Tempat Sampah"}
+            </AppButton>
+
+            {!isTrashMode && (
+              <AppButton
+                onClick={() => setIsModalOpen(true)}
+                variant="default"
+                className="h-10 text-xs rounded-[1rem]"
+                leftIcon={<Plus size={16} />}
+              >
+                Tambah Pengguna
+              </AppButton>
+            )}
+          </div>
+        </div>
+
+        {/* BARIS 2: FILTER DROPDOWNS */}
+        <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-slate-100">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider mr-2">
+            <Filter size={14} /> Filter:
+          </div>
+
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger className="h-9 w-35 rounded-[1rem] border-slate-200 bg-slate-50 font-bold text-xs text-slate-600 focus:ring-orange-500">
+              <SelectValue placeholder="Semua Role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Role</SelectItem>
+              <SelectItem value="siswa">Siswa</SelectItem>
+              <SelectItem value="pembina">Pembina</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={classFilter} onValueChange={setClassFilter}>
+            <SelectTrigger className="h-9 w-45 rounded-[1rem] border-slate-200 bg-slate-50 font-bold text-xs text-slate-600 focus:ring-orange-500">
+              <SelectValue placeholder="Semua Kelas" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua Kelas</SelectItem>
+              <SelectItem value="none">Tanpa Kelas / Alumni</SelectItem>
+              {classes.map((c) => (
+                <SelectItem key={c.id} value={String(c.id)}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           <Select value={sortOrder} onValueChange={setSortOrder}>
-            <SelectTrigger className="h-10 w-full md:w-40 rounded-lg border-slate-200 bg-slate-50 font-bold text-xs text-slate-600 shadow-sm focus:ring-orange-500">
+            <SelectTrigger className="h-9 w-35 rounded-[1rem] border-slate-200 bg-slate-50 font-bold text-xs text-slate-600 focus:ring-orange-500">
               <SelectValue placeholder="Urutkan" />
             </SelectTrigger>
             <SelectContent>
@@ -97,33 +190,9 @@ export function UserManagementUI({
             </SelectContent>
           </Select>
         </div>
-
-        <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-          <AppButton
-            variant={isTrashMode ? "secondary" : "red"}
-            onClick={() => setIsTrashMode(!isTrashMode)}
-            className="h-10 text-xs"
-            leftIcon={
-              isTrashMode ? <ArrowLeft size={16} /> : <Trash2 size={16} />
-            }
-          >
-            {isTrashMode ? "Kembali" : "Tempat Sampah"}
-          </AppButton>
-
-          {!isTrashMode && (
-            <AppButton
-              onClick={() => setIsModalOpen(true)}
-              variant="default"
-              className="h-10 text-xs"
-              leftIcon={<Plus size={16} />}
-            >
-              Tambah Pengguna
-            </AppButton>
-          )}
-        </div>
       </AppCard>
 
-      <AppCard noPadding className="border-slate-200 shadow-sm">
+      <AppCard noPadding className="border-slate-200 shadow-sm rounded-[1rem]">
         {draftUsers.length > 0 ? (
           <StagingTable
             data={draftUsers}

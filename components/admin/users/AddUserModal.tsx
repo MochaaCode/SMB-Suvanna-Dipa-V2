@@ -39,11 +39,9 @@ export function AddUserModal({
   const formatBirthDateForPass = (val: string | number | null | undefined) => {
     if (!val || val === "NULL") return "123";
     if (typeof val === "number") {
-      // Menangani format tanggal angka dari Excel (Serial Date)
       const d = new Date(Math.round((val - 25569) * 86400 * 1000));
       return d.toISOString().split("T")[0].replace(/-/g, "");
     }
-    // Menangani string tanggal (YYYY-MM-DD) menjadi YYYYMMDD
     return String(val).replace(/-/g, "");
   };
 
@@ -64,16 +62,12 @@ export function AddUserModal({
         const data = XLSX.utils.sheet_to_json(ws) as any[];
 
         const extracted: BulkUserPayload[] = data.map((row) => {
-          // Mengambil header dari file CSV (full_name, birth_date, dll)
           const fullName = row["full_name"] || "NULL";
           const firstName =
             fullName !== "NULL" ? getFirstName(fullName) : "user";
           const birthDate = row["birth_date"];
 
-          // FORMAT BARU: namadepan@smb.test (Tanpa angka random)
           const generatedEmail = `${firstName}@smb.test`;
-
-          // FORMAT BARU: namadepan.YYYYMMDD
           const generatedPassword = `${firstName}.${formatBirthDateForPass(birthDate)}`;
 
           return {
@@ -112,7 +106,6 @@ export function AddUserModal({
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const firstName = getFirstName(formData.get("full_name") as string);
-    // Manual juga mengikuti pola namadepan.123 jika tidak ada tanggal lahir
     const defaultPassword = `${firstName}.123`;
 
     const newUser: BulkUserPayload = {
@@ -136,23 +129,23 @@ export function AddUserModal({
       maxWidth="xl"
     >
       <Tabs defaultValue="excel" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 bg-slate-100 p-1 rounded-lg mb-6">
+        <TabsList className="grid w-full grid-cols-2 bg-slate-100 p-1 rounded-[1rem] mb-6">
           <TabsTrigger
             value="excel"
-            className="text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md transition-all"
+            className="text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-[0.8rem] transition-all"
           >
             Import Excel / CSV
           </TabsTrigger>
           <TabsTrigger
             value="manual"
-            className="text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md transition-all"
+            className="text-xs font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-[0.8rem] transition-all"
           >
             Input Manual
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="excel" className="space-y-4 outline-none">
-          <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:bg-slate-50 transition-colors relative group">
+          <div className="border-2 border-dashed border-slate-200 rounded-[1rem] p-8 text-center hover:bg-slate-50 transition-colors relative group">
             <input
               type="file"
               accept=".xlsx, .xls, .csv"
@@ -173,7 +166,7 @@ export function AddUserModal({
               </div>
             </div>
           </div>
-          <div className="bg-orange-50 border border-orange-100 p-4 rounded-xl">
+          <div className="bg-orange-50 border border-orange-100 p-4 rounded-[1rem]">
             <p className="text-[11px] font-semibold text-orange-800 leading-relaxed text-left">
               <strong>Format Password:</strong> namadepan.YYYYMMDD (Contoh:
               budi.20101231)
@@ -194,7 +187,7 @@ export function AddUserModal({
                   name="full_name"
                   required
                   placeholder="Masukkan nama..."
-                  className="h-11 rounded-lg border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
+                  className="h-11 rounded-[1rem] border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
                 />
               </div>
               <div className="space-y-2">
@@ -206,7 +199,7 @@ export function AddUserModal({
                   type="email"
                   required
                   placeholder="user@smb.test"
-                  className="h-11 rounded-lg border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
+                  className="h-11 rounded-[1rem] border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -215,7 +208,7 @@ export function AddUserModal({
                     Role Akses
                   </Label>
                   <Select name="role" defaultValue="siswa">
-                    <SelectTrigger className="h-11 rounded-lg border-slate-200 bg-white font-medium text-sm focus:ring-orange-500">
+                    <SelectTrigger className="h-11 rounded-[1rem] border-slate-200 bg-white font-medium text-sm focus:ring-orange-500">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -233,7 +226,7 @@ export function AddUserModal({
                     name="points"
                     type="number"
                     defaultValue="0"
-                    className="h-11 rounded-lg border-slate-200 bg-white font-bold focus-visible:ring-orange-500"
+                    className="h-11 rounded-[1rem] border-slate-200 bg-white font-bold focus-visible:ring-orange-500"
                   />
                 </div>
               </div>
@@ -241,7 +234,7 @@ export function AddUserModal({
             <AppButton
               type="submit"
               isLoading={loading}
-              className="w-full h-11 mt-6"
+              className="w-full h-11 mt-6 rounded-[1rem]"
             >
               Daftarkan Pengguna
             </AppButton>

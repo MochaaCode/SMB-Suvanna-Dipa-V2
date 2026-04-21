@@ -31,7 +31,6 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-// IMPORT TIPE KETAT
 import type { ProfileWithEmailAndClass } from "@/app/(admin)/admin/users/page";
 import type { Class, Profile } from "@/types";
 
@@ -89,13 +88,19 @@ export function EditUserModal({
       maxWidth="xl"
       footer={
         <div className="w-full flex justify-end gap-3">
-          <AppButton variant="outline" onClick={onClose} disabled={loading}>
+          <AppButton
+            variant="outline"
+            onClick={onClose}
+            disabled={loading}
+            className="rounded-[1rem]"
+          >
             Batal
           </AppButton>
           <AppButton
             onClick={handleSave}
             isLoading={loading}
             leftIcon={<Save size={16} />}
+            className="rounded-[1rem]"
           >
             Simpan Perubahan
           </AppButton>
@@ -103,22 +108,22 @@ export function EditUserModal({
       }
     >
       <Tabs defaultValue="pribadi" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-slate-100 p-1 rounded-lg mb-4">
+        <TabsList className="grid w-full grid-cols-3 bg-slate-100 p-1 rounded-[1rem] mb-4">
           <TabsTrigger
             value="pribadi"
-            className="text-[11px] font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md transition-all"
+            className="text-[11px] font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-[0.8rem] transition-all"
           >
             Pribadi
           </TabsTrigger>
           <TabsTrigger
             value="akademik"
-            className="text-[11px] font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md transition-all"
+            className="text-[11px] font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-[0.8rem] transition-all"
           >
             Sistem & Akademik
           </TabsTrigger>
           <TabsTrigger
             value="kontak"
-            className="text-[11px] font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-md transition-all"
+            className="text-[11px] font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-[0.8rem] transition-all"
           >
             Kontak & Keluarga
           </TabsTrigger>
@@ -137,7 +142,7 @@ export function EditUserModal({
               <Input
                 value={formData.full_name || ""}
                 onChange={(e) => handleChange("full_name", e.target.value)}
-                className="h-11 rounded-lg border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
+                className="h-11 rounded-[1rem] border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
               />
             </div>
 
@@ -151,7 +156,7 @@ export function EditUserModal({
                   onChange={(e) =>
                     handleChange("buddhist_name", e.target.value)
                   }
-                  className="h-11 rounded-lg border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
+                  className="h-11 rounded-[1rem] border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
                 />
               </div>
               <div className="space-y-2">
@@ -162,7 +167,7 @@ export function EditUserModal({
                   value={formData.gender || ""}
                   onValueChange={(val) => handleChange("gender", val)}
                 >
-                  <SelectTrigger className="h-11 rounded-lg border-slate-200 bg-white font-medium text-sm focus:ring-orange-500">
+                  <SelectTrigger className="h-11 rounded-[1rem] border-slate-200 bg-white font-medium text-sm focus:ring-orange-500">
                     <SelectValue placeholder="Pilih Gender" />
                   </SelectTrigger>
                   <SelectContent>
@@ -181,7 +186,7 @@ export function EditUserModal({
                 <Input
                   value={formData.birth_place || ""}
                   onChange={(e) => handleChange("birth_place", e.target.value)}
-                  className="h-11 rounded-lg border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
+                  className="h-11 rounded-[1rem] border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
                 />
               </div>
               <div className="space-y-2">
@@ -192,7 +197,7 @@ export function EditUserModal({
                   type="date"
                   value={formData.birth_date || ""}
                   onChange={(e) => handleChange("birth_date", e.target.value)}
-                  className="h-11 rounded-lg border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
+                  className="h-11 rounded-[1rem] border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
                 />
               </div>
             </div>
@@ -204,7 +209,7 @@ export function EditUserModal({
               <Input
                 value={formData.hobby || ""}
                 onChange={(e) => handleChange("hobby", e.target.value)}
-                className="h-11 rounded-lg border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
+                className="h-11 rounded-[1rem] border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
               />
             </div>
           </TabsContent>
@@ -223,7 +228,7 @@ export function EditUserModal({
                   value={formData.role || "siswa"}
                   onValueChange={(val) => handleChange("role", val)}
                 >
-                  <SelectTrigger className="h-11 rounded-lg border-slate-200 bg-white font-semibold text-sm focus:ring-orange-500">
+                  <SelectTrigger className="h-11 rounded-[1rem] border-slate-200 bg-white font-semibold text-sm focus:ring-orange-500">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -249,7 +254,7 @@ export function EditUserModal({
                     formData.role === "pembina" || formData.role === "admin"
                   }
                 >
-                  <SelectTrigger className="h-11 rounded-lg border-slate-200 bg-white font-semibold text-sm disabled:bg-slate-100 disabled:text-slate-400 focus:ring-orange-500">
+                  <SelectTrigger className="h-11 rounded-[1rem] border-slate-200 bg-white font-semibold text-sm disabled:bg-slate-100 disabled:text-slate-400 focus:ring-orange-500">
                     <SelectValue placeholder="Pilih Kelas" />
                   </SelectTrigger>
                   <SelectContent>
@@ -273,7 +278,7 @@ export function EditUserModal({
               <Input
                 value={formData.school_name || ""}
                 onChange={(e) => handleChange("school_name", e.target.value)}
-                className="h-11 rounded-lg border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
+                className="h-11 rounded-[1rem] border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
               />
             </div>
           </TabsContent>
@@ -290,7 +295,7 @@ export function EditUserModal({
               <Input
                 value={formData.phone_number || ""}
                 onChange={(e) => handleChange("phone_number", e.target.value)}
-                className="h-11 rounded-lg border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
+                className="h-11 rounded-[1rem] border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
               />
             </div>
 
@@ -302,7 +307,7 @@ export function EditUserModal({
                 <Input
                   value={formData.parent_name || ""}
                   onChange={(e) => handleChange("parent_name", e.target.value)}
-                  className="h-11 rounded-lg border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
+                  className="h-11 rounded-[1rem] border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
                 />
               </div>
               <div className="space-y-2">
@@ -314,7 +319,7 @@ export function EditUserModal({
                   onChange={(e) =>
                     handleChange("parent_phone_number", e.target.value)
                   }
-                  className="h-11 rounded-lg border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
+                  className="h-11 rounded-[1rem] border-slate-200 bg-white font-medium focus-visible:ring-orange-500"
                 />
               </div>
             </div>
@@ -326,7 +331,7 @@ export function EditUserModal({
               <Textarea
                 value={formData.address || ""}
                 onChange={(e) => handleChange("address", e.target.value)}
-                className="rounded-lg border-slate-200 bg-white font-medium min-h-25 resize-none focus-visible:ring-orange-500"
+                className="rounded-[1rem] border-slate-200 bg-white font-medium min-h-25 resize-none focus-visible:ring-orange-500"
               />
             </div>
           </TabsContent>
