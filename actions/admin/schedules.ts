@@ -108,12 +108,22 @@ export async function hardDeleteSchedule(id: number) {
 
 export async function toggleAttendanceActive(id: number, status: boolean) {
   const { supabase } = await ensureAdmin();
+
+  if (status === true) {
+    await supabase
+      .from("schedules")
+      .update({ is_active: false })
+      .neq("id", id)
+      .eq("is_active", true);
+  }
+
   const { error } = await supabase
     .from("schedules")
     .update({ is_active: status, updated_at: new Date().toISOString() })
     .eq("id", id);
 
   if (error) throw new Error(error.message);
+
   revalidatePath("/admin/schedules");
   revalidatePath("/admin/attendance");
   return { success: true };

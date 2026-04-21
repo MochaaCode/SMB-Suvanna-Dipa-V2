@@ -94,10 +94,12 @@ export function ScheduleTable({
     const tid = toast.loading("Memperbarui status sesi...");
     try {
       await toggleAttendanceActive(id, !currentStatus);
-      toast.success(
-        `Sesi berhasil ${!currentStatus ? "diaktifkan" : "dinonaktifkan"}!`,
-        { id: tid },
-      );
+
+      if (!currentStatus) {
+        toast.success("Sesi aktif! Sesi lain otomatis ditutup.", { id: tid });
+      } else {
+        toast.success("Sesi berhasil dinonaktifkan!", { id: tid });
+      }
     } catch (error: any) {
       toast.error(error.message, { id: tid });
     }
