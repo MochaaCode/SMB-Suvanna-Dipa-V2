@@ -30,7 +30,7 @@ export default function ForgotPasswordForm() {
     try {
       const result = await forgotPasswordAction(email);
       if (result.success) {
-        toast.success("Token 6-digit berhasil dikirim!", { id: tid });
+        toast.success("Token 8-digit berhasil dikirim!", { id: tid });
         router.push(`/reset-password?email=${encodeURIComponent(email)}`);
       } else {
         toast.error(result.error as string, { id: tid });
@@ -80,7 +80,7 @@ export default function ForgotPasswordForm() {
             className="text-slate-500 text-sm font-medium mb-8 leading-relaxed"
           >
             Masukkan alamat email terdaftar Anda. Kami akan mengirimkan token
-            6-digit rahasia untuk memulihkan akun.
+            8-digit rahasia untuk memulihkan akun.
           </motion.p>
 
           <form onSubmit={onSubmit} className="space-y-6">
@@ -109,7 +109,7 @@ export default function ForgotPasswordForm() {
               {isLoading ? (
                 <Loader2 className="animate-spin" size={18} />
               ) : (
-                "Kirim Token 6-Digit"
+                "Kirim Token 8-Digit"
               )}
             </motion.button>
           </form>
@@ -128,7 +128,7 @@ export default function ForgotPasswordForm() {
           Protokol Keamanan Berstandar
         </h3>
         <p className="text-slate-400 text-sm text-center mt-4 max-w-xs relative z-10 leading-relaxed">
-          Menggunakan verifikasi Token OTP 6-Digit (Time-Based One-Time
+          Menggunakan verifikasi Token OTP 8-Digit (Time-Based One-Time
           Password) yang kedaluwarsa secara otomatis.
         </p>
       </div>
