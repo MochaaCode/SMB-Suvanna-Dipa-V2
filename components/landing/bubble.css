@@ -1,0 +1,140 @@
+.bubble {
+  position: absolute;
+  bottom: -20vh; /* Mulai dari luar layar bawah */
+  background-color: rgba(
+    255,
+    159,
+    102,
+    0.4
+  ); /* UBAH: Opacity dinaikkan jadi 0.4 */
+  border-radius: 50%;
+  filter: blur(
+    12px
+  ); /* UBAH: Blur dikurangi supaya bentuk bulatnya kelihatan */
+  animation: floatUp linear infinite;
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.8; /* UBAH: Saat melayang, opacity naik biar kelihatan */
+  }
+  80% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-130vh) scale(1.2);
+    opacity: 0;
+  }
+}
+
+/* Definisi 15 Bubble dengan Posisi, Ukuran, dan Waktu Acak */
+.bubble-1 {
+  left: 5%;
+  width: 80px;
+  height: 80px;
+  animation-duration: 15s;
+  animation-delay: 0s;
+}
+.bubble-2 {
+  left: 20%;
+  width: 120px;
+  height: 120px;
+  animation-duration: 18s;
+  animation-delay: 2s;
+}
+.bubble-3 {
+  left: 35%;
+  width: 60px;
+  height: 60px;
+  animation-duration: 12s;
+  animation-delay: 4s;
+}
+.bubble-4 {
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  animation-duration: 20s;
+  animation-delay: 1s;
+}
+.bubble-5 {
+  left: 65%;
+  width: 90px;
+  height: 90px;
+  animation-duration: 16s;
+  animation-delay: 5s;
+}
+.bubble-6 {
+  left: 80%;
+  width: 110px;
+  height: 110px;
+  animation-duration: 14s;
+  animation-delay: 3s;
+}
+.bubble-7 {
+  left: 90%;
+  width: 70px;
+  height: 70px;
+  animation-duration: 17s;
+  animation-delay: 7s;
+}
+.bubble-8 {
+  left: 15%;
+  width: 130px;
+  height: 130px;
+  animation-duration: 19s;
+  animation-delay: 8s;
+}
+.bubble-9 {
+  left: 45%;
+  width: 50px;
+  height: 50px;
+  animation-duration: 13s;
+  animation-delay: 2s;
+}
+.bubble-10 {
+  left: 75%;
+  width: 95px;
+  height: 95px;
+  animation-duration: 22s;
+  animation-delay: 6s;
+}
+/* Tambahan 5 Bubble yang tadinya gaib */
+.bubble-11 {
+  left: 10%;
+  width: 85px;
+  height: 85px;
+  animation-duration: 21s;
+  animation-delay: 4s;
+}
+.bubble-12 {
+  left: 28%;
+  width: 115px;
+  height: 115px;
+  animation-duration: 16s;
+  animation-delay: 9s;
+}
+.bubble-13 {
+  left: 58%;
+  width: 75px;
+  height: 75px;
+  animation-duration: 14s;
+  animation-delay: 1s;
+}
+.bubble-14 {
+  left: 72%;
+  width: 140px;
+  height: 140px;
+  animation-duration: 24s;
+  animation-delay: 5s;
+}
+.bubble-15 {
+  left: 88%;
+  width: 65px;
+  height: 65px;
+  animation-duration: 18s;
+  animation-delay: 3s;
+}

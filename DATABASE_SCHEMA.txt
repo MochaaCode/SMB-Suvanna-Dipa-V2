@@ -1,0 +1,359 @@
+1. PUBLIC TABLE COLUMN INVENTORY
+
+| table_name            | column_name           | data_type                | is_nullable | column_default                                  |
+| --------------------- | --------------------- | ------------------------ | ----------- | ----------------------------------------------- |
+| attendance_logs       | id                    | bigint                   | NO          | nextval('attendance_logs_id_seq'::regclass)     |
+| attendance_logs       | profile_id            | uuid                     | YES         | null                                            |
+| attendance_logs       | schedule_id           | integer                  | YES         | null                                            |
+| attendance_logs       | rfid_uid              | text                     | YES         | null                                            |
+| attendance_logs       | status                | text                     | YES         | 'hadir'::text                                   |
+| attendance_logs       | method                | text                     | YES         | 'rfid'::text                                    |
+| attendance_logs       | recorded_by           | uuid                     | YES         | null                                            |
+| attendance_logs       | scan_time             | timestamp with time zone | YES         | now()                                           |
+| attendance_logs       | notes                 | text                     | YES         | null                                            |
+| attendance_logs       | created_at            | timestamp with time zone | YES         | now()                                           |
+| attendance_logs       | updated_at            | timestamp with time zone | YES         | now()                                           |
+| classes               | id                    | integer                  | NO          | nextval('classes_id_seq'::regclass)             |
+| classes               | name                  | text                     | NO          | null                                            |
+| classes               | teacher_id            | uuid                     | YES         | null                                            |
+| classes               | created_at            | timestamp with time zone | YES         | now()                                           |
+| classes               | updated_at            | timestamp with time zone | YES         | now()                                           |
+| classes               | is_deleted            | boolean                  | YES         | false                                           |
+| classes               | assistant_ids         | ARRAY                    | YES         | '{}'::uuid[]                                    |
+| classes               | min_age               | integer                  | YES         | null                                            |
+| classes               | max_age               | integer                  | YES         | null                                            |
+| daily_visitor_stats   | id                    | bigint                   | NO          | nextval('daily_visitor_stats_id_seq'::regclass) |
+| daily_visitor_stats   | date                  | date                     | NO          | CURRENT_DATE                                    |
+| daily_visitor_stats   | views                 | integer                  | YES         | 0                                               |
+| daily_visitor_stats   | created_at            | timestamp with time zone | YES         | now()                                           |
+| daily_visitor_stats   | updated_at            | timestamp with time zone | YES         | now()                                           |
+| device_states         | id                    | text                     | NO          | null                                            |
+| device_states         | mode                  | text                     | NO          | 'scan'::text                                    |
+| device_states         | updated_at            | timestamp with time zone | YES         | timezone('utc'::text, now())                    |
+| page_views            | id                    | bigint                   | NO          | nextval('page_views_id_seq'::regclass)          |
+| page_views            | page_path             | text                     | NO          | null                                            |
+| page_views            | page_name             | text                     | YES         | null                                            |
+| page_views            | visitor_id            | text                     | YES         | null                                            |
+| page_views            | user_agent            | text                     | YES         | null                                            |
+| page_views            | referrer              | text                     | YES         | null                                            |
+| page_views            | created_at            | timestamp with time zone | YES         | now()                                           |
+| password_reset_tokens | id                    | uuid                     | NO          | gen_random_uuid()                               |
+| password_reset_tokens | user_id               | uuid                     | YES         | null                                            |
+| password_reset_tokens | email                 | text                     | NO          | null                                            |
+| password_reset_tokens | token                 | text                     | NO          | null                                            |
+| password_reset_tokens | expires_at            | timestamp with time zone | NO          | null                                            |
+| password_reset_tokens | is_used               | boolean                  | YES         | false                                           |
+| password_reset_tokens | created_at            | timestamp with time zone | YES         | now()                                           |
+| point_history         | id                    | integer                  | NO          | nextval('point_history_id_seq'::regclass)       |
+| point_history         | user_id               | uuid                     | YES         | null                                            |
+| point_history         | amount                | integer                  | NO          | null                                            |
+| point_history         | description           | text                     | NO          | null                                            |
+| point_history         | order_id              | integer                  | YES         | null                                            |
+| point_history         | given_by              | uuid                     | YES         | null                                            |
+| point_history         | created_at            | timestamp with time zone | YES         | now()                                           |
+| point_history         | updated_at            | timestamp with time zone | YES         | now()                                           |
+| point_history         | type                  | text                     | YES         | null                                            |
+| product_orders        | id                    | integer                  | NO          | nextval('product_orders_id_seq'::regclass)      |
+| product_orders        | user_id               | uuid                     | YES         | null                                            |
+| product_orders        | product_id            | integer                  | YES         | null                                            |
+| product_orders        | total_points          | integer                  | NO          | null                                            |
+| product_orders        | status                | text                     | YES         | 'pending'::text                                 |
+| product_orders        | processed_by          | uuid                     | YES         | null                                            |
+| product_orders        | created_at            | timestamp with time zone | YES         | now()                                           |
+| product_orders        | updated_at            | timestamp with time zone | YES         | now()                                           |
+| products              | id                    | integer                  | NO          | nextval('products_id_seq'::regclass)            |
+| products              | name                  | text                     | NO          | null                                            |
+| products              | description           | text                     | YES         | null                                            |
+| products              | price                 | integer                  | NO          | 0                                               |
+| products              | stock                 | integer                  | NO          | 0                                               |
+| products              | image_url             | text                     | YES         | null                                            |
+| products              | created_at            | timestamp with time zone | YES         | now()                                           |
+| products              | updated_at            | timestamp with time zone | YES         | now()                                           |
+| products              | is_deleted            | boolean                  | YES         | false                                           |
+| profiles              | id                    | uuid                     | NO          | null                                            |
+| profiles              | full_name             | text                     | YES         | null                                            |
+| profiles              | buddhist_name         | text                     | YES         | null                                            |
+| profiles              | gender                | text                     | YES         | null                                            |
+| profiles              | birth_place           | text                     | YES         | null                                            |
+| profiles              | birth_date            | date                     | YES         | null                                            |
+| profiles              | address               | text                     | YES         | null                                            |
+| profiles              | phone_number          | text                     | YES         | null                                            |
+| profiles              | parent_name           | text                     | YES         | null                                            |
+| profiles              | school_name           | text                     | YES         | null                                            |
+| profiles              | hobby                 | text                     | YES         | null                                            |
+| profiles              | points                | integer                  | YES         | 0                                               |
+| profiles              | role                  | text                     | YES         | 'siswa'::text                                   |
+| profiles              | class_id              | integer                  | YES         | null                                            |
+| profiles              | created_at            | timestamp with time zone | YES         | now()                                           |
+| profiles              | updated_at            | timestamp with time zone | YES         | now()                                           |
+| profiles              | is_deleted            | boolean                  | YES         | false                                           |
+| profiles              | avatar_url            | text                     | YES         | null                                            |
+| profiles              | parent_phone_number   | text                     | YES         | null                                            |
+| public_content        | id                    | integer                  | NO          | nextval('public_content_id_seq'::regclass)      |
+| public_content        | section               | text                     | NO          | null                                            |
+| public_content        | title                 | text                     | NO          | null                                            |
+| public_content        | content               | jsonb                    | YES         | null                                            |
+| public_content        | images                | ARRAY                    | YES         | null                                            |
+| public_content        | display_order         | integer                  | YES         | 0                                               |
+| public_content        | is_published          | boolean                  | YES         | false                                           |
+| public_content        | updated_by            | uuid                     | YES         | null                                            |
+| public_content        | created_at            | timestamp with time zone | YES         | now()                                           |
+| public_content        | updated_at            | timestamp with time zone | YES         | now()                                           |
+| rfid_tags             | uid                   | text                     | NO          | null                                            |
+| rfid_tags             | status                | text                     | NO          | 'tersedia'::text                                |
+| rfid_tags             | profile_id            | uuid                     | YES         | null                                            |
+| rfid_tags             | is_deleted            | boolean                  | YES         | false                                           |
+| rfid_tags             | created_at            | timestamp with time zone | YES         | now()                                           |
+| rfid_tags             | updated_at            | timestamp with time zone | YES         | now()                                           |
+| schedules             | id                    | integer                  | NO          | nextval('schedules_id_seq'::regclass)           |
+| schedules             | title                 | text                     | NO          | null                                            |
+| schedules             | content               | jsonb                    | YES         | null                                            |
+| schedules             | event_date            | timestamp with time zone | NO          | null                                            |
+| schedules             | class_id              | integer                  | YES         | null                                            |
+| schedules             | author_id             | uuid                     | YES         | null                                            |
+| schedules             | is_announcement       | boolean                  | YES         | false                                           |
+| schedules             | created_at            | timestamp with time zone | YES         | now()                                           |
+| schedules             | updated_at            | timestamp with time zone | YES         | now()                                           |
+| schedules             | is_deleted            | boolean                  | YES         | false                                           |
+| schedules             | is_active             | boolean                  | YES         | false                                           |
+| v_attendance_details  | log_id                | bigint                   | YES         | null                                            |
+| v_attendance_details  | student_name          | text                     | YES         | null                                            |
+| v_attendance_details  | student_buddhist_name | text                     | YES         | null                                            |
+| v_attendance_details  | class_name            | text                     | YES         | null                                            |
+| v_attendance_details  | schedule_title        | text                     | YES         | null                                            |
+| v_attendance_details  | attendance_time       | timestamp with time zone | YES         | null                                            |
+| v_attendance_details  | attendance_status     | text                     | YES         | null                                            |
+| v_attendance_details  | recorded_by_name      | text                     | YES         | null                                            |
+
+2. LIST PUBLIC TABLE CONSTRAINTS AND FOREIGN REFERENCES
+
+| table_schema | table_name            | constraint_name                  | constraint_type | foreign_table_name    | foreign_column_name |
+| ------------ | --------------------- | -------------------------------- | --------------- | --------------------- | ------------------- |
+| public       | profiles              | profiles_class_id_fkey           | FOREIGN KEY     | classes               | id                  |
+| public       | profiles              | profiles_pkey                    | PRIMARY KEY     | profiles              | id                  |
+| public       | schedules             | schedules_author_id_fkey         | FOREIGN KEY     | profiles              | id                  |
+| public       | schedules             | schedules_class_id_fkey          | FOREIGN KEY     | classes               | id                  |
+| public       | schedules             | schedules_pkey                   | PRIMARY KEY     | schedules             | id                  |
+| public       | attendance_logs       | attendance_logs_pkey             | PRIMARY KEY     | attendance_logs       | id                  |
+| public       | attendance_logs       | attendance_logs_profile_id_fkey  | FOREIGN KEY     | profiles              | id                  |
+| public       | attendance_logs       | attendance_logs_recorded_by_fkey | FOREIGN KEY     | profiles              | id                  |
+| public       | attendance_logs       | attendance_logs_rfid_uid_fkey    | FOREIGN KEY     | rfid_tags             | uid                 |
+| public       | attendance_logs       | attendance_logs_schedule_id_fkey | FOREIGN KEY     | schedules             | id                  |
+| public       | product_orders        | product_orders_pkey              | PRIMARY KEY     | product_orders        | id                  |
+| public       | product_orders        | product_orders_processed_by_fkey | FOREIGN KEY     | profiles              | id                  |
+| public       | product_orders        | product_orders_product_id_fkey   | FOREIGN KEY     | products              | id                  |
+| public       | product_orders        | product_orders_user_id_fkey      | FOREIGN KEY     | profiles              | id                  |
+| public       | products              | products_pkey                    | PRIMARY KEY     | products              | id                  |
+| public       | point_history         | point_history_given_by_fkey      | FOREIGN KEY     | profiles              | id                  |
+| public       | point_history         | point_history_order_id_fkey      | FOREIGN KEY     | product_orders        | id                  |
+| public       | point_history         | point_history_pkey               | PRIMARY KEY     | point_history         | id                  |
+| public       | point_history         | point_history_user_id_fkey       | FOREIGN KEY     | profiles              | id                  |
+| public       | page_views            | page_views_pkey                  | PRIMARY KEY     | page_views            | id                  |
+| public       | public_content        | public_content_pkey              | PRIMARY KEY     | public_content        | id                  |
+| public       | public_content        | public_content_section_key       | UNIQUE          | public_content        | section             |
+| public       | public_content        | public_content_updated_by_fkey   | FOREIGN KEY     | profiles              | id                  |
+| public       | daily_visitor_stats   | daily_visitor_stats_date_key     | UNIQUE          | daily_visitor_stats   | date                |
+| public       | daily_visitor_stats   | daily_visitor_stats_pkey         | PRIMARY KEY     | daily_visitor_stats   | id                  |
+| public       | password_reset_tokens | password_reset_tokens_pkey       | PRIMARY KEY     | password_reset_tokens | id                  |
+| public       | classes               | classes_pkey                     | PRIMARY KEY     | classes               | id                  |
+| public       | classes               | fk_teacher                       | FOREIGN KEY     | profiles              | id                  |
+| public       | rfid_tags             | rfid_tags_pkey                   | PRIMARY KEY     | rfid_tags             | uid                 |
+| public       | rfid_tags             | rfid_tags_profile_id_fkey        | FOREIGN KEY     | profiles              | id                  |
+| public       | device_states         | device_states_pkey               | PRIMARY KEY     | device_states         | id                  |
+
+3. LIST PUBLIC CHECK CONSTRAINTS
+
+| table_name      | constraint_name              | constraint_type | logic_definition                                                                                       |
+| --------------- | ---------------------------- | --------------- | ------------------------------------------------------------------------------------------------------ |
+| profiles        | profiles_gender_check        | CHECK           | CHECK ((gender = ANY (ARRAY['Laki-Laki'::text, 'Perempuan'::text])))                                   |
+| profiles        | points_non_negative          | CHECK           | CHECK ((points >= 0))                                                                                  |
+| profiles        | profiles_role_check          | CHECK           | CHECK ((role = ANY (ARRAY['siswa'::text, 'pembina'::text, 'admin'::text])))                            |
+| attendance_logs | attendance_logs_method_check | CHECK           | CHECK ((method = ANY (ARRAY['rfid'::text, 'manual'::text])))                                           |
+| attendance_logs | attendance_logs_status_check | CHECK           | CHECK ((status = ANY (ARRAY['hadir'::text, 'terlambat'::text, 'izin'::text, 'alpa'::text])))           |
+| product_orders  | product_orders_status_check  | CHECK           | CHECK ((status = ANY (ARRAY['pending'::text, 'diproses'::text, 'selesai'::text, 'dibatalkan'::text]))) |
+| rfid_tags       | rfid_tags_status_check       | CHECK           | CHECK ((status = ANY (ARRAY['tersedia'::text, 'terpakai'::text, 'hilang'::text])))                     |
+
+4. LIST PUBLIC SCHEMA RLS POLICIES
+
+| schemaname | tablename             | policyname                       | permissive | roles           | cmd    | using_expression                                                          | with_check |
+| ---------- | --------------------- | -------------------------------- | ---------- | --------------- | ------ | ------------------------------------------------------------------------- | ---------- |
+| public     | attendance_logs       | Allow_IOT_Insert                 | PERMISSIVE | {public}        | INSERT | null                                                                      | true       |
+| public     | attendance_logs       | Allow_Public_Select              | PERMISSIVE | {public}        | SELECT | true                                                                      | null       |
+| public     | attendance_logs       | Allow_Admin_Update               | PERMISSIVE | {authenticated} | UPDATE | true                                                                      | null       |
+| public     | attendance_logs       | Users view own attendance        | PERMISSIVE | {authenticated} | SELECT | (auth.uid() = profile_id)                                                 | null       |
+| public     | product_orders        | Users view own orders            | PERMISSIVE | {authenticated} | SELECT | (auth.uid() = user_id)                                                    | null       |
+| public     | classes               | Public can view active classes   | PERMISSIVE | {authenticated} | SELECT | (is_deleted = false)                                                      | null       |
+| public     | daily_visitor_stats   | Admin view stats                 | PERMISSIVE | {authenticated} | SELECT | (((auth.jwt() -> 'app_metadata'::text) ->> 'role'::text) = 'admin'::text) | null       |
+| public     | page_views            | Admin view views                 | PERMISSIVE | {authenticated} | SELECT | (((auth.jwt() -> 'app_metadata'::text) ->> 'role'::text) = 'admin'::text) | null       |
+| public     | point_history         | Admin manage points              | PERMISSIVE | {authenticated} | ALL    | (((auth.jwt() -> 'app_metadata'::text) ->> 'role'::text) = 'admin'::text) | null       |
+| public     | product_orders        | Admin manage orders              | PERMISSIVE | {authenticated} | ALL    | (((auth.jwt() -> 'app_metadata'::text) ->> 'role'::text) = 'admin'::text) | null       |
+| public     | products              | Admin manage products            | PERMISSIVE | {authenticated} | ALL    | (((auth.jwt() -> 'app_metadata'::text) ->> 'role'::text) = 'admin'::text) | null       |
+| public     | rfid_tags             | Admin_Super_Access               | PERMISSIVE | {authenticated} | ALL    | true                                                                      | true       |
+| public     | public_content        | Admin manage content             | PERMISSIVE | {authenticated} | ALL    | (((auth.jwt() -> 'app_metadata'::text) ->> 'role'::text) = 'admin'::text) | null       |
+| public     | schedules             | Admin manage schedules           | PERMISSIVE | {authenticated} | ALL    | (((auth.jwt() -> 'app_metadata'::text) ->> 'role'::text) = 'admin'::text) | null       |
+| public     | password_reset_tokens | Admin manage reset tokens        | PERMISSIVE | {authenticated} | ALL    | (((auth.jwt() -> 'app_metadata'::text) ->> 'role'::text) = 'admin'::text) | null       |
+| public     | point_history         | Users view own points            | PERMISSIVE | {authenticated} | SELECT | (auth.uid() = user_id)                                                    | null       |
+| public     | rfid_tags             | API_And_Admin_Access             | PERMISSIVE | {public}        | ALL    | (is_deleted = false)                                                      | true       |
+| public     | products              | Public view products             | PERMISSIVE | {public}        | SELECT | true                                                                      | null       |
+| public     | public_content        | Public view content              | PERMISSIVE | {public}        | SELECT | true                                                                      | null       |
+| public     | schedules             | Public view schedules            | PERMISSIVE | {public}        | SELECT | true                                                                      | null       |
+| public     | attendance_logs       | Enable_Insert_Attendance_For_API | PERMISSIVE | {public}        | INSERT | null                                                                      | true       |
+| public     | attendance_logs       | Enable_Select_Attendance_For_All | PERMISSIVE | {public}        | SELECT | true                                                                      | null       |
+| public     | profiles              | Admin full access profiles       | PERMISSIVE | {authenticated} | ALL    | (((auth.jwt() -> 'app_metadata'::text) ->> 'role'::text) = 'admin'::text) | null       |
+| public     | profiles              | Users can view profiles          | PERMISSIVE | {authenticated} | SELECT | true                                                                      | null       |
+| public     | profiles              | Users can update own profile     | PERMISSIVE | {authenticated} | UPDATE | (auth.uid() = id)                                                         | null       |
+| public     | attendance_logs       | Admin manage all attendance      | PERMISSIVE | {authenticated} | ALL    | (((auth.jwt() -> 'app_metadata'::text) ->> 'role'::text) = 'admin'::text) | null       |
+| public     | classes               | Admin manage all classes         | PERMISSIVE | {authenticated} | ALL    | (((auth.jwt() -> 'app_metadata'::text) ->> 'role'::text) = 'admin'::text) | null       |
+
+5. TRIGGER AND FUNCTION INTROSPECTION
+
+| function_name             | definition                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| handle_attendance_points  | CREATE OR REPLACE FUNCTION public.handle_attendance_points()
+|                           | RETURNS trigger
+|                           | LANGUAGE plpgsql
+|                           | SECURITY DEFINER
+|                           | AS $function$
+|                           | BEGIN
+|                           | -- VALIDASI: Hanya tambah poin jika statusnya 'hadir' atau 'terlambat'
+|                           | IF (NEW.status = 'hadir' OR NEW.status = 'terlambat') THEN
+|                           |  
+|                           |   -- 1. Update Poin di Profil
+|                           |   UPDATE public.profiles
+|                           |   SET points = points + 1
+|                           |   WHERE id = NEW.profile_id;
+|                           |   
+|                           |   -- 2. Catat Riwayat dengan Deskripsi Dinamis sesuai Status
+|                           |   INSERT INTO public.point_history (user_id, amount, type, description)
+|                           |   VALUES (NEW.profile_id, 1, 'earning', 'Poin kehadiran: ' || UPPER(NEW.status));
+|                           |  
+|                           | END IF;
+|                           |
+|                           | -- Jika statusnya 'alpa' atau 'izin', fungsi ini tetap jalan tapi tidak melakukan apa-apa (poin tetap aman)
+|                           | RETURN NEW;
+|                           | END;
+|                           | $function$
+
+| process_product_order     | CREATE OR REPLACE FUNCTION public.process_product_order()
+|                           | RETURNS trigger
+|                           | LANGUAGE plpgsql
+|                           | SECURITY DEFINER
+|                           |AS $function$
+|                           |DECLARE
+|                           |  product_price INTEGER;
+|                           |  user_points INTEGER;
+|                           |  product_stock INTEGER; -- Tambahan variabel stok
+|                           |BEGIN
+|                           |  -- 1. Ambil harga dan stok produk
+|                           |  SELECT price, stock INTO product_price, product_stock 
+|                           |  FROM public.products WHERE id = NEW.product_id;
+|                           |  
+|                           |  -- 2. Ambil poin user saat ini
+|                           |  SELECT points INTO user_points FROM public.profiles WHERE id = NEW.user_id;
+|                           |
+|                           |  -- 3. VALIDASI 1: Poin cukup nggak?
+|                           |  IF user_points < product_price THEN
+|                           |    RAISE EXCEPTION 'Poin tidak cukup untuk membeli produk ini!';
+|                           |  END IF;
+|                           |
+|                           |  -- 4. VALIDASI 2: Stok ada nggak?
+|                           |  IF product_stock <= 0 THEN
+|                           |    RAISE EXCEPTION 'Maaf, stok produk ini sudah habis!';
+|                           |  END IF;
+|                           |
+|                           |  -- 5. POTONG POIN
+|                           |  UPDATE public.profiles
+|                           |  SET points = points - product_price
+|                           |  WHERE id = NEW.user_id;
+|                           |
+|                           |  -- 6. POTONG STOK (Ini yang tadi lupa!)
+|                           |  UPDATE public.products
+|                           |  SET stock = stock - 1
+|                           |  WHERE id = NEW.product_id;
+|                           |
+|                           |  -- 7. CATAT RIWAYAT
+|                           |  INSERT INTO public.point_history (user_id, amount, type, description, order_id)
+|                           |  VALUES (NEW.user_id, -product_price, 'spending', 'Penukaran hadiah ID: ' || NEW.product_id, NEW.id);
+|                           |
+|                           |  RETURN NEW;
+|                           |END;
+|                           |$function$
+
+| handle_new_user           | CREATE OR REPLACE FUNCTION public.handle_new_user()
+|                           | RETURNS trigger
+|                           | LANGUAGE plpgsql
+|                           | SECURITY DEFINER
+|                           |AS $function$
+|                           |BEGIN
+|                           |  INSERT INTO public.profiles (id, role)
+|                           |  VALUES (new.id, 'siswa');
+|                           |  RETURN new;
+|                           |END;
+|                           |$function$
+
+| sync_role_to_jwt          | CREATE OR REPLACE FUNCTION public.sync_role_to_jwt()
+|                           | RETURNS trigger
+|                           | LANGUAGE plpgsql
+|                           | SECURITY DEFINER
+|                           |AS $function$
+|                           |BEGIN
+|                           |  UPDATE auth.users
+|                           |  SET raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb) || jsonb_build_object('role', new.role)
+|                           |  WHERE id = new.id;
+|                           |  RETURN new;
+|                           |END;
+|                           |$function$
+
+| increment_page_view       | CREATE OR REPLACE FUNCTION public.increment_page_view()
+|                           | RETURNS trigger
+|                           | LANGUAGE plpgsql
+|                           | SECURITY DEFINER
+|                           |AS $function$
+|                           |BEGIN
+|                           |  -- Jika data hari ini belum ada, buat baru. Jika ada, tambah counter-nya.
+|                           |  INSERT INTO public.daily_visitor_stats (date, view_count)
+|                           |  VALUES (CURRENT_DATE, 1)
+|                           |  ON CONFLICT (date) DO UPDATE 
+|                           |  SET view_count = public.daily_visitor_stats.view_count + 1;
+|                           |  
+|                           |  RETURN NEW;
+|                           |END;
+|                           |$function$
+
+| handle_order_cancellation | CREATE OR REPLACE FUNCTION public.handle_order_cancellation()
+|                           | RETURNS trigger
+|                           | LANGUAGE plpgsql
+|                           | SECURITY DEFINER
+|                           |AS $function$
+|                           |BEGIN
+|                           |  -- Jika status berubah jadi 'cancelled', kembalikan poin dan stok
+|                           |  IF NEW.status = 'cancelled' AND OLD.status != 'cancelled' THEN
+|                           |    -- Balikin Poin
+|                           |    UPDATE public.profiles 
+|                           |    SET points = points + (SELECT price FROM public.products WHERE id = NEW.product_id)
+|                           |    WHERE id = NEW.user_id;
+|                           |
+|                           |    -- Balikin Stok
+|                           |    UPDATE public.products SET stock = stock + 1 WHERE id = NEW.product_id;
+|                           |
+|                           |    -- Catat di History
+|                           |    INSERT INTO public.point_history (user_id, amount, type, description)
+|                           |    VALUES (NEW.user_id, (SELECT price FROM public.products WHERE id = NEW.product_id), 'earning', 'Refund: Pesanan dibatalkan');
+|                           |  END IF;
+|                           |  RETURN NEW;
+|                           |END;
+|                           |$function$
+
+6. BUCKET STORAGE OVERVIEW
+
+| bucket_id | total_files | total_size_mb          |
+| --------- | ----------- | ---------------------- |
+| avatars   | 1           | 1.8960466384887695     |
+| contents  | 12          | 22.6777877807617188    |
+| products  | 4           | 0.97292327880859375000 |
+
+7. LIST PUBLICATION TABLES
+
+| publication_name  | schema_name | table_name      |
+| ----------------- | ----------- | --------------- |
+| supabase_realtime | public      | attendance_logs |
