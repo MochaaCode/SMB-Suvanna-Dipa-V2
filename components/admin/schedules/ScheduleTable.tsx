@@ -53,12 +53,14 @@ interface ScheduleTableProps {
   schedules: ScheduleWithRelations[];
   classes: Class[];
   isTrashMode?: boolean;
+  type: "materi" | "pengumuman";
 }
 
 export function ScheduleTable({
   schedules,
   classes,
   isTrashMode = false,
+  type,
 }: ScheduleTableProps) {
   const [selectedSchedule, setSelectedSchedule] =
     useState<ScheduleWithRelations | null>(null);
@@ -67,9 +69,9 @@ export function ScheduleTable({
 
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
-    type: "delete" | "hard-delete" | "restore" | null;
+    actionType: "delete" | "hard-delete" | "restore" | null;
     id: number | null;
-  }>({ isOpen: false, type: null, id: null });
+  }>({ isOpen: false, actionType: null, id: null });
   const [isPending, setIsPending] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -102,21 +104,21 @@ export function ScheduleTable({
   };
 
   const executeAction = async () => {
-    if (!confirmDialog.id || !confirmDialog.type) return;
+    if (!confirmDialog.id || !confirmDialog.actionType) return;
     setIsPending(true);
     const tid = toast.loading("Memproses aksi...");
     try {
-      if (confirmDialog.type === "delete") {
+      if (confirmDialog.actionType === "delete") {
         await deleteSchedule(confirmDialog.id);
-        toast.success("Jadwal dipindahkan ke tempat sampah.", { id: tid });
-      } else if (confirmDialog.type === "restore") {
+        toast.success("Data dipindahkan ke tempat sampah.", { id: tid });
+      } else if (confirmDialog.actionType === "restore") {
         await restoreSchedule(confirmDialog.id);
-        toast.success("Jadwal berhasil dipulihkan.", { id: tid });
-      } else if (confirmDialog.type === "hard-delete") {
+        toast.success("Data berhasil dipulihkan.", { id: tid });
+      } else if (confirmDialog.actionType === "hard-delete") {
         await hardDeleteSchedule(confirmDialog.id);
-        toast.success("Jadwal dihapus permanen.", { id: tid });
+        toast.success("Data dihapus permanen.", { id: tid });
       }
-      setConfirmDialog({ isOpen: false, type: null, id: null });
+      setConfirmDialog({ isOpen: false, actionType: null, id: null });
     } catch (error: any) {
       toast.error(error.message, { id: tid });
     } finally {
@@ -124,26 +126,33 @@ export function ScheduleTable({
     }
   };
 
+  const isAnnouncement = type === "pengumuman";
+  const themeColor = isAnnouncement ? "blue" : "orange";
+
   return (
-    <div className="w-full flex flex-col h-full rounded-[1rem]">
-      <div className="overflow-x-auto">
+    <div className="w-full flex flex-col h-full">
+      <div className="overflow-x-auto min-h-75">
         <Table>
           <TableHeader
-            className={isTrashMode ? "bg-red-50" : "bg-orange-50/50"}
+            className={isTrashMode ? "bg-red-50" : `bg-${themeColor}-50/30`}
           >
             <TableRow className="border-slate-200">
               <TableHead className="w-48 text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
-                Tanggal & Waktu
+                Waktu Pelaksanaan
               </TableHead>
               <TableHead className="text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
-                Informasi Kegiatan
+                Judul & Topik
               </TableHead>
               <TableHead className="text-center text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
                 Target Kelas
               </TableHead>
-              <TableHead className="text-center text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
-                Status Sesi
-              </TableHead>
+
+              {!isAnnouncement && (
+                <TableHead className="text-center text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
+                  Status Sesi
+                </TableHead>
+              )}
+
               <TableHead className="w-44 text-center text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
                 Aksi
               </TableHead>
@@ -153,22 +162,20 @@ export function ScheduleTable({
             {paginatedSchedules.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={isAnnouncement ? 4 : 5}
                   className="h-32 text-center text-slate-400 font-medium text-sm"
                 >
-                  Belum ada data jadwal.
+                  Belum ada data{" "}
+                  {isAnnouncement ? "pengumuman" : "materi jadwal"}.
                 </TableCell>
               </TableRow>
             ) : (
               paginatedSchedules.map((item) => {
-                const isAnnouncement = item.is_announcement;
                 const formattedDate = formatInTimeZone(
                   new Date(item.event_date),
                   "Asia/Jakarta",
                   "dd MMM yyyy",
                 );
-
-                // SAFE GUARD: Cek apakah start_time dan end_time ada datanya sebelum di-substring
                 const formattedStart = item.start_time
                   ? String(item.start_time).substring(0, 5)
                   : "09:00";
@@ -179,15 +186,13 @@ export function ScheduleTable({
                 return (
                   <TableRow
                     key={item.id}
-                    className={`group transition-colors border-b border-slate-100 ${isAnnouncement ? "bg-blue-50/20 hover:bg-blue-50/50" : "hover:bg-slate-50/50"}`}
+                    className={`group transition-colors border-b border-slate-100 hover:bg-slate-50/80`}
                   >
                     <TableCell className="align-top">
                       <div className="flex items-center gap-2 mb-1.5">
                         <CalendarIcon
                           size={14}
-                          className={
-                            isAnnouncement ? "text-blue-500" : "text-orange-500"
-                          }
+                          className={`text-${themeColor}-500`}
                         />
                         <span className="text-sm font-bold text-slate-800">
                           {formattedDate}
@@ -201,18 +206,13 @@ export function ScheduleTable({
                     <TableCell className="align-top">
                       <div className="space-y-1.5">
                         <div className="flex items-center gap-2">
-                          <span
-                            className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${isAnnouncement ? "bg-blue-100 text-blue-700" : "bg-orange-100 text-orange-700"}`}
-                          >
-                            {isAnnouncement ? "Pengumuman" : "Materi Belajar"}
-                          </span>
                           <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
-                            <User size={10} />{" "}
+                            <User size={10} /> Oleh:{" "}
                             {item.author?.full_name || "Admin"}
                           </span>
                         </div>
                         <p
-                          className={`text-sm font-bold leading-tight ${isAnnouncement ? "text-blue-900" : "text-slate-800"}`}
+                          className={`text-sm font-bold leading-tight text-slate-800`}
                         >
                           {item.title}
                         </p>
@@ -221,48 +221,50 @@ export function ScheduleTable({
 
                     <TableCell className="align-middle text-center">
                       {item.class ? (
-                        <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200 rounded-[1rem] shadow-none font-bold text-[10px] px-2.5">
+                        <Badge className="bg-slate-100 text-slate-700 border-slate-200 rounded-[1rem] shadow-none font-bold text-[10px] px-2.5">
                           Kelas {item.class.name}
                         </Badge>
                       ) : (
                         <Badge
                           variant="outline"
-                          className="text-slate-400 border-dashed rounded-[1rem] font-bold text-[10px]"
+                          className={`text-${themeColor}-600 border-${themeColor}-200 bg-${themeColor}-50 rounded-[1rem] font-bold text-[10px]`}
                         >
-                          Semua Kelas
+                          Semua Kelas / Umum
                         </Badge>
                       )}
                     </TableCell>
 
-                    <TableCell className="align-middle text-center">
-                      {item.is_active ? (
-                        <div
-                          className="inline-flex flex-col items-center gap-1 p-2 rounded-[1rem] bg-green-50 border border-green-100 text-green-700 w-24 cursor-pointer hover:bg-green-100 transition-colors"
-                          onClick={() =>
-                            !isTrashMode &&
-                            handleToggleActive(item.id, item.is_active)
-                          }
-                        >
-                          <Power size={14} />
-                          <span className="text-[9px] font-bold uppercase tracking-wider">
-                            Sesi Aktif
-                          </span>
-                        </div>
-                      ) : (
-                        <div
-                          className="inline-flex flex-col items-center gap-1 p-2 rounded-[1rem] bg-slate-50 border border-slate-200 text-slate-400 w-24 cursor-pointer hover:bg-slate-100 transition-colors"
-                          onClick={() =>
-                            !isTrashMode &&
-                            handleToggleActive(item.id, item.is_active)
-                          }
-                        >
-                          <PowerOff size={14} />
-                          <span className="text-[9px] font-bold uppercase tracking-wider">
-                            Sesi Ditutup
-                          </span>
-                        </div>
-                      )}
-                    </TableCell>
+                    {!isAnnouncement && (
+                      <TableCell className="align-middle text-center">
+                        {item.is_active ? (
+                          <div
+                            className="inline-flex flex-col items-center gap-1 p-2 rounded-[1rem] bg-green-50 border border-green-100 text-green-700 w-24 cursor-pointer hover:bg-green-100 transition-colors"
+                            onClick={() =>
+                              !isTrashMode &&
+                              handleToggleActive(item.id, item.is_active)
+                            }
+                          >
+                            <Power size={14} />
+                            <span className="text-[9px] font-bold uppercase tracking-wider">
+                              Sesi Aktif
+                            </span>
+                          </div>
+                        ) : (
+                          <div
+                            className="inline-flex flex-col items-center gap-1 p-2 rounded-[1rem] bg-slate-50 border border-slate-200 text-slate-400 w-24 cursor-pointer hover:bg-slate-100 transition-colors"
+                            onClick={() =>
+                              !isTrashMode &&
+                              handleToggleActive(item.id, item.is_active)
+                            }
+                          >
+                            <PowerOff size={14} />
+                            <span className="text-[9px] font-bold uppercase tracking-wider">
+                              Sesi Ditutup
+                            </span>
+                          </div>
+                        )}
+                      </TableCell>
+                    )}
 
                     <TableCell className="align-middle">
                       <div className="flex justify-center gap-2">
@@ -276,7 +278,7 @@ export function ScheduleTable({
                                 setSelectedSchedule(item);
                                 setIsViewOpen(true);
                               }}
-                              title="Lihat Materi"
+                              title="Lihat Detail"
                             >
                               <Eye size={14} />
                             </AppButton>
@@ -288,7 +290,7 @@ export function ScheduleTable({
                                 setSelectedSchedule(item);
                                 setIsEditOpen(true);
                               }}
-                              title="Edit Jadwal"
+                              title="Edit"
                             >
                               <Pencil size={14} />
                             </AppButton>
@@ -299,11 +301,11 @@ export function ScheduleTable({
                               onClick={() =>
                                 setConfirmDialog({
                                   isOpen: true,
-                                  type: "delete",
+                                  actionType: "delete",
                                   id: item.id,
                                 })
                               }
-                              title="Hapus Jadwal"
+                              title="Hapus"
                             >
                               <Trash2 size={14} />
                             </AppButton>
@@ -316,7 +318,7 @@ export function ScheduleTable({
                               onClick={() =>
                                 setConfirmDialog({
                                   isOpen: true,
-                                  type: "restore",
+                                  actionType: "restore",
                                   id: item.id,
                                 })
                               }
@@ -330,7 +332,7 @@ export function ScheduleTable({
                               onClick={() =>
                                 setConfirmDialog({
                                   isOpen: true,
-                                  type: "hard-delete",
+                                  actionType: "hard-delete",
                                   id: item.id,
                                 })
                               }
@@ -382,25 +384,26 @@ export function ScheduleTable({
       <AlertDialog
         open={confirmDialog.isOpen}
         onOpenChange={(open) =>
-          !open && setConfirmDialog({ isOpen: false, type: null, id: null })
+          !open &&
+          setConfirmDialog({ isOpen: false, actionType: null, id: null })
         }
       >
         <AlertDialogContent className="rounded-[1rem] p-8 border-slate-200 shadow-xl max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl font-bold text-slate-800">
-              {confirmDialog.type === "hard-delete"
+              {confirmDialog.actionType === "hard-delete"
                 ? "Hapus Permanen?"
-                : confirmDialog.type === "restore"
-                  ? "Pulihkan Jadwal?"
+                : confirmDialog.actionType === "restore"
+                  ? "Pulihkan Data?"
                   : "Konfirmasi Hapus"}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-sm font-medium text-slate-600 mt-2 leading-relaxed">
-              {confirmDialog.type === "hard-delete" &&
-                "Data jadwal beserta log absensi yang terkait akan dihapus permanen dari database. Aksi ini tidak dapat dibatalkan."}
-              {confirmDialog.type === "restore" &&
-                "Jadwal akan diaktifkan kembali dan muncul di daftar agenda siswa."}
-              {confirmDialog.type === "delete" &&
-                "Pindahkan jadwal ini ke tempat sampah sementara?"}
+              {confirmDialog.actionType === "hard-delete" &&
+                "Data ini beserta log yang terkait akan dihapus permanen dari database. Aksi ini tidak dapat dibatalkan."}
+              {confirmDialog.actionType === "restore" &&
+                "Data akan diaktifkan kembali dan muncul di daftar agenda/pengumuman siswa."}
+              {confirmDialog.actionType === "delete" &&
+                "Pindahkan data ini ke tempat sampah sementara?"}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6">
@@ -408,7 +411,11 @@ export function ScheduleTable({
               <AppButton
                 variant="outline"
                 onClick={() =>
-                  setConfirmDialog({ isOpen: false, type: null, id: null })
+                  setConfirmDialog({
+                    isOpen: false,
+                    actionType: null,
+                    id: null,
+                  })
                 }
                 disabled={isPending}
                 className="h-10 text-xs rounded-[1rem]"
@@ -418,7 +425,9 @@ export function ScheduleTable({
             </AlertDialogCancel>
             <AlertDialogAction asChild>
               <AppButton
-                variant={confirmDialog.type === "restore" ? "default" : "red"}
+                variant={
+                  confirmDialog.actionType === "restore" ? "default" : "red"
+                }
                 onClick={executeAction}
                 isLoading={isPending}
                 className="h-10 text-xs rounded-[1rem]"
