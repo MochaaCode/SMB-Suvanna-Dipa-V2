@@ -39,53 +39,23 @@ async function uploadProductImage(file: File) {
   const fileExt = file.name.split(".").pop();
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-  const { error: uploadError } = await supabaseAdmin.storage
+  const fileBuffer = await file.arrayBuffer();
+
+  const { error } = await supabaseAdmin.storage
     .from("products")
-    .upload(fileName, file, {
+    .upload(fileName, fileBuffer, {
       contentType: file.type,
-      upsert: true,
+      cacheControl: "3600",
+      upsert: false,
     });
 
-  if (uploadError)
-    throw new Error("Gagal upload gambar: " + uploadError.message);
+  if (error) throw new Error("Gagal mengunggah gambar: " + error.message);
 
   const { data } = supabaseAdmin.storage
     .from("products")
     .getPublicUrl(fileName);
+
   return data.publicUrl;
-}
-
-export async function upsertProduct(formData: FormData) {
-  const supabaseAdmin = await ensureAdmin();
-
-  const id = formData.get("id") ? Number(formData.get("id")) : undefined;
-  const name = formData.get("name") as string;
-  const imageFile = formData.get("image") as File | null;
-  const oldImageUrl = formData.get("image_url") as string | null;
-  let imageUrl = oldImageUrl;
-
-  if (imageFile && imageFile.size > 0 && imageFile.name !== "undefined") {
-    imageUrl = await uploadProductImage(imageFile);
-    if (id && oldImageUrl) await deleteProductImage(oldImageUrl);
-  }
-
-  const productData: Partial<Product> = {
-    name,
-    description: formData.get("description") as string,
-    price: parseInt(formData.get("price") as string),
-    stock: parseInt(formData.get("stock") as string),
-    image_url: imageUrl,
-    updated_at: new Date().toISOString(),
-  };
-
-  const { error } = id
-    ? await supabaseAdmin.from("products").update(productData).eq("id", id)
-    : await supabaseAdmin.from("products").insert([productData]);
-
-  if (error) throw new Error(error.message);
-
-  revalidatePath("/admin/products");
-  return { success: true };
 }
 
 export async function getProducts(): Promise<Product[]> {
@@ -112,6 +82,62 @@ export async function getArchivedProducts(): Promise<Product[]> {
   return data as Product[];
 }
 
+export async function upsertProduct(formData: FormData, productId?: number) {
+  const supabaseAdmin = await ensureAdmin();
+
+  const name = formData.get("name") as string;
+  const description = formData.get("description") as string;
+  const price = parseInt(formData.get("price") as string);
+  const stock = parseInt(formData.get("stock") as string);
+  const imageFile = formData.get("image") as File | null;
+
+  let imageUrl = null;
+
+  if (productId) {
+    const { data: existing } = await supabaseAdmin
+      .from("products")
+      .select("image_url")
+      .eq("id", productId)
+      .single();
+    imageUrl = existing?.image_url;
+  }
+
+  if (imageFile && imageFile.size > 0) {
+    if (imageUrl) {
+      await deleteProductImage(imageUrl);
+    }
+    imageUrl = await uploadProductImage(imageFile);
+  }
+
+  const payload = {
+    name,
+    description,
+    price,
+    stock,
+    image_url: imageUrl,
+    updated_at: new Date().toISOString(),
+  };
+
+  let error;
+  if (productId) {
+    const { error: updateErr } = await supabaseAdmin
+      .from("products")
+      .update(payload)
+      .eq("id", productId);
+    error = updateErr;
+  } else {
+    const { error: insertErr } = await supabaseAdmin
+      .from("products")
+      .insert(payload);
+    error = insertErr;
+  }
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/products");
+  return { success: true };
+}
+
 export async function setProductDeletedStatus(id: number, status: boolean) {
   const supabaseAdmin = await ensureAdmin();
   const { error } = await supabaseAdmin
@@ -129,11 +155,14 @@ export async function deleteProductPermanent(
   imageUrl: string | null,
 ) {
   const supabaseAdmin = await ensureAdmin();
-  if (imageUrl) await deleteProductImage(imageUrl);
+
+  if (imageUrl) {
+    await deleteProductImage(imageUrl);
+  }
 
   const { error } = await supabaseAdmin.from("products").delete().eq("id", id);
-  if (error) throw new Error("Gagal hapus permanen.");
 
+  if (error) throw new Error(error.message);
   revalidatePath("/admin/products");
   return { success: true };
 }

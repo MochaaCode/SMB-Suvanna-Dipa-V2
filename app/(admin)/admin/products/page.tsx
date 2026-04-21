@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { getProducts } from "@/actions/admin/products";
+import { getProducts, getArchivedProducts } from "@/actions/admin/products";
 import { ProductManagementUI } from "@/components/admin/products/ProductManagementUI";
 
 export const metadata: Metadata = {
@@ -8,11 +8,16 @@ export const metadata: Metadata = {
 };
 
 export default async function ProductsPage() {
-  // 1. Ambil data produk awal dari server (yang is_deleted = false)
-  const initialProducts = await getProducts();
+  // Ambil kedua data secara paralel untuk kecepatan maksimal
+  const [activeProducts, archivedProducts] = await Promise.all([
+    getProducts(),
+    getArchivedProducts(),
+  ]);
 
   return (
-    // Serahkan layouting sepenuhnya ke ManagementUI
-    <ProductManagementUI initialProducts={initialProducts} />
+    <ProductManagementUI
+      activeProducts={activeProducts}
+      archivedProducts={archivedProducts}
+    />
   );
 }

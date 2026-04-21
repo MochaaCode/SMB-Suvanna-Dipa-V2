@@ -4,11 +4,13 @@
 import { useState, useTransition } from "react";
 import { AppModal } from "../../shared/AppModal";
 import { AppButton } from "../../shared/AppButton";
+import { upsertProduct } from "@/actions/admin/products";
+
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+
 import { ImagePlus, X, Save } from "lucide-react";
-import { upsertProduct } from "@/actions/admin/products";
 import toast from "react-hot-toast";
 import Image from "next/image";
 
