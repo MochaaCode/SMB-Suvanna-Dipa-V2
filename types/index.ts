@@ -140,6 +140,8 @@ export interface Schedule {
   title: string;
   content: string | null;
   event_date: string;
+  start_time: string;
+  end_time: string;
   class_id: number | null;
   is_active: boolean;
   is_announcement: boolean;

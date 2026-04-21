@@ -28,36 +28,22 @@ export function ViewScheduleModal({
       onClose={onClose}
       title={schedule.title}
       variant={isAnnouncement ? "blue" : "orange"}
-      maxWidth="2xl" // DIBUAT LEBAR (LANDSCAPE) AGAR ENAK BACA MATERI
+      maxWidth="2xl"
     >
       {/* INFO BAR: Tanggal, Pembuat, dan Tipe */}
-      <div className="flex flex-wrap items-center gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6">
+      <div className="flex flex-wrap items-center gap-4 bg-white p-4 rounded-[1rem] border border-slate-200 shadow-sm mb-6">
         <Badge
           className={`${
             isAnnouncement
               ? "bg-blue-50 text-blue-700 border-blue-200"
               : "bg-orange-50 text-orange-700 border-orange-200"
-          } px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shadow-none`}
+          } px-3 py-1 rounded-[1rem] font-bold uppercase tracking-wider text-[10px] shadow-none flex items-center gap-1.5`}
         >
-          {isAnnouncement ? (
-            <>
-              <Megaphone size={12} className="mr-1.5 inline" /> Pengumuman
-            </>
-          ) : (
-            <>
-              <BookOpen size={12} className="mr-1.5 inline" /> Materi Kelas
-            </>
-          )}
+          {isAnnouncement ? <Megaphone size={12} /> : <BookOpen size={12} />}
+          {isAnnouncement ? "Pengumuman" : "Materi"}
         </Badge>
 
-        <Badge
-          variant="outline"
-          className="text-slate-600 border-slate-200 bg-slate-50 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 shadow-none"
-        >
-          {schedule.class?.name || "UMUM"}
-        </Badge>
-
-        <div className="w-px h-4 bg-slate-200 hidden sm:block" />
+        <div className="h-4 w-px bg-slate-200 hidden sm:block" />
 
         <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
           <Calendar
@@ -81,18 +67,13 @@ export function ViewScheduleModal({
       </div>
 
       {/* CONTENT AREA (MATERI TIPTAP) */}
-      <div className="bg-white p-6 sm:p-8 rounded-xl border border-slate-200 shadow-sm min-h-75">
+      <div className="bg-white p-6 sm:p-8 rounded-[1rem] border border-slate-200 shadow-sm min-h-75 text-left">
         <div
           className={`prose prose-sm sm:prose-base max-w-none 
             prose-headings:font-bold prose-headings:text-slate-800
             prose-p:text-slate-600 prose-p:leading-relaxed
-            prose-li:text-slate-600 ${isAnnouncement ? "prose-a:text-blue-600" : "prose-a:text-orange-600"}`}
-          dangerouslySetInnerHTML={{
-            __html:
-              // @ts-expect-error Penyesuaian tipe JSONB dari database
-              schedule.content?.html ||
-              "<p class='text-slate-400 italic text-center mt-10'>Tidak ada detail materi tertulis.</p>",
-          }}
+            prose-li:text-slate-600 ${isAnnouncement ? "prose-a:text-blue-600" : "prose-a:text-orange-600"} prose-a:font-semibold hover:prose-a:underline`}
+          dangerouslySetInnerHTML={{ __html: schedule.content as string }}
         />
       </div>
     </AppModal>

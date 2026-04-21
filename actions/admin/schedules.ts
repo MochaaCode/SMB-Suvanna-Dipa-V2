@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
@@ -35,38 +36,37 @@ export async function getSchedules(): Promise<ScheduleWithRelations[]> {
     .select(
       `*, class:classes ( id, name ), author:profiles!author_id ( id, full_name )`,
     )
-    .eq("is_deleted", false)
     .order("event_date", { ascending: true });
 
   if (error) throw new Error(error.message);
   return data as unknown as ScheduleWithRelations[];
 }
 
-export async function upsertSchedule(payload: {
-  id?: number;
-  title: string;
-  event_date: string;
-  class_id: number | null;
-  content?: string | null;
-  is_announcement?: boolean;
-}) {
+export async function upsertSchedule(formData: any, scheduleId?: number) {
   const { supabase, user } = await ensureAdmin();
 
-  const scheduleData = {
-    ...payload,
+  const payload = {
+    ...formData,
     author_id: user.id,
-    is_deleted: false,
     updated_at: new Date().toISOString(),
   };
 
-  const { error } = await supabase
-    .from("schedules")
-    .upsert(scheduleData, { onConflict: "id" });
+  let error;
+  if (scheduleId) {
+    const { error: updateErr } = await supabase
+      .from("schedules")
+      .update(payload)
+      .eq("id", scheduleId);
+    error = updateErr;
+  } else {
+    const { error: insertErr } = await supabase
+      .from("schedules")
+      .insert(payload);
+    error = insertErr;
+  }
 
-  if (error) throw new Error("Gagal simpan jadwal: " + error.message);
-
+  if (error) throw new Error(error.message);
   revalidatePath("/admin/schedules");
-  revalidatePath("/admin/dashboard");
   return { success: true };
 }
 
@@ -78,7 +78,30 @@ export async function deleteSchedule(id: number) {
     .eq("id", id);
 
   if (error) throw new Error(error.message);
+  revalidatePath("/admin/schedules");
+  return { success: true };
+}
 
+// ----------------------------------------
+// FUNGSI BARU: PULIHKAN & HAPUS PERMANEN
+// ----------------------------------------
+export async function restoreSchedule(id: number) {
+  const { supabase } = await ensureAdmin();
+  const { error } = await supabase
+    .from("schedules")
+    .update({ is_deleted: false, updated_at: new Date().toISOString() })
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/schedules");
+  return { success: true };
+}
+
+export async function hardDeleteSchedule(id: number) {
+  const { supabase } = await ensureAdmin();
+  const { error } = await supabase.from("schedules").delete().eq("id", id);
+
+  if (error) throw new Error(error.message);
   revalidatePath("/admin/schedules");
   return { success: true };
 }
@@ -91,37 +114,7 @@ export async function toggleAttendanceActive(id: number, status: boolean) {
     .eq("id", id);
 
   if (error) throw new Error(error.message);
-
   revalidatePath("/admin/schedules");
   revalidatePath("/admin/attendance");
   return { success: true };
-}
-
-/**
- * 5. FUNGSI PENDUKUNG IOT (DIPERBAIKI BUG ZONA WAKTU)
- */
-export async function getTodaySchedule(): Promise<Schedule | null> {
-  const supabase = await createClient();
-  const todayWIB = new Date().toLocaleDateString("en-CA", {
-    timeZone: "Asia/Jakarta",
-  }); // Format: YYYY-MM-DD
-
-  const startOfDay = `${todayWIB}T00:00:00+07:00`;
-  const endOfDay = `${todayWIB}T23:59:59+07:00`;
-
-  const { data, error } = await supabase
-    .from("schedules")
-    .select("*")
-    .eq("is_active", true)
-    .eq("is_deleted", false)
-    .gte("event_date", startOfDay)
-    .lte("event_date", endOfDay)
-    .maybeSingle();
-
-  if (error) {
-    console.error("Error getTodaySchedule:", error.message);
-    return null;
-  }
-
-  return data as Schedule | null;
 }

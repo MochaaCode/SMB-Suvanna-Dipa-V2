@@ -19,7 +19,6 @@ import { upsertSchedule } from "@/actions/admin/schedules";
 import { Bold, Italic, List, Save } from "lucide-react";
 import toast from "react-hot-toast";
 
-// IMPORT TIPE KETAT
 import type { ScheduleWithRelations } from "@/actions/admin/schedules";
 import type { Class } from "@/types";
 
@@ -37,78 +36,86 @@ export function AddScheduleModal({
   initialData,
 }: AddScheduleModalProps) {
   const [isPending, startTransition] = useTransition();
-  const [formData, setFormData] = useState({
+
+  // 1. Inisialisasi State Default
+  const defaultFormData = {
     title: "",
     event_date: "",
-    class_id: "null",
+    start_time: "09:20",
+    end_time: "11:00",
+    class_id: "none",
     is_announcement: false,
-  });
+    content: "",
+  };
 
+  const [formData, setFormData] = useState(defaultFormData);
+
+  // 2. FIX REACT CASCADING RENDER ERROR
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  const [prevInitialData, setPrevInitialData] = useState(initialData);
+
+  if (isOpen !== prevIsOpen || initialData !== prevInitialData) {
+    setPrevIsOpen(isOpen);
+    setPrevInitialData(initialData);
+
+    if (isOpen) {
+      if (initialData) {
+        setFormData({
+          title: initialData.title,
+          event_date: initialData.event_date.split("T")[0],
+          start_time: initialData.start_time || "09:00",
+          end_time: initialData.end_time || "11:00",
+          class_id: initialData.class_id?.toString() || "none",
+          is_announcement: initialData.is_announcement,
+          content: initialData.content ? (initialData.content as string) : "",
+        });
+      } else {
+        setFormData(defaultFormData);
+      }
+    }
+  }
+
+  // 3. Konfigurasi Tiptap Editor (DENGAN FIX SSR)
   const editor = useEditor({
     extensions: [StarterKit],
-    content: "<p>Tulis materi atau pengumuman di sini...</p>",
-    immediatelyRender: false,
+    content: formData.content,
+    immediatelyRender: false, // <--- INI DIA OBATNYA BRO!
+    onUpdate: ({ editor }) => {
+      setFormData((prev) => ({ ...prev, content: editor.getHTML() }));
+    },
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm focus:outline-none max-w-none p-4 min-h-[160px] max-h-[300px] overflow-y-auto bg-white rounded-b-lg border border-slate-200 border-t-0",
+          "prose prose-sm sm:prose-base max-w-none focus:outline-none min-h-[150px] px-4 py-3 bg-white rounded-b-[1rem]",
       },
     },
   });
 
-  // Sinkronisasi Form jika mode Edit
+  // 4. Sinkronisasi Tiptap Content
   useEffect(() => {
-    if (isOpen) {
-      const timeoutId = setTimeout(() => {
-        if (initialData) {
-          setFormData({
-            title: initialData.title || "",
-            event_date: initialData.event_date
-              ? new Date(initialData.event_date).toISOString().split("T")[0]
-              : "",
-            class_id: initialData.class_id?.toString() || "null",
-            is_announcement: initialData.is_announcement || false,
-          });
-          // @ts-expect-error Penyesuaian tipe JSONB
-          editor?.commands.setContent(initialData.content?.html || "<p></p>");
-        } else {
-          setFormData({
-            title: "",
-            event_date: "",
-            class_id: "null",
-            is_announcement: false,
-          });
-          editor?.commands.setContent(
-            "<p>Tulis materi atau pengumuman di sini...</p>",
-          );
-        }
-      }, 0);
-
-      return () => clearTimeout(timeoutId);
+    if (isOpen && editor) {
+      editor.commands.setContent(
+        initialData?.content ? (initialData.content as string) : "",
+      );
     }
   }, [isOpen, initialData, editor]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editor) return;
-    const htmlContent = editor.getHTML();
-
     startTransition(async () => {
+      const tid = toast.loading("Menyimpan jadwal...");
       try {
-        await upsertSchedule({
-          id: initialData?.id,
+        const payload = {
           ...formData,
           class_id:
-            formData.class_id === "null" ? null : parseInt(formData.class_id),
-          // @ts-expect-error Supabase JSONB cast
-          content: { html: htmlContent },
-        });
-        toast.success(
-          initialData ? "Jadwal diperbarui!" : "Jadwal berhasil dibuat!",
-        );
+            formData.class_id === "none" ? null : parseInt(formData.class_id),
+          content: editor?.getHTML(),
+        };
+        await upsertSchedule(payload, initialData?.id);
+        toast.success("Jadwal berhasil disimpan!", { id: tid });
         onClose();
       } catch (error: any) {
-        toast.error(error.message);
+        toast.error(error.message, { id: tid });
       }
     });
   };
@@ -117,31 +124,53 @@ export function AddScheduleModal({
     <AppModal
       isOpen={isOpen}
       onClose={onClose}
-      title={initialData ? "Edit Agenda & Materi" : "Buat Agenda Baru"}
-      description="Isi form di bawah untuk menjadwalkan kegiatan pembelajaran."
+      title={
+        initialData ? "Edit Jadwal / Pengumuman" : "Buat Jadwal / Pengumuman"
+      }
       variant="orange"
-      maxWidth="xl"
+      maxWidth="2xl"
     >
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="space-y-2 text-left">
-          <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Judul Kegiatan
-          </Label>
-          <Input
-            required
-            placeholder="Contoh: Belajar Sejarah Buddha"
-            value={formData.title}
-            onChange={(e) =>
-              setFormData({ ...formData, title: e.target.value })
-            }
-            className="h-11 font-medium rounded-lg border-slate-200 focus-visible:ring-orange-500"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-left">
+      <form onSubmit={handleSubmit} className="space-y-5 text-left mt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div className="space-y-2">
             <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Tanggal Acara
+              Judul / Topik
+            </Label>
+            <Input
+              required
+              value={formData.title}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
+              placeholder="Contoh: Riwayat Sang Buddha..."
+              className="h-11 rounded-[1rem] border-slate-200 bg-slate-50 font-medium focus-visible:ring-orange-500"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Kategori
+            </Label>
+            <Select
+              value={formData.is_announcement ? "true" : "false"}
+              onValueChange={(val) =>
+                setFormData({ ...formData, is_announcement: val === "true" })
+              }
+            >
+              <SelectTrigger className="h-11 rounded-[1rem] border-slate-200 bg-slate-50 font-semibold focus:ring-orange-500">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="false">Materi / Jadwal Belajar</SelectItem>
+                <SelectItem value="true">Pengumuman Terbuka</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div className="space-y-2">
+            <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Tanggal
             </Label>
             <Input
               type="date"
@@ -150,85 +179,111 @@ export function AddScheduleModal({
               onChange={(e) =>
                 setFormData({ ...formData, event_date: e.target.value })
               }
-              className="h-11 rounded-lg border-slate-200 font-medium"
+              className="h-11 rounded-[1rem] border-slate-200 bg-slate-50 font-medium focus-visible:ring-orange-500"
             />
           </div>
           <div className="space-y-2">
             <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Untuk Kelas
+              Mulai (WIB)
             </Label>
-            <Select
-              value={formData.class_id}
-              onValueChange={(v) => setFormData({ ...formData, class_id: v })}
-            >
-              <SelectTrigger className="h-11 rounded-lg border-slate-200 font-medium text-sm focus:ring-orange-500">
-                <SelectValue placeholder="Pilih Kelas" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="null">Semua Kelas / Umum</SelectItem>
-                {classes.map((c) => (
-                  <SelectItem key={c.id} value={c.id.toString()}>
-                    {c.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Input
+              type="time"
+              required
+              value={formData.start_time}
+              onChange={(e) =>
+                setFormData({ ...formData, start_time: e.target.value })
+              }
+              className="h-11 rounded-[1rem] border-slate-200 bg-slate-50 font-medium focus-visible:ring-orange-500"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Selesai (WIB)
+            </Label>
+            <Input
+              type="time"
+              required
+              value={formData.end_time}
+              onChange={(e) =>
+                setFormData({ ...formData, end_time: e.target.value })
+              }
+              className="h-11 rounded-[1rem] border-slate-200 bg-slate-50 font-medium focus-visible:ring-orange-500"
+            />
           </div>
         </div>
 
-        <div className="space-y-2 text-left border-t border-slate-200 pt-5 mt-2">
+        <div className="space-y-2">
           <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Materi Pembelajaran / Isi Pengumuman
+            Target Kelas
           </Label>
-
-          {/* TIPTAP TOOLBAR */}
-          <div className="flex gap-1 p-2 bg-slate-50 border border-slate-200 rounded-t-lg border-b-0">
-            <AppButton
-              type="button"
-              variant="ghost"
-              size="sm"
-              className={`h-8 w-8 p-0 rounded-md ${editor?.isActive("bold") ? "bg-slate-200 text-slate-900" : "text-slate-500"}`}
-              onClick={() => editor?.chain().focus().toggleBold().run()}
-            >
-              <Bold size={14} />
-            </AppButton>
-            <AppButton
-              type="button"
-              variant="ghost"
-              size="sm"
-              className={`h-8 w-8 p-0 rounded-md ${editor?.isActive("italic") ? "bg-slate-200 text-slate-900" : "text-slate-500"}`}
-              onClick={() => editor?.chain().focus().toggleItalic().run()}
-            >
-              <Italic size={14} />
-            </AppButton>
-            <AppButton
-              type="button"
-              variant="ghost"
-              size="sm"
-              className={`h-8 w-8 p-0 rounded-md ${editor?.isActive("bulletList") ? "bg-slate-200 text-slate-900" : "text-slate-500"}`}
-              onClick={() => editor?.chain().focus().toggleBulletList().run()}
-            >
-              <List size={14} />
-            </AppButton>
-          </div>
-
-          {/* TIPTAP CONTENT */}
-          {editor ? (
-            <EditorContent editor={editor} />
-          ) : (
-            <div className="h-40 bg-slate-50 animate-pulse border border-slate-200 rounded-b-lg" />
-          )}
+          <Select
+            value={formData.class_id}
+            onValueChange={(val) => setFormData({ ...formData, class_id: val })}
+          >
+            <SelectTrigger className="h-11 rounded-[1rem] border-slate-200 bg-slate-50 font-semibold focus:ring-orange-500">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Semua Kelas (Umum)</SelectItem>
+              {classes.map((c) => (
+                <SelectItem key={c.id} value={c.id.toString()}>
+                  Kelas {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
-        {/* TOMBOL SUBMIT */}
-        <div className="pt-4 border-t border-slate-200 mt-4 flex justify-end">
+        <div className="space-y-2">
+          <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            Isi Materi / Deskripsi
+          </Label>
+          <div className="border border-slate-200 rounded-[1rem] overflow-hidden shadow-sm">
+            <div className="bg-slate-100 border-b border-slate-200 p-2 flex items-center gap-1">
+              <AppButton
+                type="button"
+                variant="ghost"
+                size="sm"
+                className={`h-8 w-8 p-0 rounded-[0.8rem] ${editor?.isActive("bold") ? "bg-slate-200 text-slate-900" : "text-slate-500"}`}
+                onClick={() => editor?.chain().focus().toggleBold().run()}
+              >
+                <Bold size={14} />
+              </AppButton>
+              <AppButton
+                type="button"
+                variant="ghost"
+                size="sm"
+                className={`h-8 w-8 p-0 rounded-[0.8rem] ${editor?.isActive("italic") ? "bg-slate-200 text-slate-900" : "text-slate-500"}`}
+                onClick={() => editor?.chain().focus().toggleItalic().run()}
+              >
+                <Italic size={14} />
+              </AppButton>
+              <AppButton
+                type="button"
+                variant="ghost"
+                size="sm"
+                className={`h-8 w-8 p-0 rounded-[0.8rem] ${editor?.isActive("bulletList") ? "bg-slate-200 text-slate-900" : "text-slate-500"}`}
+                onClick={() => editor?.chain().focus().toggleBulletList().run()}
+              >
+                <List size={14} />
+              </AppButton>
+            </div>
+            {editor ? (
+              <EditorContent editor={editor} />
+            ) : (
+              <div className="h-40 bg-slate-50 animate-pulse border-t border-slate-200 rounded-b-[1rem]" />
+            )}
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-slate-100 mt-6 flex justify-end">
           <AppButton
             type="submit"
             isLoading={isPending}
-            className="w-full md:w-auto h-11"
-            leftIcon={<Save size={16} />}
+            className="h-11 px-8 rounded-[1rem] font-bold"
+            leftIcon={<Save size={18} />}
           >
-            {initialData ? "Simpan Perubahan" : "Simpan & Publikasikan"}
+            {initialData ? "Simpan Perubahan" : "Publikasikan Jadwal"}
           </AppButton>
         </div>
       </form>
