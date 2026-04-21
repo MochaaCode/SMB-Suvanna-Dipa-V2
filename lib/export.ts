@@ -1,54 +1,59 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import XLSX from "xlsx-js-style";
 
 /**
  * Fungsi cerdas untuk meng-export array of objects ke file Excel (.xlsx)
  * Dilengkapi dengan Auto-Fit Column Width dan Styling Header Enterprise.
  */
-export const exportToExcel = <T extends Record<string, unknown>>(
-  data: T[],
+export const exportToExcel = (
+  data: any[],
   fileName: string,
   sheetName: string = "Laporan",
 ) => {
-  if (!data || data.length === 0) return;
+  exportMultipleSheetsToExcel([{ sheetName, data }], fileName);
+};
 
-  // 1. Ubah JSON ke Worksheet
-  const worksheet = XLSX.utils.json_to_sheet(data);
+export const exportMultipleSheetsToExcel = (
+  sheetsData: { sheetName: string; data: any[] }[],
+  fileName: string,
+) => {
+  if (!sheetsData || sheetsData.length === 0) return;
+
   const workbook = XLSX.utils.book_new();
 
-  // 2. STYLING HEADER (Baris Pertama)
-  const range = XLSX.utils.decode_range(worksheet["!ref"] || "A1:A1");
+  sheetsData.forEach(({ sheetName, data }) => {
+    if (!data || data.length === 0) return;
 
-  for (let C = range.s.c; C <= range.e.c; ++C) {
-    const address = XLSX.utils.encode_col(C) + "1";
-    if (!worksheet[address]) continue;
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const range = XLSX.utils.decode_range(worksheet["!ref"] || "A1:A1");
 
-    worksheet[address].s = {
-      fill: { fgColor: { rgb: "EA580C" } }, // Orange-600 (Standar Enterprise)
-      font: { color: { rgb: "FFFFFF" }, bold: true, sz: 12 },
-      alignment: { vertical: "center", horizontal: "center" },
-      border: {
-        bottom: { style: "thick", color: { rgb: "000000" } },
-      },
-    };
-  }
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const address = XLSX.utils.encode_col(C) + "1";
+      if (!worksheet[address]) continue;
 
-  // 3. AUTO-WIDTH KALKULATOR (Dynamic Columns)
-  // Membaca key dari object pertama untuk menghitung panjang karakter
-  const colWidths = Object.keys(data[0]).map((key) => {
-    // Cari string terpanjang antara nama Header (key) atau isi datanya
-    const maxLength = data.reduce((max, row) => {
-      const cellValue =
-        row[key] !== null && row[key] !== undefined ? row[key].toString() : "";
-      return Math.max(max, cellValue.length);
-    }, key.length); // Inisialisasi awal dengan panjang nama kolom
+      worksheet[address].s = {
+        fill: { fgColor: { rgb: "EA580C" } },
+        font: { color: { rgb: "FFFFFF" }, bold: true, sz: 12 },
+        alignment: { vertical: "center", horizontal: "center" },
+        border: { bottom: { style: "thick", color: { rgb: "000000" } } },
+      };
+    }
 
-    // Berikan padding +4 karakter agar tidak terlalu mepet (maksimal lebar 50)
-    return { wch: Math.min(maxLength + 4, 50) };
+    const colWidths = Object.keys(data[0]).map((key) => {
+      const maxLength = data.reduce((max, row) => {
+        const cellValue =
+          row[key] !== null && row[key] !== undefined
+            ? row[key].toString()
+            : "";
+        return Math.max(max, cellValue.length);
+      }, key.length);
+      return { wch: Math.min(maxLength + 4, 50) };
+    });
+
+    worksheet["!cols"] = colWidths;
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
   });
 
-  worksheet["!cols"] = colWidths;
-
-  // 4. GENERATE FILE
-  XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
   XLSX.writeFile(workbook, `${fileName}.xlsx`);
 };

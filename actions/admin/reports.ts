@@ -1,88 +1,130 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import type { AttendanceStatus } from "@/types";
 
-export type YearlyRecapData = {
+export interface RichReportData {
   "Nama Lengkap": string;
+  Usia: string;
+  Email: string;
+  "No. Telepon": string;
   Kelas: string;
+  "Kartu RFID": string;
   "Total Poin": number;
-  "Total Hadir": number;
-  "Total Terlambat": number;
-  "Total Izin/Sakit": number;
-  "Total Alpa": number;
+  "Rutin Hadir": number;
+  "Barang Dibeli": string;
   "Status Keaktifan": string;
-};
+}
 
-type RawProfileQuery = {
-  full_name: string | null;
-  points: number;
-  classes: { name: string } | { name: string }[] | null;
-  attendance_logs: { status: AttendanceStatus }[] | null;
-};
+export interface ChartAnalytics {
+  attendanceByMonth: { month: string; hadir: number }[];
+  classStats: { name: string; count: number; avgAge: string }[];
+}
 
-export async function getYearlyRecapData(): Promise<YearlyRecapData[]> {
+export async function getComprehensiveReportData() {
   const supabaseAdmin = createAdminClient();
 
-  const { data, error } = await supabaseAdmin
+  // 1. Tarik Data Profil + Semua Relasinya secara Spesifik (Fix Relasi Ganda)
+  const { data: profiles, error } = await supabaseAdmin
     .from("profiles")
     .select(
       `
-      full_name,
-      points,
-      classes!profiles_class_id_fkey(name),
-      attendance_logs!attendance_logs_profile_id_fkey(status)
+      id, full_name, birth_date, phone_number, parent_phone_number, points,
+      classes!profiles_class_id_fkey (name),
+      attendance_logs!attendance_logs_profile_id_fkey (status, scan_time),
+      product_orders!product_orders_user_id_fkey ( products(name) ),
+      rfid_tags!rfid_tags_profile_id_fkey (uid)
     `,
     )
-    .eq("role", "siswa");
+    .eq("role", "siswa")
+    .eq("is_deleted", false);
 
-  if (error) {
-    console.error("Supabase Error:", error);
-    throw new Error("Gagal mengambil data: " + error.message);
-  }
+  if (error) throw new Error("Gagal mengambil data laporan: " + error.message);
 
-  const rawData = (data || []) as RawProfileQuery[];
+  // 2. Tarik Data Email dari Auth (Bypass RLS)
+  const { data: authData } = await supabaseAdmin.auth.admin.listUsers();
+  const emailMap = new Map(authData.users.map((u) => [u.id, u.email]));
 
-  return rawData
-    .map((s) => {
-      const logs = s.attendance_logs || [];
+  // VARIABEL UNTUK CHARTS
+  const attendanceMonthlyMap: Record<string, number> = {};
+  const classMap: Record<string, { count: number; totalAge: number }> = {};
 
-      let hadir = 0;
-      let terlambat = 0;
-      let izinSakit = 0;
-      let alpa = 0;
+  // 3. Transformasi Data
+  const richData: RichReportData[] = (profiles || []).map((s: any) => {
+    // --- Kalkulasi Usia ---
+    let ageNumber = 0;
+    let ageStr = "Belum Diisi";
+    if (s.birth_date) {
+      const birth = new Date(s.birth_date);
+      const diff = Date.now() - birth.getTime();
+      ageNumber = Math.abs(new Date(diff).getUTCFullYear() - 1970);
+      ageStr = `${ageNumber} Tahun`;
+    }
 
-      for (const l of logs) {
-        switch (l.status) {
-          case "hadir":
-            hadir++;
-            break;
-          case "terlambat":
-            terlambat++;
-            break;
-          case "izin":
-            izinSakit++;
-            break;
-          case "alpa":
-            alpa++;
-            break;
-        }
+    // --- Kontak & Email ---
+    const email = emailMap.get(s.id) || "Tidak Ada Email";
+    const phone = s.phone_number || s.parent_phone_number || "Tidak Ada Kontak";
+
+    // --- Kartu RFID ---
+    const rfid =
+      s.rfid_tags?.length > 0 ? s.rfid_tags[0].uid : "Belum Terpasang";
+
+    // --- Barang Dibeli ---
+    const purchases = s.product_orders
+      ?.map((po: any) => po.products?.name)
+      .filter(Boolean);
+    const purchaseStr =
+      purchases?.length > 0 ? purchases.join(", ") : "Belum Pernah Tukar";
+
+    // --- Kehadiran & Chart Bulanan ---
+    let totalHadir = 0;
+    s.attendance_logs?.forEach((log: any) => {
+      if (log.status === "hadir" || log.status === "terlambat") {
+        totalHadir++;
+        // Hitung untuk Chart Bulanan
+        const monthKey = new Date(log.scan_time).toLocaleDateString("id-ID", {
+          month: "short",
+          year: "numeric",
+        });
+        attendanceMonthlyMap[monthKey] =
+          (attendanceMonthlyMap[monthKey] || 0) + 1;
       }
+    });
 
-      const cls = Array.isArray(s.classes) ? s.classes[0] : s.classes;
+    // --- Kelas & Chart Kelas ---
+    const className = s.classes?.name || "Tanpa Kelas";
+    if (!classMap[className]) classMap[className] = { count: 0, totalAge: 0 };
+    classMap[className].count += 1;
+    classMap[className].totalAge += ageNumber;
 
-      const totalKehadiran = hadir + terlambat;
+    return {
+      "Nama Lengkap": s.full_name || "Tanpa Nama",
+      Usia: ageStr,
+      Email: email,
+      "No. Telepon": phone,
+      Kelas: className,
+      "Kartu RFID": rfid,
+      "Total Poin": s.points || 0,
+      "Rutin Hadir": totalHadir,
+      "Barang Dibeli": purchaseStr,
+      "Status Keaktifan":
+        totalHadir >= 12 ? "Sangat Aktif" : totalHadir > 0 ? "Aktif" : "Pasif",
+    };
+  });
 
-      return {
-        "Nama Lengkap": s.full_name ?? "Tanpa Nama",
-        Kelas: cls?.name ?? "Belum Masuk Kelas",
-        "Total Poin": s.points ?? 0,
-        "Total Hadir": hadir,
-        "Total Terlambat": terlambat,
-        "Total Izin/Sakit": izinSakit,
-        "Total Alpa": alpa,
-        "Status Keaktifan": totalKehadiran >= 24 ? "Aktif" : "Perlu Perhatian",
-      };
-    })
-    .sort((a, b) => b["Total Poin"] - a["Total Poin"]);
+  // FORMATTING DATA CHARTS
+  const attendanceByMonth = Object.entries(attendanceMonthlyMap).map(
+    ([month, hadir]) => ({ month, hadir }),
+  );
+
+  const classStats = Object.entries(classMap).map(([name, stats]) => ({
+    name,
+    count: stats.count,
+    avgAge: stats.count > 0 ? (stats.totalAge / stats.count).toFixed(1) : "0",
+  }));
+
+  return {
+    tableData: richData.sort((a, b) => b["Total Poin"] - a["Total Poin"]),
+    analytics: { attendanceByMonth, classStats },
+  };
 }

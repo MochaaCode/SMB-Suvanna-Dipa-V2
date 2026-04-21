@@ -1,16 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { YearlyRecapData } from "@/actions/admin/reports";
-import { exportToExcel } from "@/lib/export";
+import { exportMultipleSheetsToExcel } from "@/lib/export";
 import {
   Download,
   Users,
   Award,
-  TrendingUp,
   Search,
-  AlertCircle,
   FileSpreadsheet,
+  Activity,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { AppCard } from "../../shared/AppCard";
@@ -18,93 +16,105 @@ import { AppButton } from "../../shared/AppButton";
 import { PageHeader } from "../../shared/PageHeader";
 import { ReportMetricCard } from "./ReportMetricCard";
 import { ReportsTable } from "./ReportTable";
+import { ReportCharts } from "./ReportCharts";
 
-export function ReportsManagement({ data }: { data: YearlyRecapData[] }) {
+import type { RichReportData, ChartAnalytics } from "@/actions/admin/reports";
+
+interface ReportsManagementProps {
+  data: {
+    tableData: RichReportData[];
+    analytics: ChartAnalytics;
+  };
+}
+
+export function ReportsManagement({ data }: ReportsManagementProps) {
   const [search, setSearch] = useState("");
 
-  // 1. Logic Pencarian
-  const filteredData = data.filter((item) =>
+  const filteredData = data.tableData.filter((item) =>
     item["Nama Lengkap"].toLowerCase().includes(search.toLowerCase()),
   );
 
-  // 2. Logic Kalkulasi Metrik
-  const totalStudents = data.length;
-  const activeStudents = data.filter(
-    (dataStatus) => dataStatus["Status Keaktifan"] === "Aktif",
+  const totalStudents = data.tableData.length;
+  const activeStudents = data.tableData.filter(
+    (d) => d["Status Keaktifan"] !== "Pasif",
   ).length;
-  const totalPoints = data.reduce((acc, curr) => acc + curr["Total Poin"], 0);
-  const avgAttendance = totalStudents
-    ? (
-        data.reduce((acc, curr) => acc + curr["Total Hadir"], 0) / totalStudents
-      ).toFixed(1)
-    : "0";
+  const totalPoints = data.tableData.reduce(
+    (acc, curr) => acc + curr["Total Poin"],
+    0,
+  );
+
+  const handleExport = () => {
+    const sheets = [
+      { sheetName: "Data Induk Siswa", data: data.tableData },
+      { sheetName: "Statistik Kelas", data: data.analytics.classStats },
+      { sheetName: "Tren Kehadiran", data: data.analytics.attendanceByMonth },
+    ];
+    exportMultipleSheetsToExcel(
+      sheets,
+      `Laporan_Vihara_${new Date().getFullYear()}`,
+    );
+  };
 
   return (
     <div className="space-y-6">
-      {/* MENGGUNAKAN PAGE HEADER BAWAAN LU */}
       <PageHeader
         title="Audit &"
         highlightText="Laporan"
-        subtitle="Rekapitulasi performa dan kehadiran tahunan"
+        subtitle="Analitik komprehensif, performa, dan eksport data induk"
         icon={<FileSpreadsheet size={24} />}
         themeColor="orange"
         rightContent={
           <AppButton
-            onClick={() =>
-              exportToExcel(data, "Laporan_Tutup_Buku_SMB", "Rekap Tahunan")
-            }
+            onClick={handleExport}
             leftIcon={<Download size={18} />}
+            className="shadow-lg font-bold rounded-[1rem]"
           >
-            Export ke Excel
+            Unduh Excel Lengkap
           </AppButton>
         }
       />
 
-      {/* RENDER KOMPONEN METRIK */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <ReportMetricCard
-          title="Total Siswa"
+          title="Total Siswa Terdaftar"
           value={totalStudents}
           icon={<Users />}
           theme="blue"
         />
         <ReportMetricCard
-          title="Siswa Aktif"
+          title="Siswa Aktif Hadir"
           value={activeStudents}
-          icon={<TrendingUp />}
+          icon={<Activity />}
           theme="green"
         />
         <ReportMetricCard
-          title="Total Poin"
-          value={totalPoints}
+          title="Total Poin Beredar"
+          value={totalPoints.toLocaleString()}
           icon={<Award />}
           theme="orange"
         />
-        <ReportMetricCard
-          title="Rata-rata Hadir"
-          value={`${avgAttendance}x`}
-          icon={<AlertCircle />}
-          theme="purple"
-        />
       </div>
 
-      {/* RENDER KOMPONEN TABEL */}
-      <AppCard className="p-0 overflow-hidden">
-        <div className="p-4 border-b border-slate-100 flex items-center bg-slate-50/50">
+      {/* DASHBOARD CHARTS */}
+      <ReportCharts analytics={data.analytics} />
+
+      {/* TABEL DATA LENGKAP */}
+      <AppCard className="p-0 overflow-hidden shadow-sm border-slate-200">
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+          <h3 className="text-sm font-bold text-slate-800">Tabel Data Induk</h3>
           <div className="relative w-full md:w-80">
             <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-              size={18}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+              size={16}
             />
             <Input
               placeholder="Cari nama siswa..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 h-10 bg-white border-slate-200 focus-visible:ring-orange-500"
+              className="pl-10 h-10 bg-white border-slate-200 rounded-[1rem] focus-visible:ring-orange-500 shadow-sm"
             />
           </div>
         </div>
-
         <ReportsTable data={filteredData} />
       </AppCard>
     </div>
