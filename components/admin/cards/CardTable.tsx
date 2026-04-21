@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { useDebounce } from "@/hooks/useDebounce";
 import {
   Table,
   TableBody,
@@ -27,103 +29,127 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { AppButton } from "../../shared/AppButton";
 
-// IMPORT TIPE KETAT
 import type { CardWithProfile } from "@/actions/admin/cards";
 import type { Profile } from "@/types";
 
 interface CardTableProps {
-  cards: CardWithProfile[];
+  initialCards: CardWithProfile[];
   availableUsers: Pick<Profile, "id" | "full_name" | "role">[];
 }
 
-export function CardTable({ cards, availableUsers }: CardTableProps) {
+export function CardTable({ initialCards, availableUsers }: CardTableProps) {
+  const [cards, setCards] = useState<CardWithProfile[]>(initialCards);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUid, setSelectedUid] = useState<string | null>(null);
+  const debouncedSearch = useDebounce(searchTerm, 300);
   const router = useRouter();
+  const supabase = createClient();
 
-  const filteredCards = cards.filter(
-    (c) =>
-      c.uid.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const [prevInitialCards, setPrevInitialCards] = useState(initialCards);
+  if (initialCards !== prevInitialCards) {
+    setPrevInitialCards(initialCards);
+    setCards(initialCards);
+  }
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("rfid-updates")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "rfid_tags" },
+        () => {
+          router.refresh();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [supabase, router]);
+
+  const filteredCards = useMemo(() => {
+    return cards.filter(
+      (c) =>
+        c.uid.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        c.profile?.full_name
+          ?.toLowerCase()
+          .includes(debouncedSearch.toLowerCase()),
+    );
+  }, [cards, debouncedSearch]);
 
   const handleUnpair = async (uid: string) => {
-    if (window.confirm("Yakin ingin melepas kartu ini dari pengguna?")) {
-      const tid = toast.loading("Melepas kaitan kartu...");
-      try {
-        await unpairCard(uid);
-        toast.success("Kartu berhasil dilepas!", { id: tid });
-        router.refresh();
-      } catch (error: any) {
-        toast.error(error.message, { id: tid });
-      }
+    const tid = toast.loading("Melepas kaitan kartu...");
+    try {
+      await unpairCard(uid);
+      toast.success("Kartu sekarang berstatus tersedia.", { id: tid });
+    } catch (err: any) {
+      toast.error(err.message, { id: tid });
     }
   };
 
   const handleMarkLost = async (uid: string) => {
     if (
-      window.confirm(
-        "Tandai kartu ini sebagai HILANG? Kaitan dengan user akan dilepas.",
-      )
+      confirm("Tandai kartu ini sebagai hilang? Akses pengguna akan dicabut.")
     ) {
       const tid = toast.loading("Memperbarui status...");
       try {
         await markCardAsLost(uid);
-        toast.success("Status: HILANG", { id: tid });
-        router.refresh();
-      } catch (error: any) {
-        toast.error(error.message, { id: tid });
+        toast.success("Kartu ditandai hilang.", { id: tid });
+      } catch (err: any) {
+        toast.error(err.message, { id: tid });
       }
     }
   };
 
   const handleDelete = async (uid: string) => {
-    if (window.confirm("Hapus kartu ini secara permanen?")) {
-      const tid = toast.loading("Menghapus...");
+    if (confirm("Hapus kartu dari inventaris secara permanen?")) {
+      const tid = toast.loading("Menghapus data...");
       try {
         await deleteCard(uid);
-        toast.success("Kartu terhapus!", { id: tid });
-        router.refresh();
-      } catch (error: any) {
-        toast.error(error.message, { id: tid });
+        toast.success("Kartu dihapus.", { id: tid });
+      } catch (err: any) {
+        toast.error(err.message, { id: tid });
       }
     }
   };
 
   return (
-    <div className="space-y-4">
-      {/* FILTER SEARCH */}
-      <div className="p-5 pb-0">
-        <div className="relative max-w-sm group">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-orange-500 transition-colors" />
+    <div className="bg-white rounded-[1rem] flex flex-col h-full">
+      <div className="p-5 border-b border-slate-100 flex items-center justify-between gap-4">
+        <div className="relative w-full md:w-80">
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            size={16}
+          />
           <Input
-            type="text"
-            placeholder="Cari UID atau Nama Pemilik..."
-            className="w-full pl-10 pr-4 h-10 border-slate-200 rounded-lg text-sm font-medium focus-visible:ring-orange-500 transition-all shadow-sm"
+            placeholder="Cari UID atau nama pemilik..."
+            className="pl-9 h-10 rounded-[1rem] border-slate-200 bg-slate-50 focus-visible:ring-orange-500 font-medium"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
+        <div className="hidden sm:flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+          <Activity size={12} className="text-green-500 animate-pulse" /> Live
+          Sync Active
+        </div>
       </div>
 
-      <div className="w-full overflow-x-auto">
+      <div className="overflow-x-auto min-h-100">
         <Table>
-          <TableHeader className="bg-slate-50 border-y border-slate-200">
-            <TableRow className="border-none hover:bg-transparent">
-              <TableHead className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-center text-slate-500">
+          <TableHeader className="bg-slate-50/50">
+            <TableRow className="border-slate-100">
+              <TableHead className="w-40 text-center text-xs font-bold uppercase py-4">
                 UID RFID
               </TableHead>
-              <TableHead className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-center text-slate-500">
+              <TableHead className="text-xs font-bold uppercase py-4">
+                Pemilik Kartu
+              </TableHead>
+              <TableHead className="text-center text-xs font-bold uppercase py-4">
                 Status
               </TableHead>
-              <TableHead className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-center text-slate-500">
-                Pemilik (User)
-              </TableHead>
-              <TableHead className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-center text-slate-500">
-                Role
-              </TableHead>
-              <TableHead className="px-6 py-4 font-bold text-xs uppercase tracking-wider text-center text-slate-500 w-44">
-                Aksi
+              <TableHead className="w-44 text-center text-xs font-bold uppercase py-4">
+                Tindakan
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -131,75 +157,71 @@ export function CardTable({ cards, availableUsers }: CardTableProps) {
             {filteredCards.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={5}
-                  className="h-32 text-center text-slate-400 font-medium text-sm"
+                  colSpan={4}
+                  className="h-40 text-center text-slate-400 font-medium italic"
                 >
-                  Tidak ada data kartu ditemukan.
+                  Data kartu tidak ditemukan.
                 </TableCell>
               </TableRow>
             ) : (
               filteredCards.map((card) => (
                 <TableRow
                   key={card.uid}
-                  className="group hover:bg-slate-50 transition-colors border-b border-slate-100"
+                  className="hover:bg-slate-50/50 transition-colors border-b border-slate-100"
                 >
-                  <TableCell className="px-6 py-4 text-center">
-                    <div className="flex items-center justify-center gap-2 font-mono font-bold text-slate-700 text-sm">
-                      <Fingerprint
-                        size={16}
-                        className="text-slate-400 group-hover:text-orange-500 transition-colors"
-                      />
+                  <TableCell className="font-mono font-bold text-slate-700">
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="p-1.5 bg-slate-100 rounded-lg text-slate-400">
+                        <Fingerprint size={14} />
+                      </div>
                       {card.uid}
                     </div>
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-center">
+                  <TableCell>
+                    {card.profile ? (
+                      <div className="space-y-0.5">
+                        <p className="text-sm font-bold text-slate-800 leading-tight">
+                          {card.profile.full_name}
+                        </p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          Role: {card.profile.role}
+                        </p>
+                      </div>
+                    ) : (
+                      <span className="text-xs font-medium text-slate-400 italic">
+                        Belum Terpasang
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-center">
                     <Badge
-                      className={`uppercase text-[10px] font-bold tracking-wider px-2.5 py-0.5 border-none shadow-none ${
-                        card.status === "terpakai"
-                          ? "bg-blue-50 text-blue-700"
-                          : card.status === "hilang"
-                            ? "bg-red-50 text-red-700"
-                            : "bg-green-50 text-green-700"
-                      }`}
-                      variant="outline"
+                      className={`
+                        ${card.status === "tersedia" ? "bg-green-50 text-green-700 border-green-200" : ""}
+                        ${card.status === "terpakai" ? "bg-blue-50 text-blue-700 border-blue-200" : ""}
+                        ${card.status === "hilang" ? "bg-red-50 text-red-700 border-red-200" : ""}
+                        px-2.5 py-0.5 rounded-[1rem] text-[10px] font-bold uppercase tracking-wider shadow-none border
+                      `}
                     >
-                      <Activity size={12} className="mr-1.5" />
                       {card.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="px-6 py-4 text-center font-bold text-sm text-slate-800">
-                    {card.profile?.full_name || (
-                      <span className="text-slate-400 font-medium italic">
-                        Belum Dipasangkan
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-center">
-                    {card.profile?.role ? (
-                      <span className="uppercase text-[10px] font-bold text-slate-500 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-200 tracking-wider">
-                        {card.profile.role}
-                      </span>
-                    ) : (
-                      <span className="text-slate-300">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-center">
+                  <TableCell>
                     <div className="flex justify-center gap-2">
                       {card.profile ? (
                         <AppButton
-                          size="sm"
+                          size="icon"
                           variant="secondary"
-                          className="text-red-600 hover:bg-red-50 hover:text-red-700 border border-slate-200 h-8 px-3 text-xs"
+                          className="text-orange-600 hover:bg-orange-50 border border-slate-200 h-8 w-8 rounded-[1rem]"
                           onClick={() => handleUnpair(card.uid)}
-                          leftIcon={<Unlink size={14} />}
+                          title="Lepas Kaitan"
                         >
-                          Lepas
+                          <Unlink size={14} />
                         </AppButton>
                       ) : (
                         <AppButton
                           size="sm"
-                          variant="secondary"
-                          className="text-orange-600 hover:bg-orange-50 hover:text-orange-700 border border-slate-200 h-8 px-3 text-xs"
+                          variant="default"
+                          className="h-8 px-3 text-[10px] font-bold uppercase rounded-[1rem]"
                           onClick={() => setSelectedUid(card.uid)}
                           leftIcon={<UserPlus size={14} />}
                         >
@@ -211,7 +233,7 @@ export function CardTable({ cards, availableUsers }: CardTableProps) {
                         <AppButton
                           size="icon"
                           variant="secondary"
-                          className="text-amber-500 hover:bg-amber-50 border border-slate-200 h-8 w-8"
+                          className="text-amber-500 hover:bg-amber-50 border border-slate-200 h-8 w-8 rounded-[1rem]"
                           onClick={() => handleMarkLost(card.uid)}
                           title="Tandai Hilang"
                         >
@@ -222,7 +244,7 @@ export function CardTable({ cards, availableUsers }: CardTableProps) {
                       <AppButton
                         size="icon"
                         variant="secondary"
-                        className="text-slate-400 hover:text-red-600 hover:bg-red-50 border border-slate-200 h-8 w-8"
+                        className="text-slate-400 hover:text-red-600 hover:bg-red-50 border border-slate-200 h-8 w-8 rounded-[1rem]"
                         onClick={() => handleDelete(card.uid)}
                         title="Hapus Kartu"
                       >

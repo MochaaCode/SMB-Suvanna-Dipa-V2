@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
@@ -5,7 +6,7 @@ import { AppModal } from "../../shared/AppModal";
 import { AppButton } from "../../shared/AppButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Save, Radio } from "lucide-react";
+import { Save, Radio, Fingerprint, Info } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { registerNewCard } from "@/actions/admin/cards";
@@ -21,40 +22,31 @@ export function AddCardModal({ open, setOpen }: AddCardModalProps) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  // ========================================================
-  // IOT SAFETY MECHANISM: Kontrol Mode Alat Scanner
-  // ========================================================
+  // SAFETY MECHANISM: Sinkronisasi Mode Alat dengan State Modal
   useEffect(() => {
     if (open) {
-      // Alat otomatis jadi mode Pendaftaran saat modal terbuka
       toggleDeviceMode("register").catch(console.error);
     } else {
-      // Alat kembali ke mode Absensi saat modal ditutup
       toggleDeviceMode("scan").catch(console.error);
     }
-
-    // Cleanup function: Jaga-jaga kalau komponen tiba-tiba hancur/pindah halaman
     return () => {
       toggleDeviceMode("scan").catch(console.error);
     };
   }, [open]);
-  // ========================================================
 
   const handleAdd = () => {
-    const cleanUid = uid.trim().toUpperCase();
-    if (!cleanUid || cleanUid.length < 4) {
-      return toast.error("UID minimal 4 karakter!");
-    }
+    if (!uid) return toast.error("UID kartu tidak boleh kosong!");
 
     startTransition(async () => {
+      const tid = toast.loading("Mendaftarkan kartu ke database...");
       try {
-        await registerNewCard(cleanUid);
-        toast.success(`UID ${cleanUid} berhasil didaftarkan!`);
+        await registerNewCard(uid.toUpperCase());
+        toast.success(`Kartu ${uid} berhasil terdaftar!`, { id: tid });
         setUid("");
         setOpen(false);
         router.refresh();
-      } catch (error: unknown) {
-        toast.error((error as Error).message);
+      } catch (err: any) {
+        toast.error(err.message, { id: tid });
       }
     });
   };
@@ -63,16 +55,16 @@ export function AddCardModal({ open, setOpen }: AddCardModalProps) {
     <AppModal
       isOpen={open}
       onClose={() => setOpen(false)}
-      title="Registrasi Kartu Fisik"
-      description="Daftarkan kartu RFID baru agar dapat dipasangkan dengan pengguna."
+      title="Registrasi Kartu Baru"
+      description="Daftarkan identitas fisik kartu RFID ke dalam inventaris sistem."
       variant="orange"
-      maxWidth="sm"
+      maxWidth="md"
       footer={
-        <div className="w-full flex justify-end gap-3">
+        <div className="flex w-full gap-3">
           <AppButton
             variant="outline"
             onClick={() => setOpen(false)}
-            disabled={isPending}
+            className="flex-1 rounded-[1rem]"
           >
             Batal
           </AppButton>
@@ -81,36 +73,49 @@ export function AddCardModal({ open, setOpen }: AddCardModalProps) {
             disabled={isPending || !uid}
             isLoading={isPending}
             leftIcon={<Save size={16} />}
+            className="flex-1 rounded-[1rem]"
           >
             Simpan Kartu
           </AppButton>
         </div>
       }
     >
-      <div className="space-y-4 text-left">
-        {/* INDIKATOR IOT */}
-        <div className="flex items-center gap-2 bg-blue-50 text-blue-600 p-3 rounded-lg border border-blue-100">
-          <Radio size={16} className="animate-pulse" />
-          <p className="text-[11px] font-bold uppercase tracking-wider">
-            Alat Scanner dalam mode pendaftaran
-          </p>
+      <div className="space-y-6 text-left mt-2">
+        {/* STATUS SCANNER BOX */}
+        <div className="flex items-center gap-4 bg-orange-50/50 p-4 rounded-[1rem] border border-orange-100">
+          <div className="relative flex shrink-0">
+            <Radio size={24} className="text-orange-600 animate-pulse" />
+            <div className="absolute inset-0 bg-orange-400 rounded-full animate-ping opacity-20"></div>
+          </div>
+          <div className="space-y-0.5">
+            <p className="text-[10px] font-black uppercase tracking-widest text-orange-600">
+              Scanner Aktif
+            </p>
+            <p className="text-[11px] font-medium text-orange-800 leading-tight">
+              Silakan tempelkan kartu pada alat atau input UID secara manual.
+            </p>
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Input UID RFID
+        <div className="space-y-2.5">
+          <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+            <Fingerprint size={14} className="text-slate-400" /> Unique ID (UID)
           </Label>
           <Input
-            placeholder="Contoh: A1B2C3D4"
+            placeholder="CONTOH: A1B2C3D4"
             value={uid}
-            onChange={(event) => setUid(event.target.value.toUpperCase())}
-            className="h-11 font-mono font-bold uppercase border-slate-200 focus-visible:ring-orange-500"
+            onChange={(e) => setUid(e.target.value.toUpperCase())}
+            className="h-12 font-mono text-lg font-black uppercase tracking-widest border-slate-200 focus-visible:ring-orange-500 rounded-[1rem] text-center bg-slate-50"
           />
         </div>
-        <p className="text-[11px] font-medium text-slate-500 leading-relaxed bg-orange-50 p-3 rounded-lg border border-orange-100">
-          *Tempelkan kartu ke alat scanner, atau ketik manual UID di atas.
-          Status awal kartu akan otomatis diatur menjadi <b>TERSEDIA</b>.
-        </p>
+
+        <div className="flex items-start gap-2.5 p-4 bg-slate-50 rounded-[1rem] border border-slate-100">
+          <Info size={16} className="text-slate-400 shrink-0 mt-0.5" />
+          <p className="text-[11px] font-medium text-slate-500 leading-relaxed">
+            Sistem akan menolak jika UID sudah terdaftar sebelumnya. Pastikan
+            alat scanner berada dalam jangkauan sinyal internet yang stabil.
+          </p>
+        </div>
       </div>
     </AppModal>
   );

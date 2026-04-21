@@ -5,8 +5,13 @@ import { useTransition, useState } from "react";
 import { AppModal } from "../../shared/AppModal";
 import { AppButton } from "../../shared/AppButton";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Check, ChevronsUpDown, UserCheck } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  UserCheck,
+  ShieldCheck,
+  User,
+} from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -25,7 +30,6 @@ import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-// IMPORT TIPE
 import type { Profile } from "@/types";
 
 interface PairingModalProps {
@@ -40,102 +44,136 @@ export function PairingModal({ uid, onClose, users }: PairingModalProps) {
   const [selectedUserId, setSelectedUserId] = useState("");
   const router = useRouter();
 
-  if (!uid) return null;
-
-  const handlePairing = () => {
-    if (!selectedUserId) {
-      toast.error("Pilih pengguna terlebih dahulu!");
-      return;
-    }
+  const handlePair = () => {
+    if (!uid || !selectedUserId) return;
 
     startTransition(async () => {
+      const tid = toast.loading("Menghubungkan kartu ke profil...");
       try {
         await pairCard(uid, selectedUserId);
-        toast.success("Kartu berhasil dipasangkan!");
-        router.refresh();
+        toast.success("Kartu berhasil dipasangkan!", { id: tid });
         setSelectedUserId("");
         onClose();
-      } catch (error: any) {
-        toast.error(error.message);
+        router.refresh();
+      } catch (err: any) {
+        toast.error(err.message, { id: tid });
       }
     });
   };
+
+  const selectedUser = users.find((u) => u.id === selectedUserId);
 
   return (
     <AppModal
       isOpen={!!uid}
       onClose={onClose}
-      title="Pasangkan Kartu"
-      description={`Hubungkan identitas pengguna dengan UID: ${uid}`}
+      title="Pasang Kartu RFID"
+      description={`Hubungkan UID: ${uid} dengan identitas pengguna.`}
       variant="orange"
-      maxWidth="sm"
+      maxWidth="md"
       footer={
-        <div className="w-full flex justify-end gap-3">
-          <AppButton variant="outline" onClick={onClose} disabled={isPending}>
+        <div className="flex w-full gap-3">
+          <AppButton
+            variant="outline"
+            onClick={onClose}
+            className="flex-1 rounded-[1rem]"
+          >
             Batal
           </AppButton>
           <AppButton
-            onClick={handlePairing}
+            onClick={handlePair}
             disabled={isPending || !selectedUserId}
             isLoading={isPending}
-            leftIcon={<UserCheck size={16} />}
+            leftIcon={<ShieldCheck size={18} />}
+            className="flex-1 rounded-[1rem]"
           >
-            Konfirmasi Pasang
+            Konfirmasi Pemasangan
           </AppButton>
         </div>
       }
     >
-      <div className="space-y-6 text-left">
-        <div className="space-y-2">
+      <div className="space-y-6 text-left mt-2">
+        <div className="space-y-2.5">
           <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Pilih Nama Pengguna
+            Pilih Pemilik Kartu
           </Label>
-
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-              <Button
-                variant="outline"
+              <button
                 role="combobox"
-                className="w-full justify-between h-11 font-semibold border-slate-200 bg-white"
+                aria-expanded={open}
+                aria-controls="user-pairing-list"
+                className="w-full h-12 px-4 rounded-[1rem] border border-slate-200 bg-white flex items-center justify-between hover:border-orange-300 transition-all outline-none focus:ring-2 focus:ring-orange-500/20"
               >
-                {selectedUserId
-                  ? users.find((u) => u.id === selectedUserId)?.full_name
-                  : "Cari nama murid atau pembina..."}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
+                <div className="flex items-center gap-2 truncate">
+                  <User size={16} className="text-slate-400" />
+                  <span
+                    className={cn(
+                      "text-sm font-bold truncate",
+                      !selectedUserId && "text-slate-400 font-medium",
+                    )}
+                  >
+                    {selectedUser
+                      ? selectedUser.full_name
+                      : "Cari nama siswa atau pembina..."}
+                  </span>
+                </div>
+                <ChevronsUpDown size={16} className="text-slate-400 shrink-0" />
+              </button>
             </PopoverTrigger>
-            <PopoverContent className="w-[--radix-popover-trigger-width] p-0 rounded-lg">
-              <Command>
-                <CommandInput placeholder="Ketik nama untuk mencari..." />
-                <CommandList>
-                  <CommandEmpty>Nama tidak ditemukan.</CommandEmpty>
+            <PopoverContent
+              className="w-(--radix-popover-trigger-width) p-0 rounded-[1rem] border-slate-200 shadow-xl"
+              align="start"
+            >
+              <Command className="rounded-[1rem]">
+                <CommandInput
+                  placeholder="Ketik nama untuk mencari..."
+                  className="h-11 border-none focus:ring-0"
+                />
+                <CommandList className="max-h-64 custom-scrollbar">
+                  <CommandEmpty className="py-6 text-center text-xs font-medium text-slate-400">
+                    Pengguna tidak ditemukan.
+                  </CommandEmpty>
                   <CommandGroup>
                     {users.map((user) => (
                       <CommandItem
                         key={user.id}
-                        value={user.full_name || ""}
                         onSelect={() => {
                           setSelectedUserId(user.id);
                           setOpen(false);
                         }}
-                        className="font-medium cursor-pointer"
+                        className="flex items-center justify-between p-3 cursor-pointer rounded-[0.8rem] m-1 hover:bg-orange-50 group"
                       >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={cn(
+                              "h-8 w-8 rounded-lg flex items-center justify-center font-bold text-[10px] border transition-colors",
+                              user.role === "admin"
+                                ? "bg-red-50 text-red-600 border-red-100"
+                                : user.role === "pembina"
+                                  ? "bg-blue-50 text-blue-600 border-blue-100"
+                                  : "bg-orange-50 text-orange-600 border-orange-100",
+                            )}
+                          >
+                            {user.full_name?.substring(0, 2).toUpperCase()}
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-bold text-slate-800 group-hover:text-orange-700">
+                              {user.full_name}
+                            </span>
+                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                              {user.role}
+                            </span>
+                          </div>
+                        </div>
                         <Check
                           className={cn(
-                            "mr-2 h-4 w-4 text-orange-600",
+                            "h-4 w-4 text-orange-600",
                             selectedUserId === user.id
                               ? "opacity-100"
                               : "opacity-0",
                           )}
                         />
-                        <div className="flex flex-col">
-                          <span className="font-bold text-slate-800">
-                            {user.full_name}
-                          </span>
-                          <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">
-                            {user.role}
-                          </span>
-                        </div>
                       </CommandItem>
                     ))}
                   </CommandGroup>
@@ -145,9 +183,13 @@ export function PairingModal({ uid, onClose, users }: PairingModalProps) {
           </Popover>
         </div>
 
-        <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 text-[11px] font-medium text-slate-600 leading-relaxed">
-          *Aksi ini akan menyambungkan identitas profil dengan ID kartu fisik.
-          Jika profil tersebut sudah memiliki kartu, ia akan ditimpa.
+        <div className="bg-blue-50/50 p-4 rounded-[1rem] border border-blue-100 flex gap-3">
+          <UserCheck size={20} className="text-blue-500 shrink-0 mt-0.5" />
+          <p className="text-[11px] font-medium text-blue-800 leading-relaxed">
+            <strong>Info Penting:</strong> Memasangkan kartu akan mencabut akses
+            kartu lama milik pengguna ini (jika ada). Data absensi sebelumnya
+            tetap aman dan tersimpan di database.
+          </p>
         </div>
       </div>
     </AppModal>

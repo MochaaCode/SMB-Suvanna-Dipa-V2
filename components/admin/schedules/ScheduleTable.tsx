@@ -139,7 +139,7 @@ export function ScheduleTable({
             className={isTrashMode ? "bg-red-50" : `bg-${themeColor}-50/30`}
           >
             <TableRow className="border-slate-200">
-              <TableHead className="w-48 text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
+              <TableHead className="w-48 text-xs text-center font-bold uppercase tracking-wider text-slate-500 py-4">
                 Waktu Pelaksanaan
               </TableHead>
               <TableHead className="text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
@@ -190,18 +190,21 @@ export function ScheduleTable({
                     key={item.id}
                     className={`group transition-colors border-b border-slate-100 hover:bg-slate-50/80`}
                   >
-                    <TableCell className="align-top">
-                      <div className="flex items-center gap-2 mb-1.5">
-                        <CalendarIcon
-                          size={14}
-                          className={`text-${themeColor}-500`}
-                        />
-                        <span className="text-sm font-bold text-slate-800">
-                          {formattedDate}
-                        </span>
-                      </div>
-                      <div className="text-[11px] font-medium text-slate-500 bg-slate-100/50 inline-block px-2 py-0.5 rounded-md border border-slate-200">
-                        {formattedStart} - {formattedEnd} WIB
+                    <TableCell className="align-middle text-center">
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="flex items-center justify-center gap-2 mb-1.5">
+                          <CalendarIcon
+                            size={14}
+                            className={`text-${themeColor}-500`}
+                          />
+                          <span className="text-sm font-bold text-slate-800">
+                            {formattedDate}
+                          </span>
+                        </div>
+
+                        <div className="text-[11px] font-medium text-slate-500 bg-slate-100/50 inline-block px-2 py-0.5 rounded-md border border-slate-200">
+                          {formattedStart} - {formattedEnd} WIB
+                        </div>
                       </div>
                     </TableCell>
 

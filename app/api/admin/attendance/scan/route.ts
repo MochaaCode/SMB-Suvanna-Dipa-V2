@@ -1,16 +1,22 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
-import { getTodaySchedule } from "@/actions/admin/schedules";
 
 export async function POST(req: Request) {
   try {
-    if (req.headers.get("x-api-secret") !== process.env.ESP32_SECRET_KEY)
+    if (req.headers.get("x-api-secret") !== process.env.ESP32_SECRET_KEY) {
       return NextResponse.json(
-        { success: false, message: "Unauthorized" },
+        { success: false, message: "Unauthorized: Secret salah" },
         { status: 401 },
       );
+    }
 
     const { uid } = await req.json();
+    if (!uid)
+      return NextResponse.json(
+        { success: false, message: "UID nihil" },
+        { status: 400 },
+      );
+
     const supabase = createAdminClient();
 
     const { data: card } = await supabase
@@ -22,7 +28,7 @@ export async function POST(req: Request) {
 
     if (!card)
       return NextResponse.json(
-        { success: false, message: "Kartu tidak terdaftar/nonaktif" },
+        { success: false, message: "Kartu tidak terdaftar" },
         { status: 404 },
       );
 
@@ -32,15 +38,31 @@ export async function POST(req: Request) {
         { success: false, message: "Kartu belum dipasangkan" },
         { status: 400 },
       );
-    if (user.role === "admin")
+
+    if (user.role === "admin") {
       return NextResponse.json({
         success: true,
         message: "Halo Admin!",
         name: user.full_name,
         action: "admin_mode",
       });
+    }
 
-    const schedule = await getTodaySchedule();
+    const todayWIB = new Date().toLocaleDateString("en-CA", {
+      timeZone: "Asia/Jakarta",
+    });
+    const startOfDay = `${todayWIB}T00:00:00+07:00`;
+    const endOfDay = `${todayWIB}T23:59:59+07:00`;
+
+    const { data: schedule } = await supabase
+      .from("schedules")
+      .select("id, title")
+      .eq("is_active", true)
+      .eq("is_deleted", false)
+      .gte("event_date", startOfDay)
+      .lte("event_date", endOfDay)
+      .maybeSingle();
+
     if (!schedule)
       return NextResponse.json(
         { success: false, message: "Presensi Belum Dibuka" },
@@ -53,6 +75,7 @@ export async function POST(req: Request) {
       .eq("profile_id", user.id)
       .eq("schedule_id", schedule.id)
       .maybeSingle();
+
     if (existingLog)
       return NextResponse.json(
         { success: false, message: "Sudah Absen!", name: user.full_name },
@@ -71,16 +94,21 @@ export async function POST(req: Request) {
       );
 
     const status = timeValue <= 930 ? "hadir" : "terlambat";
+
     const { error: insertErr } = await supabase.from("attendance_logs").insert({
       profile_id: user.id,
       schedule_id: schedule.id,
       rfid_uid: uid,
       status,
       method: "rfid",
-      notes: status === "terlambat" ? "Otomatis (lewat 09:30)" : "Tepat waktu",
+      notes:
+        status === "terlambat"
+          ? "Otomatis: Hadir Terlambat (Lewat 09:30)"
+          : "Otomatis: Hadir Tepat Waktu",
     });
 
     if (insertErr) throw insertErr;
+
     return NextResponse.json({
       success: true,
       message: status === "hadir" ? "Berhasil Hadir!" : "Anda Terlambat!",
