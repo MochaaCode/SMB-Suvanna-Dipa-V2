@@ -5,9 +5,13 @@ import { AppCard } from "@/components/shared/AppCard";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
+import type { DashboardRecentActivity } from "@/actions/student/dashboard";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function RecentActivityLog({ activities }: { activities: any[] }) {
+interface RecentActivityLogProps {
+  activities: DashboardRecentActivity[];
+}
+
+export function RecentActivityLog({ activities }: RecentActivityLogProps) {
   return (
     <div className="space-y-3">
       <h3 className="text-[11px] font-black text-slate-500 uppercase tracking-widest px-1">
@@ -15,8 +19,7 @@ export function RecentActivityLog({ activities }: { activities: any[] }) {
       </h3>
       <AppCard className="p-0 overflow-hidden border-slate-200 divide-y divide-slate-100 shadow-sm rounded-[1.5rem]">
         {activities.length > 0 ? (
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          activities.map((act: any) => (
+          activities.map((act) => (
             <div
               key={act.id}
               className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors"

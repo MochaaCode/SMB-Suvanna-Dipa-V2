@@ -3,17 +3,28 @@
 import { Wallet, IdCard, Sparkles } from "lucide-react";
 import { AppCard } from "@/components/shared/AppCard";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function VirtualMemberCard({ studentInfo, className, points }: any) {
+interface VirtualMemberCardProps {
+  studentInfo: {
+    id: string;
+    fullName: string;
+    buddhistName: string | null;
+  };
+  className: string;
+  points: number;
+}
+
+export function VirtualMemberCard({
+  studentInfo,
+  className,
+  points,
+}: VirtualMemberCardProps) {
   return (
     <AppCard className="p-6 border border-orange-400/30 bg-linear-to-br from-orange-500 via-orange-500 to-amber-500 text-white shadow-[0_8px_30px_rgb(234,88,12,0.25)] relative overflow-hidden rounded-[2rem]">
-      {/* Background Ornament */}
       <div className="absolute -top-10 -right-10 p-4 opacity-10 rotate-12 pointer-events-none">
         <IdCard size={200} />
       </div>
 
       <div className="relative z-10 flex flex-col h-full justify-between space-y-6">
-        {/* Header Kartu */}
         <div className="flex justify-between items-start">
           <div className="space-y-1.5">
             <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/80 drop-shadow-sm">
@@ -30,7 +41,6 @@ export function VirtualMemberCard({ studentInfo, className, points }: any) {
           </div>
         </div>
 
-        {/* Info Siswa */}
         <div className="pt-2">
           <p className="text-2xl font-black tracking-tight leading-none drop-shadow-md">
             {studentInfo.fullName}
@@ -40,7 +50,6 @@ export function VirtualMemberCard({ studentInfo, className, points }: any) {
           </p>
         </div>
 
-        {/* Footer Kartu */}
         <div className="pt-4 border-t border-white/20 flex justify-between items-end">
           <div className="space-y-1">
             <p className="text-[9px] font-black uppercase tracking-widest opacity-70">

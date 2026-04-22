@@ -4,17 +4,21 @@ import { Sparkles, CalendarCheck } from "lucide-react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { MetricCard } from "@/components/shared/dashboard/MetricCard";
 
-// IMPORT SEMUA MICRO-COMPONENTS LU DI SINI
 import { VirtualMemberCard } from "./VirtualMemberCard";
 import { OrderTracker } from "./OrderTracker";
 import { UpcomingAgenda } from "./UpcomingAgenda";
 import { RecentActivityLog } from "./RecentActivityLog";
+import type { DashboardStats } from "@/actions/student/dashboard";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function StudentDashboardManagement({ data }: { data: any }) {
+interface StudentDashboardManagementProps {
+  data: DashboardStats;
+}
+
+export function StudentDashboardManagement({
+  data,
+}: StudentDashboardManagementProps) {
   return (
-    <div className="w-full space-y-8 pb-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* HEADER SECTION */}
+    <div className="w-full space-y-8 pb-10 animate-in fade-in duration-700">
       <PageHeader
         title="SOTTHI"
         highlightText="HOTU"
@@ -22,8 +26,6 @@ export function StudentDashboardManagement({ data }: { data: any }) {
         icon={<Sparkles className="text-orange-500" size={24} />}
         themeColor="orange"
       />
-
-      {/* TOP ROW: VIRTUAL CARD & KEY METRIC */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="md:col-span-1 lg:col-span-2">
           <VirtualMemberCard
@@ -43,10 +45,8 @@ export function StudentDashboardManagement({ data }: { data: any }) {
         </div>
       </div>
 
-      {/* MIDDLE ROW: ORDER TRACKER */}
       <OrderTracker activeOrders={data.activeOrders} />
 
-      {/* BOTTOM ROW: AGENDA & ACTIVITY LOG */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         <UpcomingAgenda schedule={data.upcomingSchedule} />
         <RecentActivityLog activities={data.recentActivities} />

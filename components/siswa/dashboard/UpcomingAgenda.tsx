@@ -5,9 +5,13 @@ import { AppCard } from "@/components/shared/AppCard";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
 import Link from "next/link";
+import type { DashboardUpcomingSchedule } from "@/actions/student/dashboard";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function UpcomingAgenda({ schedule }: { schedule: any }) {
+interface UpcomingAgendaProps {
+  schedule: DashboardUpcomingSchedule | null;
+}
+
+export function UpcomingAgenda({ schedule }: UpcomingAgendaProps) {
   return (
     <div className="space-y-3 h-full flex flex-col">
       <h3 className="text-[11px] font-black text-slate-500 uppercase tracking-widest px-1">

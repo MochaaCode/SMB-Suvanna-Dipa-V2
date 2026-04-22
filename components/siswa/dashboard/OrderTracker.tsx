@@ -6,9 +6,13 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
 import Link from "next/link";
+import type { DashboardActiveOrder } from "@/actions/student/dashboard";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function OrderTracker({ activeOrders }: { activeOrders: any[] }) {
+interface OrderTrackerProps {
+  activeOrders: DashboardActiveOrder[];
+}
+
+export function OrderTracker({ activeOrders }: OrderTrackerProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between px-1">
@@ -24,8 +28,7 @@ export function OrderTracker({ activeOrders }: { activeOrders: any[] }) {
       </div>
       {activeOrders && activeOrders.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          {activeOrders.map((order: any) => (
+          {activeOrders.map((order) => (
             <AppCard
               key={order.id}
               className="p-3.5 border-slate-200 flex items-center justify-between bg-white hover:bg-slate-50 transition-colors shadow-sm rounded-[1rem]"
