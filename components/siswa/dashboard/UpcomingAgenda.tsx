@@ -18,7 +18,10 @@ export function UpcomingAgenda({ schedule }: UpcomingAgendaProps) {
         Agenda Terdekat
       </h3>
       {schedule ? (
-        <Link href={`/siswa/schedules/${schedule.id}`} className="block h-full">
+        <Link
+          href={`/siswa/schedule?show=${schedule.id}`}
+          className="block h-full"
+        >
           <AppCard className="p-0 border-slate-200 overflow-hidden flex flex-row h-full hover:border-orange-300 hover:shadow-lg transition-all group rounded-[1.5rem]">
             <div className="bg-orange-500 text-white p-5 md:w-28 flex flex-col items-center justify-center border-r border-orange-400 border-dashed transition-colors group-hover:bg-orange-600">
               <p className="text-4xl font-black leading-none drop-shadow-sm">

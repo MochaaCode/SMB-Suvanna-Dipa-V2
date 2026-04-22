@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Inbox } from "lucide-react";
 import { ScheduleCard } from "./ScheduleCard";
 import { ScheduleDetailModal } from "./ScheduleDetailModal";
@@ -12,14 +13,30 @@ interface ScheduleListProps {
 }
 
 export function ScheduleList({ schedules, searchQuery }: ScheduleListProps) {
-  const [selectedSchedule, setSelectedSchedule] =
-    useState<StudentScheduleItem | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const showId = searchParams.get("show");
+
+  const selectedSchedule = useMemo(() => {
+    if (!showId) return null;
+    return schedules.find((s) => s.id.toString() === showId) || null;
+  }, [showId, schedules]);
 
   const filtered = useMemo(() => {
     return schedules.filter((s) =>
       s.title.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }, [schedules, searchQuery]);
+
+  const handleCloseModal = () => {
+    router.replace(pathname, { scroll: false });
+  };
+
+  const handleOpenModal = (id: number) => {
+    router.replace(`${pathname}?show=${id}`, { scroll: false });
+  };
 
   return (
     <div className="space-y-6">
@@ -29,7 +46,7 @@ export function ScheduleList({ schedules, searchQuery }: ScheduleListProps) {
             <ScheduleCard
               key={item.id}
               schedule={item}
-              onClick={() => setSelectedSchedule(item)}
+              onClick={() => handleOpenModal(item.id)}
             />
           ))}
         </div>
@@ -49,7 +66,7 @@ export function ScheduleList({ schedules, searchQuery }: ScheduleListProps) {
 
       <ScheduleDetailModal
         isOpen={!!selectedSchedule}
-        onClose={() => setSelectedSchedule(null)}
+        onClose={handleCloseModal}
         schedule={selectedSchedule}
       />
     </div>

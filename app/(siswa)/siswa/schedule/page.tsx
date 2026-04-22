@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { Suspense } from "react";
 import { getStudentSchedules } from "@/actions/student/schedules";
 import { StudentScheduleManagement } from "@/components/siswa/schedule/StudentScheduleManagement";
 
@@ -11,5 +12,15 @@ export const metadata: Metadata = {
 export default async function SchedulePage() {
   const schedules = await getStudentSchedules();
 
-  return <StudentScheduleManagement schedules={schedules} />;
+  return (
+    <Suspense
+      fallback={
+        <div className="py-20 text-center font-bold text-orange-600">
+          Memuat Jadwal...
+        </div>
+      }
+    >
+      <StudentScheduleManagement schedules={schedules} />
+    </Suspense>
+  );
 }
