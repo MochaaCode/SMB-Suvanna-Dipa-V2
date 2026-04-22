@@ -24,15 +24,15 @@ import { useState } from "react";
 import type { UserRole } from "@/types";
 
 export const ADMIN_MENU = [
-  { name: "Beranda", href: "/admin/dashboard", icon: LayoutDashboard },
+  { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Manajemen Kelas", href: "/admin/classes", icon: GraduationCap },
-  { name: "Data Pengguna", href: "/admin/users", icon: Users },
-  { name: "Jadwal Acara", href: "/admin/schedules", icon: Calendar },
+  { name: "Manajemen Pengguna", href: "/admin/users", icon: Users },
+  { name: "Jadwal Kegiatan", href: "/admin/schedules", icon: Calendar },
   { name: "Log Kehadiran", href: "/admin/attendance", icon: CheckSquare },
   { name: "Daftar Kartu RFID", href: "/admin/cards", icon: IdCard },
   { name: "Katalog Produk", href: "/admin/products", icon: Package },
   { name: "Pesanan Masuk", href: "/admin/orders", icon: ShoppingCart },
-  { name: "Rekam Jejak", href: "/admin/logs", icon: History },
+  { name: "Riwayat Pengguna", href: "/admin/logs", icon: History },
   { name: "Laporan & Audit", href: "/admin/reports", icon: FileSpreadsheet },
 ];
 
@@ -44,7 +44,7 @@ export const PEMBINA_MENU = [
 
 export const SISWA_MENU = [
   { name: "Dashboard", href: "/siswa/dashboard", icon: LayoutDashboard },
-  { name: "Jadwal SMB", href: "/siswa/schedules", icon: Calendar },
+  { name: "Jadwal Sekolah Minggu", href: "/siswa/schedules", icon: Calendar },
   { name: "Tukar Poin", href: "/siswa/store", icon: Gift },
   { name: "Aktivitas Saya", href: "/siswa/activities", icon: History },
 ];

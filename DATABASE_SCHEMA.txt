@@ -116,6 +116,8 @@
 | schedules             | updated_at            | timestamp with time zone | YES         | now()                                           |
 | schedules             | is_deleted            | boolean                  | YES         | false                                           |
 | schedules             | is_active             | boolean                  | YES         | false                                           |
+| schedules             | start_time            | time without time zone   | YES         | '09:20:00'::time without time zone              |
+| schedules             | end_time              | time without time zone   | YES         | '11:00:00'::time without time zone              |
 | v_attendance_details  | log_id                | bigint                   | YES         | null                                            |
 | v_attendance_details  | student_name          | text                     | YES         | null                                            |
 | v_attendance_details  | student_buddhist_name | text                     | YES         | null                                            |
@@ -207,33 +209,41 @@
 
 5. TRIGGER AND FUNCTION INTROSPECTION
 
+| table_name      | trigger_name               | event  | definition                                   | timing |
+| --------------- | -------------------------- | ------ | -------------------------------------------- | ------ |
+| profiles        | on_profile_update_sync_jwt | INSERT | EXECUTE FUNCTION sync_role_to_jwt()          | AFTER  |
+| profiles        | on_profile_update_sync_jwt | UPDATE | EXECUTE FUNCTION sync_role_to_jwt()          | AFTER  |
+| attendance_logs | on_attendance_created      | INSERT | EXECUTE FUNCTION handle_attendance_points()  | AFTER  |
+| product_orders  | on_order_created           | INSERT | EXECUTE FUNCTION process_product_order()     | BEFORE |
+| page_views      | on_new_view                | INSERT | EXECUTE FUNCTION increment_page_view()       | AFTER  |
+| product_orders  | on_order_cancelled         | UPDATE | EXECUTE FUNCTION handle_order_cancellation() | AFTER  |
+
 | function_name             | definition                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | handle_attendance_points  | CREATE OR REPLACE FUNCTION public.handle_attendance_points()
 |                           | RETURNS trigger
 |                           | LANGUAGE plpgsql
 |                           | SECURITY DEFINER
-|                           | AS $function$
-|                           | BEGIN
-|                           | -- VALIDASI: Hanya tambah poin jika statusnya 'hadir' atau 'terlambat'
-|                           | IF (NEW.status = 'hadir' OR NEW.status = 'terlambat') THEN
+|                           |AS $function$
+|                           |BEGIN
+|                           |  -- VALIDASI BARU: HANYA yang 'hadir' (Tepat Waktu) yang dapet poin
+|                           |  IF (NEW.status = 'hadir') THEN
+|                           |    
+|                           |    -- 1. Update Poin di Profil
+|                           |    UPDATE public.profiles
+|                           |    SET points = points + 1
+|                           |    WHERE id = NEW.profile_id;
+|                           |    
+|                           |    -- 2. Catat Riwayat Mutasi Poin
+|                           |    INSERT INTO public.point_history (user_id, amount, type, description)
+|                           |    VALUES (NEW.profile_id, 1, 'earning', 'Poin kehadiran: HADIR TEPAT WAKTU');
+|                           |    
+|                           |  END IF;
 |                           |  
-|                           |   -- 1. Update Poin di Profil
-|                           |   UPDATE public.profiles
-|                           |   SET points = points + 1
-|                           |   WHERE id = NEW.profile_id;
-|                           |   
-|                           |   -- 2. Catat Riwayat dengan Deskripsi Dinamis sesuai Status
-|                           |   INSERT INTO public.point_history (user_id, amount, type, description)
-|                           |   VALUES (NEW.profile_id, 1, 'earning', 'Poin kehadiran: ' || UPPER(NEW.status));
-|                           |  
-|                           | END IF;
-|                           |
-|                           | -- Jika statusnya 'alpa' atau 'izin', fungsi ini tetap jalan tapi tidak melakukan apa-apa (poin tetap aman)
-|                           | RETURN NEW;
-|                           | END;
-|                           | $function$
-
+|                           |  RETURN NEW;
+|                           |END;
+|                           |$function$
+|                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 | process_product_order     | CREATE OR REPLACE FUNCTION public.process_product_order()
 |                           | RETURNS trigger
 |                           | LANGUAGE plpgsql
@@ -278,7 +288,42 @@
 |                           |  RETURN NEW;
 |                           |END;
 |                           |$function$
-
+|                           |
+| handle_order_cancellation | CREATE OR REPLACE FUNCTION public.handle_order_cancellation()
+|                           | RETURNS trigger
+|                           | LANGUAGE plpgsql
+|                           | SECURITY DEFINER
+|                           |AS $function$
+|                           |BEGIN
+|                           |  -- PERBAIKAN: Menggunakan 'dibatalkan' sesuai dengan Check Constraint di tabel product_orders
+|                           |  IF NEW.status = 'dibatalkan' AND OLD.status != 'dibatalkan' THEN
+|                           |    
+|                           |    -- 1. Balikin Poin ke Profil Siswa
+|                           |    UPDATE public.profiles 
+|                           |    SET points = points + (SELECT price FROM public.products WHERE id = NEW.product_id)
+|                           |    WHERE id = NEW.user_id;
+|                           |
+|                           |    -- 2. Balikin Stok Barang ke Toko
+|                           |    UPDATE public.products 
+|                           |    SET stock = stock + 1 
+|                           |    WHERE id = NEW.product_id;
+|                           |
+|                           |    -- 3. Catat di History Mutasi Poin (Dioptimasi dengan order_id)
+|                           |    INSERT INTO public.point_history (user_id, amount, type, description, order_id)
+|                           |    VALUES (
+|                           |      NEW.user_id, 
+|                           |      (SELECT price FROM public.products WHERE id = NEW.product_id), 
+|                           |      'earning', 
+|                           |      'Refund: Pesanan dibatalkan (Order ID: ' || NEW.id || ')',
+|                           |      NEW.id
+|                           |    );
+|                           |    
+|                           |  END IF;
+|                           |
+|                           |  RETURN NEW;
+|                           |END;
+|                           |$function$
+|                           |                                                                                                                                                                                                                                                       |
 | handle_new_user           | CREATE OR REPLACE FUNCTION public.handle_new_user()
 |                           | RETURNS trigger
 |                           | LANGUAGE plpgsql
@@ -290,7 +335,7 @@
 |                           |  RETURN new;
 |                           |END;
 |                           |$function$
-
+|                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | sync_role_to_jwt          | CREATE OR REPLACE FUNCTION public.sync_role_to_jwt()
 |                           | RETURNS trigger
 |                           | LANGUAGE plpgsql
@@ -303,8 +348,8 @@
 |                           |  RETURN new;
 |                           |END;
 |                           |$function$
-
-| increment_page_view       | CREATE OR REPLACE FUNCTION public.increment_page_view()
+|                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|                           || increment_page_view       | CREATE OR REPLACE FUNCTION public.increment_page_view()
 |                           | RETURNS trigger
 |                           | LANGUAGE plpgsql
 |                           | SECURITY DEFINER
@@ -319,32 +364,15 @@
 |                           |  RETURN NEW;
 |                           |END;
 |                           |$function$
-
-| handle_order_cancellation | CREATE OR REPLACE FUNCTION public.handle_order_cancellation()
-|                           | RETURNS trigger
-|                           | LANGUAGE plpgsql
-|                           | SECURITY DEFINER
-|                           |AS $function$
-|                           |BEGIN
-|                           |  -- Jika status berubah jadi 'cancelled', kembalikan poin dan stok
-|                           |  IF NEW.status = 'cancelled' AND OLD.status != 'cancelled' THEN
-|                           |    -- Balikin Poin
-|                           |    UPDATE public.profiles 
-|                           |    SET points = points + (SELECT price FROM public.products WHERE id = NEW.product_id)
-|                           |    WHERE id = NEW.user_id;
-|                           |
-|                           |    -- Balikin Stok
-|                           |    UPDATE public.products SET stock = stock + 1 WHERE id = NEW.product_id;
-|                           |
-|                           |    -- Catat di History
-|                           |    INSERT INTO public.point_history (user_id, amount, type, description)
-|                           |    VALUES (NEW.user_id, (SELECT price FROM public.products WHERE id = NEW.product_id), 'earning', 'Refund: Pesanan dibatalkan');
-|                           |  END IF;
-|                           |  RETURN NEW;
-|                           |END;
-|                           |$function$
+|                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
 
 6. BUCKET STORAGE OVERVIEW
+
+| bucket_id | name     | is_public | file_size_limit | allowed_mime_types |
+| --------- | -------- | --------- | --------------- | ------------------ |
+| avatars   | avatars  | true      | 2097152         | null               |
+| products  | products | true      | 1048576         | null               |
+| contents  | contents | true      | 10485760        | null               |
 
 | bucket_id | total_files | total_size_mb          |
 | --------- | ----------- | ---------------------- |
