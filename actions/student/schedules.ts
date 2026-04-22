@@ -1,9 +1,19 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
 
-export async function getStudentSchedules() {
+export interface StudentScheduleItem {
+  id: number;
+  title: string;
+  event_date: string;
+  content: string | null;
+  is_announcement: boolean;
+  is_active: boolean;
+  class: { name: string } | null;
+  author: { full_name: string | null } | null;
+}
+
+export async function getStudentSchedules(): Promise<StudentScheduleItem[]> {
   const supabase = await createClient();
 
   const {
@@ -15,7 +25,6 @@ export async function getStudentSchedules() {
     throw new Error("Sesi tidak valid atau telah berakhir.");
 
   try {
-    // 1. Cari tahu siswa ini ada di kelas mana
     const { data: profile } = await supabase
       .from("profiles")
       .select("class_id")
@@ -24,14 +33,12 @@ export async function getStudentSchedules() {
 
     const classId = profile?.class_id;
 
-    // 2. Kunci zona waktu hari ini di WIB biar jadwal kemarin nggak muncul
     const todayWIB = new Date().toLocaleDateString("en-CA", {
       timeZone: "Asia/Jakarta",
     });
     const startOfDay = `${todayWIB}T00:00:00+07:00`;
 
-    // 3. Tarik jadwal (Filter: Hanya kelas dia ATAU jadwal global yang class_id nya null)
-    let query = supabase
+    const { data, error } = await supabase
       .from("schedules")
       .select(
         `
@@ -47,20 +54,16 @@ export async function getStudentSchedules() {
       )
       .eq("is_deleted", false)
       .gte("event_date", startOfDay)
+      .or(`class_id.eq.${classId},class_id.is.null`)
       .order("event_date", { ascending: true });
 
-    if (classId) {
-      query = query.or(`class_id.eq.${classId},class_id.is.null`);
-    } else {
-      query = query.is("class_id", null);
+    if (error) throw error;
+
+    return (data as unknown as StudentScheduleItem[]) || [];
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      throw new Error("Gagal mengambil jadwal: " + error.message);
     }
-
-    const { data, error } = await query;
-
-    if (error) throw new Error(error.message);
-
-    return data;
-  } catch (error: any) {
-    throw new Error("Gagal memuat jadwal: " + error.message);
+    throw new Error("Gagal mengambil jadwal: Kesalahan tidak dikenal.");
   }
 }

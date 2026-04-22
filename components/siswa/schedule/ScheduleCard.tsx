@@ -1,89 +1,89 @@
 "use client";
 
-import { CalendarDays, Clock, MapPin, Megaphone, User } from "lucide-react";
+import {
+  Clock,
+  MapPin,
+  ChevronRight,
+  Megaphone,
+  CalendarDays,
+} from "lucide-react";
 import { AppCard } from "@/components/shared/AppCard";
+import { format } from "date-fns";
+import { id as localeID } from "date-fns/locale";
+import { cn } from "@/lib/utils";
+import type { StudentScheduleItem } from "@/actions/student/schedules";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function ScheduleCard({ schedule }: { schedule: any }) {
-  const eventDate = new Date(schedule.event_date);
+interface ScheduleCardProps {
+  schedule: StudentScheduleItem;
+  onClick: () => void;
+}
+
+export function ScheduleCard({ schedule, onClick }: ScheduleCardProps) {
   const isGlobal = schedule.is_announcement || !schedule.class;
 
   return (
-    <AppCard className="p-0 overflow-hidden group hover:border-orange-300 transition-all hover:shadow-lg flex flex-col h-full border-slate-200">
-      {/* HEADER KARTU (Tanggal & Waktu) */}
-      <div
-        className={`p-5 flex items-center justify-between border-b ${isGlobal ? "bg-orange-50 border-orange-100" : "bg-slate-50 border-slate-100"}`}
-      >
-        <div className="flex items-center gap-3">
-          <div
-            className={`p-2.5 rounded-xl ${isGlobal ? "bg-orange-100 text-orange-600" : "bg-white text-slate-600 shadow-sm"}`}
-          >
-            {isGlobal ? <Megaphone size={20} /> : <CalendarDays size={20} />}
-          </div>
-          <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-0.5">
-              {eventDate.toLocaleDateString("id-ID", { weekday: "long" })}
-            </p>
-            <p className="text-sm font-black text-slate-800">
-              {eventDate.toLocaleDateString("id-ID", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
-            </p>
-          </div>
-        </div>
-        <div className="text-right">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white shadow-sm border border-slate-100 text-xs font-bold text-slate-600">
-            <Clock size={14} className="text-orange-500" />
-            {eventDate.toLocaleTimeString("id-ID", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}{" "}
-            WIB
-          </span>
-        </div>
-      </div>
-
-      {/* BODY KARTU (Konten) */}
-      <div className="p-6 flex flex-col flex-1">
-        <div className="mb-4">
-          {isGlobal ? (
-            <span className="inline-block px-2.5 py-1 bg-orange-100 text-orange-700 text-[10px] font-black uppercase tracking-widest rounded-md mb-3">
-              Pengumuman Global
-            </span>
-          ) : (
-            <span className="inline-block px-2.5 py-1 bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-widest rounded-md mb-3">
-              Kelas: {schedule.class?.name}
-            </span>
+    <div
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      className="block h-full cursor-pointer outline-none"
+    >
+      <AppCard className="p-0 border-slate-200 overflow-hidden flex flex-row h-full hover:border-orange-300 hover:shadow-lg transition-all group rounded-[1.5rem] bg-white">
+        {/* Sisi Kiri: Penanda Tanggal */}
+        <div
+          className={cn(
+            "p-4 w-24 flex flex-col items-center justify-center border-r border-dashed transition-colors",
+            isGlobal
+              ? "bg-orange-500 text-white border-orange-400 group-hover:bg-orange-600"
+              : "bg-slate-50 text-slate-500 border-slate-200 group-hover:bg-slate-100",
           )}
-          <h3 className="text-xl font-black text-slate-800 leading-tight mb-2 group-hover:text-orange-600 transition-colors">
-            {schedule.title}
-          </h3>
-          {/* Render JSON Content secara sederhana (Bisa di-upgrade pakai RichText parser nanti) */}
-          <p className="text-sm text-slate-500 leading-relaxed line-clamp-3">
-            {schedule.content
-              ? typeof schedule.content === "string"
-                ? schedule.content
-                : "Ada detail kegiatan yang dilampirkan."
-              : "Tidak ada deskripsi tambahan."}
+        >
+          {isGlobal ? (
+            <Megaphone size={18} className="mb-2 opacity-80" />
+          ) : (
+            <CalendarDays size={18} className="mb-2 opacity-60" />
+          )}
+          <p className="text-3xl font-black leading-none drop-shadow-sm">
+            {new Date(schedule.event_date).getDate()}
+          </p>
+          <p className="text-[10px] font-bold uppercase tracking-widest mt-1.5 opacity-90">
+            {format(new Date(schedule.event_date), "MMM yyyy", {
+              locale: localeID,
+            })}
           </p>
         </div>
 
-        {/* FOOTER KARTU */}
-        <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 font-medium">
-          <div className="flex items-center gap-1.5">
-            <User size={14} />
-            <span>{schedule.author?.full_name || "Admin SMB"}</span>
+        {/* Sisi Kanan: Detail Konten */}
+        <div className="p-5 flex-1 flex flex-col justify-between relative">
+          <ChevronRight
+            size={20}
+            className="absolute top-1/2 -translate-y-1/2 right-4 text-slate-300 group-hover:text-orange-500 group-hover:translate-x-1 transition-all"
+          />
+
+          <div className="space-y-2 pr-8">
+            <h4 className="font-black text-base text-slate-800 leading-tight group-hover:text-orange-600 transition-colors line-clamp-2">
+              {schedule.title}
+            </h4>
+            <div
+              className="text-xs font-medium text-slate-500 line-clamp-2 prose prose-xs leading-relaxed"
+              dangerouslySetInnerHTML={{
+                __html: schedule.content || "Tidak ada deskripsi.",
+              }}
+            />
           </div>
-          {schedule.is_active && (
-            <span className="flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded-md font-bold">
+
+          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-orange-600">
+              <Clock size={14} />
+              {format(new Date(schedule.event_date), "HH:mm")} WIB
+            </div>
+            <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400">
               <MapPin size={12} />
-              Absen Dibuka
-            </span>
-          )}
+              Vihara
+            </div>
+          </div>
         </div>
-      </div>
-    </AppCard>
+      </AppCard>
+    </div>
   );
 }
