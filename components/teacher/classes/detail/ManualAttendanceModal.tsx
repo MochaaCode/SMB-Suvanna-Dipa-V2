@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useState } from "react";
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import toast from "react-hot-toast";
 import { recordManualAttendance } from "@/actions/teacher/attendance";
+import { ClipboardCheck } from "lucide-react";
 
 interface StudentData {
   id: string;
@@ -47,38 +49,49 @@ export function ManualAttendanceModal({
     }
 
     const tid = toast.loading("Mencatat absensi...");
-    const result = await recordManualAttendance(profileId, status);
+    try {
+      const result = await recordManualAttendance(profileId, status);
 
-    if (result.success) {
-      toast.success(result.message, { id: tid });
-      onClose(); // Tutup modal jika sukses
-    } else {
-      toast.error(result.error || "Gagal mencatat absensi", { id: tid });
+      // FIX BUILD ERROR: Gunakan operator || untuk memberikan fallback string jika message undefined
+      if (result.success) {
+        toast.success(result.message || "Presensi berhasil dicatat!", {
+          id: tid,
+        });
+        onClose();
+      } else {
+        toast.error(result.error || "Gagal mencatat absensi", { id: tid });
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Terjadi kesalahan sistem", { id: tid });
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
     <AppModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Absensi Manual"
-      description="Pilih siswa dan catat kehadiran secara manual tanpa kartu RFID."
+      title="Presensi Manual"
+      description="Catat kehadiran siswa secara langsung tanpa pemindaian kartu RFID."
       variant="orange"
     >
-      <form onSubmit={handleSubmit} className="space-y-5 pt-2">
+      <form onSubmit={handleSubmit} className="space-y-6 pt-4 text-left">
         <div className="space-y-2">
-          <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Pilih Siswa
+          <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            Identitas Siswa
           </Label>
           <Select name="profile_id" required>
-            <SelectTrigger className="h-11 border-slate-200 bg-white font-medium focus:ring-orange-500">
-              <SelectValue placeholder="Cari atau pilih siswa..." />
+            <SelectTrigger className="h-12 border-slate-200 bg-white rounded-[1rem] font-bold focus:ring-orange-500 shadow-sm">
+              <SelectValue placeholder="Klik untuk mencari siswa..." />
             </SelectTrigger>
-            <SelectContent className="max-h-64">
+            <SelectContent className="max-h-64 rounded-[1rem]">
               {students.map((student) => (
-                <SelectItem key={student.id} value={student.id}>
+                <SelectItem
+                  key={student.id}
+                  value={student.id}
+                  className="font-bold py-3"
+                >
                   {student.full_name}
                 </SelectItem>
               ))}
@@ -87,18 +100,32 @@ export function ManualAttendanceModal({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Status Kehadiran
+          <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            Status Presensi Hari Ini
           </Label>
           <Select name="status" required defaultValue="hadir">
-            <SelectTrigger className="h-11 border-slate-200 bg-white font-medium focus:ring-orange-500">
+            <SelectTrigger className="h-12 border-slate-200 bg-white rounded-[1rem] font-bold focus:ring-orange-500 shadow-sm">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="hadir">Hadir (Tepat Waktu)</SelectItem>
-              <SelectItem value="terlambat">Terlambat</SelectItem>
-              <SelectItem value="izin">Izin / Sakit</SelectItem>
-              <SelectItem value="alpa">Alpa (Tanpa Keterangan)</SelectItem>
+            <SelectContent className="rounded-[1rem]">
+              <SelectItem
+                value="hadir"
+                className="font-bold py-3 text-green-600"
+              >
+                Hadir (Tepat Waktu)
+              </SelectItem>
+              <SelectItem
+                value="terlambat"
+                className="font-bold py-3 text-orange-600"
+              >
+                Hadir (Terlambat)
+              </SelectItem>
+              <SelectItem value="izin" className="font-bold py-3 text-blue-600">
+                Izin / Sakit
+              </SelectItem>
+              <SelectItem value="alpa" className="font-bold py-3 text-red-600">
+                Alpa (Tanpa Kabar)
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -106,9 +133,10 @@ export function ManualAttendanceModal({
         <AppButton
           type="submit"
           isLoading={loading}
-          className="w-full h-11 mt-4"
+          className="w-full h-12 mt-4 rounded-[1rem] font-black text-xs uppercase tracking-widest shadow-lg shadow-orange-100"
+          leftIcon={<ClipboardCheck size={18} />}
         >
-          Simpan Kehadiran
+          Simpan Data Presensi
         </AppButton>
       </form>
     </AppModal>

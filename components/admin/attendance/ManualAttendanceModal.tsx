@@ -46,18 +46,30 @@ export default function ManualAttendanceModal({
     startTransition(async () => {
       const tid = toast.loading("Menyimpan presensi manual...");
       try {
-        await recordManualAttendance({
+        const result = (await recordManualAttendance({
           scheduleId,
           profileId: formData.profileId,
           status: formData.status,
           notes: formData.notes || "Dicatat manual oleh Administrator",
-        });
-        toast.success("Presensi berhasil disimpan!", { id: tid });
+        })) as any;
 
-        setFormData({ profileId: "", status: "hadir", notes: "" });
-        onClose();
+        if (result && result.success) {
+          toast.success(result.message || "Presensi berhasil disimpan!", {
+            id: tid,
+          });
+          setFormData({ profileId: "", status: "hadir", notes: "" });
+          onClose();
+        } else if (result && !result.success) {
+          toast.error(result.error || "Gagal mencatat absensi", { id: tid });
+        } else {
+          toast.success("Presensi berhasil disimpan!", { id: tid });
+          setFormData({ profileId: "", status: "hadir", notes: "" });
+          onClose();
+        }
       } catch (error: any) {
-        toast.error(error.message, { id: tid });
+        toast.error(error.message || "Terjadi kesalahan internal server", {
+          id: tid,
+        });
       }
     });
   };
