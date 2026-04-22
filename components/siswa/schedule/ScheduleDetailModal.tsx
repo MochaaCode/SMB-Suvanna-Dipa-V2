@@ -32,7 +32,6 @@ export function ScheduleDetailModal({
       maxWidth="lg"
     >
       <div className="space-y-6 pt-4">
-        {/* Header Section: Tanggal & Waktu */}
         <div className="flex items-center gap-4 p-4 bg-slate-50 border border-slate-100 rounded-[1.5rem]">
           <div
             className={`p-3 rounded-2xl ${isGlobal ? "bg-orange-100 text-orange-600" : "bg-white border shadow-sm text-slate-600"}`}
@@ -55,7 +54,6 @@ export function ScheduleDetailModal({
           </div>
         </div>
 
-        {/* Body Section: Judul & Konten HTML */}
         <div className="px-1">
           <div className="mb-3">
             {isGlobal ? (
@@ -73,7 +71,6 @@ export function ScheduleDetailModal({
             {schedule.title}
           </h3>
 
-          {/* HTML Renderer yang Aman */}
           <div
             className="prose prose-sm text-slate-600 leading-relaxed max-w-none"
             dangerouslySetInnerHTML={{
@@ -84,7 +81,6 @@ export function ScheduleDetailModal({
           />
         </div>
 
-        {/* Footer Section: Info Tambahan */}
         <div className="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4 text-xs font-medium text-slate-500">
           <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-lg">
             <User size={14} />

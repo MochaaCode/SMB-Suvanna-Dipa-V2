@@ -15,7 +15,6 @@ export function ScheduleList({ schedules, searchQuery }: ScheduleListProps) {
   const [selectedSchedule, setSelectedSchedule] =
     useState<StudentScheduleItem | null>(null);
 
-  // Filter berdasarkan input dari Parent Component
   const filtered = useMemo(() => {
     return schedules.filter((s) =>
       s.title.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -24,7 +23,6 @@ export function ScheduleList({ schedules, searchQuery }: ScheduleListProps) {
 
   return (
     <div className="space-y-6">
-      {/* Grid List */}
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {filtered.map((item) => (
@@ -49,7 +47,6 @@ export function ScheduleList({ schedules, searchQuery }: ScheduleListProps) {
         </div>
       )}
 
-      {/* Modal Detail Component */}
       <ScheduleDetailModal
         isOpen={!!selectedSchedule}
         onClose={() => setSelectedSchedule(null)}

@@ -84,7 +84,6 @@ export default function Sidebar({ role }: SidebarProps) {
 
   return (
     <aside className="w-full md:w-64 h-screen bg-white md:border-r border-slate-200 flex flex-col md:sticky top-0 overflow-hidden md:shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
-      {/* LOGO SECTION */}
       <div className="p-6 border-b border-slate-50 flex items-center gap-3">
         <div className="w-10 h-10 bg-orange-600 rounded-[0.8rem] flex items-center justify-center shadow-lg shadow-orange-100">
           <GraduationCap className="text-white" size={24} />
@@ -99,7 +98,6 @@ export default function Sidebar({ role }: SidebarProps) {
         </div>
       </div>
 
-      {/* NAVIGATION SECTION */}
       <nav className="flex-1 overflow-y-auto p-4 space-y-1.5 custom-scrollbar">
         <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-3 mt-2">
           Menu Utama
@@ -132,7 +130,6 @@ export default function Sidebar({ role }: SidebarProps) {
         })}
       </nav>
 
-      {/* FOOTER SECTION */}
       <div className="p-4 border-t border-slate-100 bg-slate-50/50 space-y-1.5">
         <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 mt-1">
           Pengaturan

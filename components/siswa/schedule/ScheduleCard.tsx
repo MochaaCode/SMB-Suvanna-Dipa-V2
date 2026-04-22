@@ -29,7 +29,6 @@ export function ScheduleCard({ schedule, onClick }: ScheduleCardProps) {
       className="block h-full cursor-pointer outline-none"
     >
       <AppCard className="p-0 border-slate-200 overflow-hidden flex flex-row h-full hover:border-orange-300 hover:shadow-lg transition-all group rounded-[1.5rem] bg-white">
-        {/* Sisi Kiri: Penanda Tanggal */}
         <div
           className={cn(
             "p-4 w-24 flex flex-col items-center justify-center border-r border-dashed transition-colors",
@@ -53,7 +52,6 @@ export function ScheduleCard({ schedule, onClick }: ScheduleCardProps) {
           </p>
         </div>
 
-        {/* Sisi Kanan: Detail Konten */}
         <div className="p-5 flex-1 flex flex-col justify-between relative">
           <ChevronRight
             size={20}

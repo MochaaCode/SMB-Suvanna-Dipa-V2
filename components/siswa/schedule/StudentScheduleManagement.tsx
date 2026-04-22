@@ -28,9 +28,7 @@ export function StudentScheduleManagement({
         themeColor="orange"
       />
 
-      {/* FIX DESKTOP LAYOUT: Bersanding Elegan Kiri-Kanan */}
       <div className="flex flex-col md:flex-row gap-5">
-        {/* Kolom Kiri: Stat Card (Lebar 1/3 di Desktop) */}
         <div className="w-full md:w-1/3 p-6 bg-linear-to-br from-orange-500 to-amber-500 rounded-[1.5rem] text-white flex items-center justify-between overflow-hidden relative shadow-[0_8px_30px_rgb(234,88,12,0.25)]">
           <Sparkles
             size={100}
@@ -49,7 +47,6 @@ export function StudentScheduleManagement({
           </div>
         </div>
 
-        {/* Kolom Kanan: Search Bar (Lebar 2/3 di Desktop) */}
         <div className="w-full md:w-2/3">
           <AppCard className="p-2 bg-white border-slate-200 shadow-sm rounded-[1.5rem] h-full flex flex-col justify-center">
             <div className="relative">
@@ -68,7 +65,6 @@ export function StudentScheduleManagement({
         </div>
       </div>
 
-      {/* List Komponen merender grid dan Modal */}
       <ScheduleList schedules={safeSchedules} searchQuery={searchQuery} />
     </div>
   );
