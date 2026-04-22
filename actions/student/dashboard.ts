@@ -14,7 +14,6 @@ export async function getStudentDashboardStats() {
     throw new Error("Sesi tidak valid atau telah berakhir.");
 
   try {
-    // Ambil tanggal hari ini di zona waktu WIB untuk filter jadwal
     const todayWIB = new Date().toLocaleDateString("en-CA", {
       timeZone: "Asia/Jakarta",
     });
@@ -24,7 +23,9 @@ export async function getStudentDashboardStats() {
       await Promise.all([
         supabase
           .from("profiles")
-          .select("points, classes!profiles_class_id_fkey(name)")
+          .select(
+            "id, full_name, buddhist_name, points, classes!profiles_class_id_fkey(name)",
+          )
           .eq("id", user.id)
           .single(),
 
@@ -34,51 +35,52 @@ export async function getStudentDashboardStats() {
           .eq("profile_id", user.id)
           .eq("status", "hadir"),
 
+        // AMBIL DETAIL PESANAN AKTIF
         supabase
           .from("product_orders")
-          .select("id", { count: "exact", head: true })
+          .select("id, status, products(name), created_at")
           .eq("user_id", user.id)
-          .eq("status", "pending"),
+          .in("status", ["pending", "diproses"])
+          .order("created_at", { ascending: false })
+          .limit(2),
 
-        // QUERY BARU: Ambil 1 jadwal terdekat mulai dari hari ini
+        // FIX BUG: Pakai 'id' bukan 'slug'
         supabase
           .from("schedules")
-          .select("title, event_date, content")
+          .select("id, title, event_date, content")
           .eq("is_deleted", false)
           .gte("event_date", startOfDay)
           .order("event_date", { ascending: true })
           .limit(1)
           .maybeSingle(),
 
-        // QUERY BARU: Ambil 5 riwayat poin/aktivitas terakhir
         supabase
           .from("point_history")
           .select("id, amount, type, description, created_at")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false })
-          .limit(5),
+          .limit(4),
       ]);
 
-    type ExpectedProfile = {
-      points: number;
-      classes: { name: string } | { name: string }[] | null;
-    };
-
-    const profileData = profileRes.data as unknown as ExpectedProfile | null;
-
+    const profileData = profileRes.data as any;
     const cls = Array.isArray(profileData?.classes)
       ? profileData?.classes[0]
       : profileData?.classes;
 
     return {
+      studentInfo: {
+        id: profileData?.id || "",
+        fullName: profileData?.full_name || "Siswa",
+        buddhistName: profileData?.buddhist_name || "",
+      },
       points: profileData?.points || 0,
       className: cls?.name || "Belum Masuk Kelas",
       totalAttendance: attRes.count || 0,
-      pendingOrders: ordersRes.count || 0,
-      upcomingSchedule: scheduleRes.data || null,
-      recentActivities: activityRes.data || [],
+      activeOrders: (ordersRes.data || []) as any[],
+      upcomingSchedule: scheduleRes.data,
+      recentActivities: (activityRes.data || []) as any[],
     };
   } catch (error: any) {
-    throw new Error("Gagal memuat data dashboard: " + error.message);
+    throw new Error("Gagal memuat dashboard: " + error.message);
   }
 }
