@@ -46,7 +46,7 @@ export const SISWA_MENU = [
   { name: "Dashboard", href: "/siswa/dashboard", icon: LayoutDashboard },
   { name: "Jadwal Sekolah Minggu", href: "/siswa/schedule", icon: Calendar },
   { name: "Tukar Poin", href: "/siswa/store", icon: Gift },
-  { name: "Aktivitas Saya", href: "/siswa/activities", icon: History },
+  { name: "Aktivitas Saya", href: "/siswa/activity", icon: History },
 ];
 
 interface SidebarProps {
