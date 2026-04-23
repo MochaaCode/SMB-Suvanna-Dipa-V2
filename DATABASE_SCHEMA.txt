@@ -214,12 +214,12 @@
 | profiles        | on_profile_update_sync_jwt | INSERT | EXECUTE FUNCTION sync_role_to_jwt()          | AFTER  |
 | profiles        | on_profile_update_sync_jwt | UPDATE | EXECUTE FUNCTION sync_role_to_jwt()          | AFTER  |
 | attendance_logs | on_attendance_created      | INSERT | EXECUTE FUNCTION handle_attendance_points()  | AFTER  |
-| product_orders  | on_order_created           | INSERT | EXECUTE FUNCTION process_product_order()     | BEFORE |
 | page_views      | on_new_view                | INSERT | EXECUTE FUNCTION increment_page_view()       | AFTER  |
 | product_orders  | on_order_cancelled         | UPDATE | EXECUTE FUNCTION handle_order_cancellation() | AFTER  |
+| product_orders  | tr_process_product_order   | INSERT | EXECUTE FUNCTION process_product_order()     | AFTER  |
 
-| function_name             | definition                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| function_name             | definition                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | handle_attendance_points  | CREATE OR REPLACE FUNCTION public.handle_attendance_points()
 |                           | RETURNS trigger
 |                           | LANGUAGE plpgsql
@@ -243,53 +243,8 @@
 |                           |  RETURN NEW;
 |                           |END;
 |                           |$function$
-|                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| process_product_order     | CREATE OR REPLACE FUNCTION public.process_product_order()
-|                           | RETURNS trigger
-|                           | LANGUAGE plpgsql
-|                           | SECURITY DEFINER
-|                           |AS $function$
-|                           |DECLARE
-|                           |  product_price INTEGER;
-|                           |  user_points INTEGER;
-|                           |  product_stock INTEGER; -- Tambahan variabel stok
-|                           |BEGIN
-|                           |  -- 1. Ambil harga dan stok produk
-|                           |  SELECT price, stock INTO product_price, product_stock 
-|                           |  FROM public.products WHERE id = NEW.product_id;
-|                           |  
-|                           |  -- 2. Ambil poin user saat ini
-|                           |  SELECT points INTO user_points FROM public.profiles WHERE id = NEW.user_id;
-|                           |
-|                           |  -- 3. VALIDASI 1: Poin cukup nggak?
-|                           |  IF user_points < product_price THEN
-|                           |    RAISE EXCEPTION 'Poin tidak cukup untuk membeli produk ini!';
-|                           |  END IF;
-|                           |
-|                           |  -- 4. VALIDASI 2: Stok ada nggak?
-|                           |  IF product_stock <= 0 THEN
-|                           |    RAISE EXCEPTION 'Maaf, stok produk ini sudah habis!';
-|                           |  END IF;
-|                           |
-|                           |  -- 5. POTONG POIN
-|                           |  UPDATE public.profiles
-|                           |  SET points = points - product_price
-|                           |  WHERE id = NEW.user_id;
-|                           |
-|                           |  -- 6. POTONG STOK (Ini yang tadi lupa!)
-|                           |  UPDATE public.products
-|                           |  SET stock = stock - 1
-|                           |  WHERE id = NEW.product_id;
-|                           |
-|                           |  -- 7. CATAT RIWAYAT
-|                           |  INSERT INTO public.point_history (user_id, amount, type, description, order_id)
-|                           |  VALUES (NEW.user_id, -product_price, 'spending', 'Penukaran hadiah ID: ' || NEW.product_id, NEW.id);
-|                           |
-|                           |  RETURN NEW;
-|                           |END;
-|                           |$function$
-|                           |
-| handle_order_cancellation | CREATE OR REPLACE FUNCTION public.handle_order_cancellation()
+|                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+|                           || handle_order_cancellation | CREATE OR REPLACE FUNCTION public.handle_order_cancellation()
 |                           | RETURNS trigger
 |                           | LANGUAGE plpgsql
 |                           | SECURITY DEFINER
@@ -323,8 +278,39 @@
 |                           |  RETURN NEW;
 |                           |END;
 |                           |$function$
-|                           |                                                                                                                                                                                                                                                       |
-| handle_new_user           | CREATE OR REPLACE FUNCTION public.handle_new_user()
+|                           |                    |
+| process_product_order     | CREATE OR REPLACE FUNCTION public.process_product_order()
+|                           | RETURNS trigger
+|                           | LANGUAGE plpgsql
+|                           | SECURITY DEFINER
+|                           |AS $function$
+|                           |DECLARE
+|                           |  v_user_points INTEGER;
+|                           |BEGIN
+|                           |  -- Cek apakah stok produk masih ada
+|                           |  IF NOT EXISTS (SELECT 1 FROM public.products WHERE id = NEW.product_id AND stock > 0) THEN
+|                           |     RAISE EXCEPTION 'Maaf, stok produk ini sudah habis!';
+|                           |  END IF;
+|                           |
+|                           |  -- Validasi poin user
+|                           |  SELECT points INTO v_user_points FROM public.profiles WHERE id = NEW.user_id;
+|                           |  IF v_user_points < NEW.total_points THEN
+|                           |     RAISE EXCEPTION 'Poin tidak cukup untuk membeli produk ini!';
+|                           |  END IF;
+|                           |
+|                           |  -- EKSEKUSI: Potong stok produk induk & potong poin user
+|                           |  UPDATE public.products SET stock = stock - 1 WHERE id = NEW.product_id;
+|                           |  UPDATE public.profiles SET points = points - NEW.total_points WHERE id = NEW.user_id;
+|                           |  
+|                           |  -- Catat ke riwayat poin
+|                           |  INSERT INTO public.point_history (user_id, amount, type, description, order_id)
+|                           |  VALUES (NEW.user_id, -(NEW.total_points), 'spending', 'Penukaran hadiah', NEW.id);
+|                           |
+|                           |  RETURN NEW;
+|                           |END;
+|                           |$function$
+|                           | |
+|                           || handle_new_user           | CREATE OR REPLACE FUNCTION public.handle_new_user()
 |                           | RETURNS trigger
 |                           | LANGUAGE plpgsql
 |                           | SECURITY DEFINER
@@ -335,8 +321,8 @@
 |                           |  RETURN new;
 |                           |END;
 |                           |$function$
-|                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| sync_role_to_jwt          | CREATE OR REPLACE FUNCTION public.sync_role_to_jwt()
+|                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+|                           || sync_role_to_jwt          | CREATE OR REPLACE FUNCTION public.sync_role_to_jwt()
 |                           | RETURNS trigger
 |                           | LANGUAGE plpgsql
 |                           | SECURITY DEFINER
@@ -348,7 +334,7 @@
 |                           |  RETURN new;
 |                           |END;
 |                           |$function$
-|                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 |                           || increment_page_view       | CREATE OR REPLACE FUNCTION public.increment_page_view()
 |                           | RETURNS trigger
 |                           | LANGUAGE plpgsql
@@ -364,7 +350,7 @@
 |                           |  RETURN NEW;
 |                           |END;
 |                           |$function$
-|                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+|                           |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 
 6. BUCKET STORAGE OVERVIEW
 

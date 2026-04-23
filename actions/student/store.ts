@@ -7,7 +7,7 @@ import {
   type RedeemRewardInput,
 } from "@/lib/validations/points";
 import { revalidatePath } from "next/cache";
-import { Product } from "@/types";
+import type { Product } from "@/types";
 
 export async function getAvailableProducts(): Promise<Product[]> {
   const supabase = await createClient();
@@ -23,18 +23,29 @@ export async function getAvailableProducts(): Promise<Product[]> {
 }
 
 export async function redeemRewardAction(data: RedeemRewardInput) {
+  console.log("--- START TRACKING REDEEM ---");
+  console.log("Input Payload:", data);
+
   const validated = redeemRewardSchema.safeParse(data);
-  if (!validated.success)
+  if (!validated.success) {
+    console.error("Zod Validation Error:", validated.error.format());
     return { success: false, error: "ID Produk tidak valid." };
+  }
 
   const supabase = await createClient();
   const supabaseAdmin = createAdminClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  if (!user) {
+    console.error("Auth Error: No Session Found");
+    return { success: false, error: "Silakan login kembali." };
+  }
 
-  if (!user) return { success: false, error: "Silakan login kembali." };
+  console.log("Target User ID:", user.id);
 
+  // Ambil data secara paralel
   const [productRes, profileRes] = await Promise.all([
     supabase
       .from("products")
@@ -44,15 +55,30 @@ export async function redeemRewardAction(data: RedeemRewardInput) {
     supabase.from("profiles").select("points").eq("id", user.id).single(),
   ]);
 
-  const product = productRes.data;
+  const product = productRes.data as Product | null;
   const profile = profileRes.data;
+
+  console.log(
+    "Product Data fetched:",
+    product
+      ? { name: product.name, price: product.price, stock: product.stock }
+      : "NULL",
+  );
+  console.log("User Points fetched:", profile?.points ?? "NULL");
 
   if (!product || product.is_deleted)
     return { success: false, error: "Barang tidak tersedia." };
   if (product.stock < 1) return { success: false, error: "Stok habis." };
-  if ((profile?.points || 0) < product.price)
-    return { success: false, error: "Poin kurang." };
 
+  // Logic 0 poin: 3 - 0 = 3 tetap sukses
+  if ((profile?.points || 0) < product.price) {
+    console.warn("Logic Failed: Poin user tidak cukup");
+    return { success: false, error: "Poin kurang." };
+  }
+
+  console.log("Logic Check PASSED. Attempting Database INSERT...");
+
+  // INSERT KE DATABASE
   const { error: orderError } = await supabaseAdmin
     .from("product_orders")
     .insert({
@@ -63,13 +89,24 @@ export async function redeemRewardAction(data: RedeemRewardInput) {
     });
 
   if (orderError) {
-    if (orderError.message.includes("Poin tidak cukup"))
-      return { success: false, error: "Transaksi ditolak: Poin tidak cukup." };
+    console.error("--- DATABASE REJECTED INSERT ---");
+    console.error("Error Code:", orderError.code);
+    console.error("Error Message:", orderError.message);
+    console.error("Detail Error:", orderError.details);
+
+    // Mapping error trigger database ke pesan yang ramah
     if (orderError.message.includes("stok produk ini sudah habis"))
-      return { success: false, error: "Transaksi ditolak: Stok habis." };
-    return { success: false, error: "Gagal memproses penukaran." };
+      return { success: false, error: "Stok produk baru saja habis!" };
+    if (orderError.message.includes("Poin tidak cukup"))
+      return {
+        success: false,
+        error: "Gagal: Database mendeteksi saldo poin tidak cukup.",
+      };
+
+    return { success: false, error: `Sistem Error: ${orderError.message}` };
   }
 
+  console.log("--- REDEEM SUCCESSFUL ---");
   revalidatePath("/", "layout");
   return { success: true, message: "Hadiah berhasil diklaim!" };
 }
