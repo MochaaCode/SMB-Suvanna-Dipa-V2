@@ -37,16 +37,28 @@ export default async function PembinaLayout({
     .eq("id", user.id)
     .single();
 
-  if (error || !profile || profile.role !== "pembina") {
+  if (error || !profile) {
+    redirect("/");
+  }
+
+  const { data: assistantClass } = await supabase
+    .from("classes")
+    .select("id")
+    .contains("assistant_ids", [user.id])
+    .maybeSingle();
+
+  const isAssistant = !!assistantClass;
+
+  if (profile.role !== "pembina" && !isAssistant) {
     redirect("/");
   }
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-slate-50 font-sans text-slate-900">
-      <MobileNav role={"pembina"} />
+      <MobileNav role={profile.role} isAssistant={isAssistant} />
 
       <div className="hidden md:block shrink-0">
-        <Sidebar role={"pembina"} />
+        <Sidebar role={profile.role} isAssistant={isAssistant} />
       </div>
 
       <main className="flex-1 flex flex-col min-w-0 overflow-x-hidden pt-16 md:pt-0 h-screen md:h-auto overflow-y-auto">

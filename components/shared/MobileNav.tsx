@@ -14,7 +14,13 @@ import Sidebar from "./Sidebar";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import type { UserRole } from "@/types";
 
-export function MobileNav({ role }: { role: UserRole }) {
+export function MobileNav({
+  role,
+  isAssistant = false,
+}: {
+  role: UserRole;
+  isAssistant?: boolean;
+}) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -54,15 +60,11 @@ export function MobileNav({ role }: { role: UserRole }) {
           </Button>
         </SheetTrigger>
 
-        <SheetContent
-          side="left"
-          className="p-0 w-64 bg-white border-none shadow-2xl [&>button]:hidden"
-        >
+        <SheetContent side="left" className="p-0 w-72 border-none">
           <VisuallyHidden.Root>
             <SheetTitle>Menu Navigasi Mobile</SheetTitle>
           </VisuallyHidden.Root>
-
-          <Sidebar role={role} />
+          <Sidebar role={role} isAssistant={isAssistant} />
         </SheetContent>
       </Sheet>
     </div>

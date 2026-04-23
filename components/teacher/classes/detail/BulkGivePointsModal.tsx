@@ -6,7 +6,7 @@ import { AppButton } from "@/components/shared/AppButton";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
-import { bulkGivePointsAction } from "@/actions/teacher/points";
+import { bulkGivePointsAction } from "@/actions/pembina/points";
 
 interface StudentData {
   id: string;

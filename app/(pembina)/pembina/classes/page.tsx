@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { getPembinaClasses } from "@/actions/teacher/classes";
+import { getPembinaClasses } from "@/actions/pembina/classes";
 import { PembinaClassManagement } from "@/components/teacher/classes/PembinaClassManagement";
 
 export const dynamic = "force-dynamic";

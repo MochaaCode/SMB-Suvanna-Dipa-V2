@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Metadata } from "next";
-import { getClassDetailBySlug } from "@/actions/teacher/class-detail";
+import { getClassDetailBySlug } from "@/actions/pembina/class-detail";
 import { ClassDetailManagement } from "@/components/teacher/classes/detail/ClassDetailManagement";
 import { redirect } from "next/navigation";
 

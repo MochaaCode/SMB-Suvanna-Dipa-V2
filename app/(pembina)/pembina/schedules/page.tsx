@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { getPembinaSchedules } from "@/actions/teacher/schedules";
+import { getPembinaSchedules } from "@/actions/pembina/schedules";
 import { PembinaScheduleManagement } from "@/components/teacher/schedules/PembinaScheduleManagement";
 
 export const dynamic = "force-dynamic";

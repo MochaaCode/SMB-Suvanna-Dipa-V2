@@ -10,7 +10,7 @@ import { AppModal } from "@/components/shared/AppModal";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
-import { updateScheduleMaterial } from "@/actions/teacher/schedules";
+import { updateScheduleMaterial } from "@/actions/pembina/schedules";
 
 export function PembinaScheduleManagement({ schedules }: { schedules: any[] }) {
   const [selectedSched, setSelectedSched] = useState<any | null>(null);

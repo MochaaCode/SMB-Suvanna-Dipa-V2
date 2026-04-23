@@ -1,73 +1,93 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect } from "react";
 import toast from "react-hot-toast";
-import { LayoutDashboard, Users, CheckSquare, Award } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  CheckSquare,
+  Gift,
+  PartyPopper,
+} from "lucide-react";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { MetricCard } from "@/components/shared/dashboard/MetricCard";
 import { RecentActivityList } from "./RecentActivityList";
 import { UpcomingSchedulesList } from "./UpcomingSchedulesList";
 
-// UPDATE INTERFACE SESUAI SERVER ACTION
 interface DashboardData {
+  className: string;
   stats: {
     totalStudents: number;
-    todayAttendance: number;
-    pointsDistributed: number;
+    weeklyAttendance: number;
+    birthdaysCount: number;
   };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  birthdays: { id: string; name: string; date: string }[];
   recentLogs: any[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   upcomingSchedules: any[];
-}
-
-interface PembinaDashboardManagementProps {
-  data?: DashboardData;
-  error?: string;
 }
 
 export function PembinaDashboardManagement({
   data,
   error,
-}: PembinaDashboardManagementProps) {
+}: {
+  data?: DashboardData;
+  error?: string;
+}) {
   useEffect(() => {
     if (error) toast.error(error);
   }, [error]);
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* HEADER */}
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
       <PageHeader
         title="Beranda"
-        highlightText="Pembina"
-        subtitle="Pantau aktivitas kelas, kehadiran, dan distribusi poin motivasi."
+        highlightText={data?.className || "Pembina"}
+        subtitle="Pantau aktivitas siswa, kehadiran, dan momen spesial di kelas Anda."
         icon={<LayoutDashboard size={24} />}
         themeColor="orange"
       />
 
-      {/* GRID STATISTIK YANG SUDAH DI-REFACTOR */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         <MetricCard
-          title="Total Siswa Aktif"
+          title="Siswa Binaan"
           value={data?.stats?.totalStudents ?? 0}
           icon={<Users size={28} />}
           theme="blue"
         />
         <MetricCard
-          title="Absen Hari Ini"
-          value={data?.stats?.todayAttendance ?? 0}
+          title="Hadir Minggu Ini"
+          value={data?.stats?.weeklyAttendance ?? 0}
           icon={<CheckSquare size={28} />}
           theme="green"
         />
         <MetricCard
-          title="Poin Didistribusi"
-          value={data?.stats?.pointsDistributed ?? 0}
-          icon={<Award size={28} />}
-          theme="orange"
+          title="Ultah 7 Hari Kedepan"
+          value={data?.stats?.birthdaysCount ?? 0}
+          icon={<Gift size={28} />}
+          theme="purple"
         />
       </div>
 
-      {/* DUA KOTAK LIST ACTIVITY & SCHEDULE */}
+      {data?.birthdays && data.birthdays.length > 0 && (
+        <div className="bg-linear-to-r from-purple-500 to-fuchsia-600 rounded-[1.5rem] p-5 md:p-6 text-white shadow-md flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
+              <PartyPopper size={28} className="text-white" />
+            </div>
+            <div>
+              <h3 className="font-black text-lg">Momen Spesial Minggu Ini!</h3>
+              <p className="text-sm font-medium text-purple-100 opacity-90 mt-0.5">
+                Jangan lupa beri selamat untuk:{" "}
+                <span className="font-bold text-white">
+                  {data.birthdays.map((b) => b.name).join(", ")}
+                </span>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         <RecentActivityList logs={data?.recentLogs || []} />
         <UpcomingSchedulesList schedules={data?.upcomingSchedules || []} />

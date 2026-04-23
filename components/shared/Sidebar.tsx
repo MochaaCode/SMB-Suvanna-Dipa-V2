@@ -15,7 +15,7 @@ import {
   LogOut,
   UserCog,
   Gift,
-  FileSpreadsheet,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -33,86 +33,104 @@ export const ADMIN_MENU = [
   { name: "Katalog Produk", href: "/admin/products", icon: Package },
   { name: "Pesanan Masuk", href: "/admin/orders", icon: ShoppingCart },
   { name: "Riwayat Pengguna", href: "/admin/logs", icon: History },
-  { name: "Laporan & Audit", href: "/admin/reports", icon: FileSpreadsheet },
 ];
 
 export const PEMBINA_MENU = [
   { name: "Dashboard", href: "/pembina/dashboard", icon: LayoutDashboard },
-  { name: "Jadwal Mengajar", href: "/pembina/schedules", icon: Calendar },
-  { name: "Manajemen Kelas", href: "/pembina/classes", icon: GraduationCap },
+  { name: "Kelas Saya", href: "/pembina/my-class", icon: GraduationCap },
+  { name: "Materi Pembahasan", href: "/pembina/materials", icon: BookOpen },
+  { name: "Riwayat Aktivitas", href: "/pembina/logs", icon: History },
 ];
 
 export const SISWA_MENU = [
   { name: "Dashboard", href: "/siswa/dashboard", icon: LayoutDashboard },
-  { name: "Jadwal Sekolah Minggu", href: "/siswa/schedule", icon: Calendar },
+  { name: "Jadwal SMB", href: "/siswa/schedule", icon: Calendar },
   { name: "Tukar Poin", href: "/siswa/store", icon: Gift },
   { name: "Aktivitas Saya", href: "/siswa/activity", icon: History },
 ];
 
+export const GL_MENU = [
+  {
+    name: "Monitoring Kelas (GL)",
+    href: "/pembina/my-class",
+    icon: GraduationCap,
+  },
+];
+
 interface SidebarProps {
   role: UserRole;
+  isAssistant?: boolean;
 }
 
-export default function Sidebar({ role }: SidebarProps) {
+export default function Sidebar({ role, isAssistant = false }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const supabase = createClient();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const menuList =
-    role === "admin"
-      ? ADMIN_MENU
-      : role === "pembina"
-        ? PEMBINA_MENU
-        : SISWA_MENU;
-
-  const basePath = `/${role}`;
+  const basePath =
+    role === "admin" ? "/admin" : role === "pembina" ? "/pembina" : "/siswa";
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    const tid = toast.loading("Mengakhiri sesi...");
+    const tid = toast.loading("Keluar dari sistem...");
     try {
       await supabase.auth.signOut();
-      toast.success("Sampai jumpa lagi!", { id: tid });
       router.push("/login");
       router.refresh();
+      toast.success("Berhasil keluar", { id: tid });
     } catch (error) {
-      toast.error("Gagal logout", { id: tid });
+      toast.error("Gagal keluar sistem", { id: tid });
+    } finally {
       setIsLoggingOut(false);
     }
   };
 
+  const getActiveMenu = () => {
+    if (role === "admin") return ADMIN_MENU;
+    if (role === "pembina") return PEMBINA_MENU;
+    if (role === "siswa" && isAssistant) {
+      return [...SISWA_MENU, ...GL_MENU];
+    }
+
+    return SISWA_MENU;
+  };
+
+  const menuItems = getActiveMenu();
+
   return (
-    <aside className="w-full md:w-64 h-screen bg-white md:border-r border-slate-200 flex flex-col md:sticky top-0 overflow-hidden md:shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
-      <div className="p-6 border-b border-slate-50 flex items-center gap-3">
-        <div className="w-10 h-10 bg-orange-600 rounded-[0.8rem] flex items-center justify-center shadow-lg shadow-orange-100">
-          <GraduationCap className="text-white" size={24} />
-        </div>
-        <div className="flex flex-col">
-          <span className="text-sm font-black text-slate-800 tracking-tight leading-none">
-            SUVANNADIPA
-          </span>
-          <span className="text-[10px] font-bold text-orange-600 uppercase tracking-[0.2em] mt-1">
-            {role} Portal
-          </span>
+    <aside className="w-72 h-screen bg-white border-r border-slate-100 flex flex-col sticky top-0 overflow-hidden">
+      <div className="p-8 pb-6">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="w-10 h-10 bg-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-200">
+            <GraduationCap className="text-white" size={24} />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xl font-black text-slate-800 tracking-tighter leading-none">
+              SUVANNADIPA
+            </span>
+            <span className="text-[10px] font-bold text-orange-600 uppercase tracking-[0.2em] mt-1">
+              {role} Portal
+            </span>
+          </div>
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto p-4 space-y-1.5 custom-scrollbar">
-        <p className="px-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-3 mt-2">
+      <nav className="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto custom-scrollbar">
+        <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">
           Menu Utama
         </p>
-        {menuList.map((item) => {
+        {menuItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
           return (
             <Link
-              key={item.href}
+              key={item.name}
               href={item.href}
               className={cn(
                 "flex items-center gap-3.5 px-4 py-3 rounded-[1rem] text-sm font-bold transition-all group border",
                 isActive
-                  ? "bg-orange-50 text-orange-700 border-orange-100 shadow-sm"
-                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-900 border-transparent",
+                  ? "bg-orange-50 text-orange-700 shadow-sm border-orange-100"
+                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 border-transparent",
               )}
             >
               <item.icon
@@ -125,6 +143,9 @@ export default function Sidebar({ role }: SidebarProps) {
                 )}
               />
               <span className="tracking-tight">{item.name}</span>
+              {isActive && (
+                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
+              )}
             </Link>
           );
         })}
@@ -156,10 +177,10 @@ export default function Sidebar({ role }: SidebarProps) {
         <button
           onClick={handleLogout}
           disabled={isLoggingOut}
-          className="flex w-full items-center gap-3.5 px-4 py-3 rounded-[1rem] text-sm font-bold text-red-600 hover:bg-red-50 hover:text-red-700 transition-all border border-transparent"
+          className="flex w-full items-center gap-3.5 px-4 py-3 rounded-[1rem] text-sm font-bold text-red-500 hover:bg-red-50 transition-all border border-transparent disabled:opacity-50"
         >
           <LogOut size={18} />
-          <span className="tracking-tight">Keluar Sesi</span>
+          <span className="tracking-tight">Keluar Sistem</span>
         </button>
       </div>
     </aside>

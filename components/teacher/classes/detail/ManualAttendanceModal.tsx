@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import toast from "react-hot-toast";
-import { recordManualAttendance } from "@/actions/teacher/attendance";
+import { recordManualAttendance } from "@/actions/pembina/attendance";
 import { ClipboardCheck } from "lucide-react";
 
 interface StudentData {
