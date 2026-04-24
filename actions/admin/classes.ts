@@ -3,12 +3,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-// IMPORT TIPE
 import type { Profile, Class, UserRole } from "@/types";
 
-// ==========================================
-// TIPE KEMBALIAN KHUSUS UNTUK ACTIONS INI
-// ==========================================
 export interface ClassWithDetails extends Class {
   teacher: {
     id: string;
@@ -33,7 +29,6 @@ export interface PromotionSuggestion {
   age: number;
 }
 
-// HELPER: Proteksi Admin
 async function ensureAdmin() {
   const supabase = await createClient();
   const {
@@ -54,9 +49,6 @@ async function ensureAdmin() {
   return supabase;
 }
 
-/**
- * 1. AMBIL SEMUA KELAS + GURU + DAFTAR MURID
- */
 export async function getClassesWithDetails(): Promise<ClassWithDetails[]> {
   const supabase = await createClient();
 
@@ -74,7 +66,6 @@ export async function getClassesWithDetails(): Promise<ClassWithDetails[]> {
 
   if (error) throw new Error(error.message);
 
-  // Type Casting yang aman
   const rawClasses = data as unknown as ClassWithDetails[];
 
   return rawClasses.map((cls) => ({
@@ -83,9 +74,6 @@ export async function getClassesWithDetails(): Promise<ClassWithDetails[]> {
   }));
 }
 
-/**
- * 2. LOGIKA AUTO-SUGGESTION (ALARM PROMOSI JULI)
- */
 export async function getPromotionSuggestions(): Promise<
   PromotionSuggestion[]
 > {
@@ -122,10 +110,8 @@ export async function getPromotionSuggestions(): Promise<
       birth.getDate(),
     );
 
-    // Jika ultah terjadi setelah 1 Juli, usianya belum genap di bulan Juli
     if (birthdayThisYear > cutoffDate) ageAtCutoff--;
 
-    // Kasus Lulus (Alumni)
     if (ageAtCutoff > maxSystemAge) {
       if (student.class_id !== null) {
         suggestions.push({
@@ -160,9 +146,6 @@ export async function getPromotionSuggestions(): Promise<
   return suggestions;
 }
 
-/**
- * 3. EKSEKUSI PROMOSI MASSAL
- */
 export async function promoteStudentsBulk(promotions: PromotionSuggestion[]) {
   const supabase = await ensureAdmin();
   const errors: string[] = [];
@@ -189,9 +172,6 @@ export async function promoteStudentsBulk(promotions: PromotionSuggestion[]) {
   return { success: successCount, failed: errors.length, errors };
 }
 
-/**
- * 4. AMBIL DAFTAR PEMBINA
- */
 export async function getAvailablePembina() {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -206,9 +186,6 @@ export async function getAvailablePembina() {
   return data as unknown as Pick<Profile, "id" | "full_name" | "avatar_url">[];
 }
 
-/**
- * 5. UPDATE STAFF KELAS
- */
 export async function updateClassStaff(
   classId: number,
   teacherId: string | null,

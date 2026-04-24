@@ -8,6 +8,10 @@ import type { Schedule } from "@/types";
 export interface ScheduleWithRelations extends Schedule {
   class: { id: number; name: string } | null;
   author: { id: string; full_name: string | null } | null;
+  class_id: number;
+  event_date: string;
+  content: string;
+  is_announcement: boolean;
 }
 
 async function ensureAdmin() {
@@ -82,9 +86,6 @@ export async function deleteSchedule(id: number) {
   return { success: true };
 }
 
-// ----------------------------------------
-// FUNGSI BARU: PULIHKAN & HAPUS PERMANEN
-// ----------------------------------------
 export async function restoreSchedule(id: number) {
   const { supabase } = await ensureAdmin();
   const { error } = await supabase

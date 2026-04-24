@@ -66,7 +66,6 @@ export default function LoginForm() {
       transition={{ duration: 0.5 }}
       className="w-full max-w-4xl mx-auto bg-white rounded-[1rem] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-137.5 border border-slate-100 z-10 relative"
     >
-      {/* TOMBOL KEMBALI KE BERANDA */}
       <button
         onClick={() => router.push("/")}
         className="absolute top-8 left-8 flex items-center gap-2 text-slate-400 hover:text-slate-900 transition-colors group z-20"
@@ -80,14 +79,12 @@ export default function LoginForm() {
         </span>
       </button>
 
-      {/* KIRI: Form Login */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="visible"
         className="w-full md:w-1/2 p-8 md:p-12 mt-10 md:mt-0 flex flex-col justify-center"
       >
-        {/* REVISI LOGO & HEADER */}
         <motion.div
           variants={itemVariants}
           className="flex flex-col items-center md:items-start mb-8 text-center md:text-left"
@@ -186,7 +183,6 @@ export default function LoginForm() {
         </motion.form>
       </motion.div>
 
-      {/* KANAN: Branding */}
       <div className="hidden md:flex w-1/2 bg-slate-900 p-12 flex-col items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
         <div className="absolute bottom-1/4 right-10 w-64 h-64 bg-orange-500/20 rounded-full blur-3xl"></div>

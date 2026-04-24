@@ -23,7 +23,6 @@ import {
 import { AppCard } from "../../shared/AppCard";
 import { AppButton } from "../../shared/AppButton";
 
-// IMPORT TIPE KETAT
 import type { OwnProfileData } from "@/actions/shared/profile";
 
 interface PersonalInfoFormProps {
@@ -39,7 +38,6 @@ export function PersonalInfoForm({
   onSave,
   isPending,
 }: PersonalInfoFormProps) {
-  // Menambahkan tipe spesifik pada array fields agar aman
   const fields: Array<{
     id: keyof OwnProfileData;
     label: string;

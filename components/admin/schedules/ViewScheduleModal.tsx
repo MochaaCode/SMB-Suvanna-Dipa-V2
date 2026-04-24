@@ -4,7 +4,6 @@ import { AppModal } from "../../shared/AppModal";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, User, BookOpen, Megaphone } from "lucide-react";
 
-// IMPORT TIPE
 import type { ScheduleWithRelations } from "@/actions/admin/schedules";
 
 interface ViewScheduleModalProps {
@@ -30,7 +29,6 @@ export function ViewScheduleModal({
       variant={isAnnouncement ? "blue" : "orange"}
       maxWidth="2xl"
     >
-      {/* INFO BAR: Tanggal, Pembuat, dan Tipe */}
       <div className="flex flex-wrap items-center gap-4 bg-white p-4 rounded-[1rem] border border-slate-200 shadow-sm mb-6">
         <Badge
           className={`${
@@ -66,7 +64,6 @@ export function ViewScheduleModal({
         </div>
       </div>
 
-      {/* CONTENT AREA (MATERI TIPTAP) */}
       <div className="bg-white p-6 sm:p-8 rounded-[1rem] border border-slate-200 shadow-sm min-h-75 text-left">
         <div
           className={`prose prose-sm sm:prose-base max-w-none 

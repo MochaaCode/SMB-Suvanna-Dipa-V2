@@ -29,8 +29,6 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  // SANGAT PENTING: Jangan hapus auth.getUser().
-  // Ini yang melakukan refresh token jika expired.
   const {
     data: { user },
   } = await supabase.auth.getUser();

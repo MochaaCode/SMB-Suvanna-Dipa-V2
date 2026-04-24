@@ -29,7 +29,6 @@ export function CardManagementUI({
 }: CardManagementUIProps) {
   const [isAddModalOpen, setAddModalOpen] = useState(false);
 
-  // OPTIMASI: Hitung statistik hanya jika initialCards berubah
   const stats = useMemo(() => {
     return [
       {

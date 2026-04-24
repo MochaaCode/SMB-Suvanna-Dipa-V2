@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { CalendarDays, Clock, MapPin } from "lucide-react";
 import { AppCard } from "@/components/shared/AppCard";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function UpcomingSchedulesList({ schedules }: { schedules: any[] }) {
   if (!schedules || schedules.length === 0) {
     return (

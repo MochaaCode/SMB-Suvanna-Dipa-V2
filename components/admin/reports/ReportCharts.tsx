@@ -17,7 +17,6 @@ import type { ChartAnalytics } from "@/actions/admin/reports";
 export function ReportCharts({ analytics }: { analytics: ChartAnalytics }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      {/* CHART KELAS & USIA */}
       <AppCard className="p-6">
         <h3 className="text-sm font-bold text-slate-800 mb-6 uppercase tracking-wider">
           Distribusi Siswa & Rerata Usia per Kelas
@@ -62,7 +61,6 @@ export function ReportCharts({ analytics }: { analytics: ChartAnalytics }) {
         </div>
       </AppCard>
 
-      {/* CHART TREN KEHADIRAN BULANAN */}
       <AppCard className="p-6">
         <h3 className="text-sm font-bold text-slate-800 mb-6 uppercase tracking-wider">
           Tren Kehadiran Rutin (Bulanan)

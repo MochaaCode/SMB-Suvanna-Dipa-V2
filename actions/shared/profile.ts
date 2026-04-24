@@ -29,7 +29,6 @@ export async function getOwnProfile(): Promise<OwnProfileData> {
   return { ...(data as Profile), email: user.email };
 }
 
-// PERBAIKAN UTAMA: Tambahkan parameter rolePath agar revalidatePath dinamis
 export async function updateOwnProfile(
   payload: ProfileUpdateInput & { parent_phone_number?: string | null },
   rolePath: "admin" | "siswa" | "pembina",
@@ -72,7 +71,6 @@ export async function updateOwnProfile(
     data: { full_name: validated.data.full_name },
   });
 
-  // REVALIDATE DINAMIS SESUAI ROLE
   revalidatePath(`/${rolePath}/profile`);
   revalidatePath(`/${rolePath}/dashboard`);
   return { success: true };
@@ -95,7 +93,6 @@ export async function updateOwnPassword(newPassword: string) {
   return { success: true };
 }
 
-// PERBAIKAN UTAMA: Tambahkan parameter rolePath untuk revalidasi
 export async function uploadAvatar(
   formData: FormData,
   rolePath: "admin" | "siswa" | "pembina",
@@ -140,7 +137,6 @@ export async function uploadAvatar(
     .eq("id", user.id);
   await supabase.auth.updateUser({ data: { avatar_url: urlRes.publicUrl } });
 
-  // REVALIDATE DINAMIS SESUAI ROLE
   revalidatePath(`/${rolePath}/profile`);
   revalidatePath(`/${rolePath}/dashboard`);
   return urlRes.publicUrl;

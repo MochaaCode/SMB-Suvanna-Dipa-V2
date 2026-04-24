@@ -13,11 +13,9 @@ export async function forgotPasswordAction(email: string) {
 
     if (error) return { success: false, error: error.message };
 
-    // BUSINESS LOGIC: Catat ke Audit Trail (Log Keamanan)
     try {
       const supabaseAdmin = createAdminClient();
 
-      // Ambil max 1000 user untuk dicocokkan (aman buat skala SMB lu)
       const {
         data: { users },
       } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
@@ -27,14 +25,12 @@ export async function forgotPasswordAction(email: string) {
 
       await supabaseAdmin.from("password_reset_tokens").insert({
         email: email,
-        user_id: targetUser?.id || null, // Otomatis NULL kalau email fiktif
+        user_id: targetUser?.id || null,
         token: "SECURE_OTP_REQUESTED",
         expires_at: new Date(Date.now() + 3600 * 1000).toISOString(),
         is_used: false,
       });
-    } catch (Error) {
-      // Silent error, jangan ganggu UX utama walaupun pencatatan log gagal
-    }
+    } catch (Error) {}
 
     return { success: true };
   } catch (Error: any) {
@@ -71,9 +67,7 @@ export async function verifyOtpAndResetPassword(data: {
       .update({ is_used: true })
       .eq("email", data.email)
       .eq("is_used", false);
-  } catch (error) {
-    // Silent error
-  }
+  } catch (error) {}
 
   await supabase.auth.signOut();
   return { success: true };

@@ -29,7 +29,6 @@ export default function MilestoneSection({
           </motion.header>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {milestone.items?.map((item: any, idx: number) => (
-              // Radius diubah menjadi 1rem
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, y: 30 }}
@@ -70,7 +69,6 @@ export default function MilestoneSection({
           </motion.h3>
           <div className="grid md:grid-cols-3 gap-8">
             {testimonial.items?.map((testi: any, index: number) => (
-              // Radius diubah menjadi 1rem
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0.9 }}

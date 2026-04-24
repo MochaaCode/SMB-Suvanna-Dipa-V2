@@ -95,10 +95,8 @@ export function ReportsManagement({ data }: ReportsManagementProps) {
         />
       </div>
 
-      {/* DASHBOARD CHARTS */}
       <ReportCharts analytics={data.analytics} />
 
-      {/* TABEL DATA LENGKAP */}
       <AppCard className="p-0 overflow-hidden shadow-sm border-slate-200">
         <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
           <h3 className="text-sm font-bold text-slate-800">Tabel Data Induk</h3>

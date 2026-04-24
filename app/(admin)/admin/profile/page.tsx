@@ -9,7 +9,6 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminProfilePage() {
-  // Ambil data profil milik admin yang sedang login
   const profileData = await getOwnProfile();
 
   return <ProfileManagementUI initialProfile={profileData} />;

@@ -23,7 +23,6 @@ export default async function AdminLayout({
 }) {
   const supabase = await createClient();
 
-  // CEK AUTH USER
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -32,7 +31,6 @@ export default async function AdminLayout({
     redirect("/login");
   }
 
-  // CEK ROLE PROFILE (ADMIN ONLY)
   const { data: profile, error } = await supabase
     .from("profiles")
     .select("role")
@@ -45,21 +43,12 @@ export default async function AdminLayout({
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-slate-50 font-sans text-slate-900">
-      {/* =========================================
-          MOBILE NAVBAR (HANYA TAMPIL DI HP) 
-          ========================================= */}
       <MobileNav role={"admin"} />
 
-      {/* =========================================
-          SIDEBAR DESKTOP (SEMBUNYI DI HP) 
-          ========================================= */}
       <div className="hidden md:block shrink-0">
         <Sidebar role={"admin"} />
       </div>
 
-      {/* =========================================
-          MAIN CONTENT AREA 
-          ========================================= */}
       <main className="flex-1 flex flex-col min-w-0 overflow-x-hidden pt-16 md:pt-0 h-screen md:h-auto overflow-y-auto">
         <div className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
@@ -67,11 +56,9 @@ export default async function AdminLayout({
           </div>
         </div>
 
-        {/* FOOTER */}
         <Footer />
       </main>
 
-      {/* TOASTER (TIDAK BERUBAH) */}
       <Toaster
         position="top-right"
         toastOptions={{

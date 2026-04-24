@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -52,7 +53,6 @@ export function EditUserModal({
 
   useEffect(() => {
     if (user) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { classes: _, email: __, ...cleanData } = user;
       setFormData(cleanData);
     }
@@ -130,7 +130,6 @@ export function EditUserModal({
         </TabsList>
 
         <ScrollArea className="h-[55vh] pr-4">
-          {/* TAB 1: PRIBADI */}
           <TabsContent
             value="pribadi"
             className="space-y-5 text-left outline-none mt-2"
@@ -214,7 +213,6 @@ export function EditUserModal({
             </div>
           </TabsContent>
 
-          {/* TAB 2: SISTEM & AKADEMIK */}
           <TabsContent
             value="akademik"
             className="space-y-5 text-left outline-none mt-2"
@@ -283,7 +281,6 @@ export function EditUserModal({
             </div>
           </TabsContent>
 
-          {/* TAB 3: KONTAK & KELUARGA */}
           <TabsContent
             value="kontak"
             className="space-y-5 text-left outline-none mt-2"

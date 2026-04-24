@@ -9,7 +9,6 @@ export const metadata: Metadata = {
 };
 
 export default async function OrdersPage() {
-  // Fetch data langsung di server
   const orders = await getOrders();
 
   return <OrderManagementUI initialOrders={orders} />;

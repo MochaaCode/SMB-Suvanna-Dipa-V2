@@ -1,10 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import XLSX from "xlsx-js-style";
 
-/**
- * Fungsi cerdas untuk meng-export array of objects ke file Excel (.xlsx)
- * Dilengkapi dengan Auto-Fit Column Width dan Styling Header Enterprise.
- */
 export const exportToExcel = (
   data: any[],
   fileName: string,

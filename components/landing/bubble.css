@@ -1,16 +1,16 @@
 .bubble {
   position: absolute;
-  bottom: -20vh; /* Mulai dari luar layar bawah */
+  bottom: -20vh;
   background-color: rgba(
     255,
     159,
     102,
     0.4
-  ); /* UBAH: Opacity dinaikkan jadi 0.4 */
+  ); 
   border-radius: 50%;
   filter: blur(
     12px
-  ); /* UBAH: Blur dikurangi supaya bentuk bulatnya kelihatan */
+  );
   animation: floatUp linear infinite;
 }
 
@@ -20,7 +20,7 @@
     opacity: 0;
   }
   20% {
-    opacity: 0.8; /* UBAH: Saat melayang, opacity naik biar kelihatan */
+    opacity: 0.8;
   }
   80% {
     opacity: 0.8;
@@ -31,7 +31,6 @@
   }
 }
 
-/* Definisi 15 Bubble dengan Posisi, Ukuran, dan Waktu Acak */
 .bubble-1 {
   left: 5%;
   width: 80px;
@@ -102,7 +101,7 @@
   animation-duration: 22s;
   animation-delay: 6s;
 }
-/* Tambahan 5 Bubble yang tadinya gaib */
+
 .bubble-11 {
   left: 10%;
   width: 85px;

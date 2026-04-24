@@ -10,7 +10,6 @@ import { EmailForm } from "../../shared/profile/EmailForm";
 import { PasswordForm } from "../../shared/profile/PasswordForm";
 import toast from "react-hot-toast";
 
-// IMPORT TIPE KETAT
 import type { OwnProfileData } from "@/actions/shared/profile";
 
 interface ProfileManagementUIProps {
@@ -67,7 +66,6 @@ export function ProfileManagementUI({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
-      {/* SECTION 1: HEADER & FOTO (TOP) */}
       <ProfileHeaderSummary
         avatarUrl={formData.avatar_url}
         fullName={formData.full_name}
@@ -76,7 +74,6 @@ export function ProfileManagementUI({
         onUpload={handleUpload}
       />
 
-      {/* SECTION 2: BIODATA ADMIN */}
       <AppCard className="p-0 border-none bg-transparent shadow-none">
         <PersonalInfoForm
           data={formData}
@@ -88,7 +85,6 @@ export function ProfileManagementUI({
         />
       </AppCard>
 
-      {/* SECTION 3: KEAMANAN (HORIZONTAL GRID) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <EmailForm initialEmail={initialProfile.email} />
         <PasswordForm />

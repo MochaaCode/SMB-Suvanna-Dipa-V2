@@ -39,9 +39,8 @@ export function UserDetailModal({
       onClose={onClose}
       title="Profil Pengguna"
       variant="orange"
-      maxWidth="xl" // DIBUAT LEBIH LEBAR
+      maxWidth="xl"
     >
-      {/* HEADER: DIBUAT LANDSCAPE / MENYAMPING */}
       <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left mb-6 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm gap-5">
         <Avatar className="h-20 w-20 border border-slate-200 shadow-sm shrink-0">
           <AvatarImage src={user.avatar_url || ""} />
@@ -104,7 +103,6 @@ export function UserDetailModal({
         </TabsList>
 
         <ScrollArea className="h-56 pr-3">
-          {/* TAB 1: PRIBADI */}
           <TabsContent value="pribadi" className="outline-none m-0">
             <div className="p-4 bg-white rounded-xl border border-slate-200 space-y-4 shadow-sm text-left">
               <div className="grid grid-cols-2 gap-4">
@@ -138,7 +136,6 @@ export function UserDetailModal({
             </div>
           </TabsContent>
 
-          {/* TAB 2: AKADEMIK & SISTEM */}
           <TabsContent value="akademik" className="outline-none m-0">
             <div className="p-4 bg-white rounded-xl border border-slate-200 space-y-4 shadow-sm text-left">
               <div className="grid grid-cols-2 gap-4">
@@ -172,7 +169,6 @@ export function UserDetailModal({
             </div>
           </TabsContent>
 
-          {/* TAB 3: KONTAK & KELUARGA */}
           <TabsContent value="kontak" className="outline-none m-0">
             <div className="p-4 bg-white rounded-xl border border-slate-200 space-y-4 shadow-sm text-left">
               <div className="grid grid-cols-2 gap-4">

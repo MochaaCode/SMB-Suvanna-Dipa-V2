@@ -16,7 +16,6 @@ export default async function SchedulesPage() {
   ]);
 
   return (
-    // Wrapper <main> dihapus agar konsisten dengan Layout global
     <ScheduleManagementUI initialSchedules={schedules} classes={classes} />
   );
 }

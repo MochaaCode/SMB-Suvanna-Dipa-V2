@@ -132,7 +132,6 @@ export function ScheduleManagementUI({
               </h2>
             </div>
 
-            {/* TABS SELECTOR */}
             <TabsList className="bg-slate-100 p-1 rounded-[1rem] h-10">
               <TabsTrigger
                 value="materi"

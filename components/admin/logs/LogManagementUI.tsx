@@ -7,14 +7,12 @@ import { Input } from "@/components/ui/input";
 import { StudentGrid } from "./StudentGrid";
 import { useDebounce } from "@/hooks/useDebounce";
 
-// IMPORT TIPE KETAT
 import type { StudentSummary } from "@/actions/admin/logs";
 
 export function LogManagementUI({ students }: { students: StudentSummary[] }) {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 300);
 
-  // OPTIMASI: Filtering di sisi client menggunakan useMemo
   const filteredStudents = useMemo(() => {
     if (!debouncedSearch) return students;
     const lowerQuery = debouncedSearch.toLowerCase();
@@ -28,7 +26,6 @@ export function LogManagementUI({ students }: { students: StudentSummary[] }) {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
-      {/* HEADER SECTION */}
       <PageHeader
         title="REKAM JEJAK"
         highlightText="AKTIVITAS"
@@ -51,7 +48,6 @@ export function LogManagementUI({ students }: { students: StudentSummary[] }) {
         }
       />
 
-      {/* MAIN CONTENT */}
       {filteredStudents.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center bg-white rounded-[1rem] border border-dashed border-slate-300 shadow-sm">
           <div className="p-5 bg-slate-50 rounded-xl mb-5 border border-slate-100">

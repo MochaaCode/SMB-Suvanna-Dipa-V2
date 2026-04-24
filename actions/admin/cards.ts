@@ -3,7 +3,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-// IMPORT TIPE KETAT
 import type { Profile, CardStatus } from "@/types";
 
 export interface CardWithProfile {
@@ -17,7 +16,6 @@ export interface CardWithProfile {
   } | null;
 }
 
-// HELPER: Proteksi Admin
 async function ensureAdmin() {
   const supabase = await createClient();
   const {
@@ -38,9 +36,6 @@ async function ensureAdmin() {
   return supabase;
 }
 
-/**
- * 1. AMBIL SEMUA KARTU BESERTA PEMILIKNYA
- */
 export async function getCardsWithProfiles(): Promise<CardWithProfile[]> {
   const supabase = await ensureAdmin();
   const { data, error } = await supabase
@@ -58,13 +53,9 @@ export async function getCardsWithProfiles(): Promise<CardWithProfile[]> {
 
   if (error) throw new Error(error.message);
 
-  // Type casting hasil join
   return data as unknown as CardWithProfile[];
 }
 
-/**
- * 2. REGISTRASI KARTU BARU (DENGAN LOGIKA RESTORE)
- */
 export async function registerNewCard(uid: string) {
   const supabase = await ensureAdmin();
 
@@ -104,9 +95,6 @@ export async function registerNewCard(uid: string) {
   return { success: true };
 }
 
-/**
- * 3. PASANGKAN KARTU KE USER (PAIRING)
- */
 export async function pairCard(rfidUid: string, profileId: string) {
   const supabase = await ensureAdmin();
   const { error } = await supabase
@@ -123,9 +111,6 @@ export async function pairCard(rfidUid: string, profileId: string) {
   return { success: true };
 }
 
-/**
- * 4. LEPAS KARTU DARI USER (UNPAIR)
- */
 export async function unpairCard(rfidUid: string) {
   const supabase = await ensureAdmin();
   const { error } = await supabase
@@ -142,9 +127,6 @@ export async function unpairCard(rfidUid: string) {
   return { success: true };
 }
 
-/**
- * 5. TANDAI KARTU SEBAGAI HILANG
- */
 export async function markCardAsLost(rfidUid: string) {
   const supabase = await ensureAdmin();
   const { error } = await supabase
@@ -161,9 +143,6 @@ export async function markCardAsLost(rfidUid: string) {
   return { success: true };
 }
 
-/**
- * 6. SOFT DELETE KARTU
- */
 export async function deleteCard(rfidUid: string) {
   const supabase = await ensureAdmin();
   const { error } = await supabase
@@ -179,9 +158,6 @@ export async function deleteCard(rfidUid: string) {
   return { success: true };
 }
 
-/**
- * 7. AMBIL LIST USER UNTUK PAIRING
- */
 export async function getUsersForCards(): Promise<
   Pick<Profile, "id" | "full_name" | "role">[]
 > {

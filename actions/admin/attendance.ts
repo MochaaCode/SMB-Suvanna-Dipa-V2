@@ -78,9 +78,6 @@ export async function getEligibleStudents(
   return data as Profile[];
 }
 
-// ==========================================
-// FUNGSI ABSENSI MANUAL (TANPA INJEKSI POIN MANUAL)
-// ==========================================
 export async function recordManualAttendance(payload: {
   scheduleId: number;
   profileId: string;

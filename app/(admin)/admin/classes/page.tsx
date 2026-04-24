@@ -13,7 +13,6 @@ export const metadata: Metadata = {
 };
 
 export default async function ClassesPage() {
-  // Parallel Data Fetching
   const [classes, promotions, allPembina] = await Promise.all([
     getClassesWithDetails(),
     getPromotionSuggestions(),
@@ -21,7 +20,6 @@ export default async function ClassesPage() {
   ]);
 
   return (
-    // Hilangkan div wrapper p-6 max-w-7xl mx-auto karena sudah ditangani Layout
     <ClassManagementUI
       classes={classes}
       promotions={promotions}

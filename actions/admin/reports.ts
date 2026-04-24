@@ -24,7 +24,6 @@ export interface ChartAnalytics {
 export async function getComprehensiveReportData() {
   const supabaseAdmin = createAdminClient();
 
-  // 1. Tarik Data Profil + Semua Relasinya secara Spesifik (Fix Relasi Ganda)
   const { data: profiles, error } = await supabaseAdmin
     .from("profiles")
     .select(
@@ -41,17 +40,13 @@ export async function getComprehensiveReportData() {
 
   if (error) throw new Error("Gagal mengambil data laporan: " + error.message);
 
-  // 2. Tarik Data Email dari Auth (Bypass RLS)
   const { data: authData } = await supabaseAdmin.auth.admin.listUsers();
   const emailMap = new Map(authData.users.map((u) => [u.id, u.email]));
 
-  // VARIABEL UNTUK CHARTS
   const attendanceMonthlyMap: Record<string, number> = {};
   const classMap: Record<string, { count: number; totalAge: number }> = {};
 
-  // 3. Transformasi Data
   const richData: RichReportData[] = (profiles || []).map((s: any) => {
-    // --- Kalkulasi Usia ---
     let ageNumber = 0;
     let ageStr = "Belum Diisi";
     if (s.birth_date) {
@@ -61,27 +56,22 @@ export async function getComprehensiveReportData() {
       ageStr = `${ageNumber} Tahun`;
     }
 
-    // --- Kontak & Email ---
     const email = emailMap.get(s.id) || "Tidak Ada Email";
     const phone = s.phone_number || s.parent_phone_number || "Tidak Ada Kontak";
 
-    // --- Kartu RFID ---
     const rfid =
       s.rfid_tags?.length > 0 ? s.rfid_tags[0].uid : "Belum Terpasang";
 
-    // --- Barang Dibeli ---
     const purchases = s.product_orders
       ?.map((po: any) => po.products?.name)
       .filter(Boolean);
     const purchaseStr =
       purchases?.length > 0 ? purchases.join(", ") : "Belum Pernah Tukar";
 
-    // --- Kehadiran & Chart Bulanan ---
     let totalHadir = 0;
     s.attendance_logs?.forEach((log: any) => {
       if (log.status === "hadir" || log.status === "terlambat") {
         totalHadir++;
-        // Hitung untuk Chart Bulanan
         const monthKey = new Date(log.scan_time).toLocaleDateString("id-ID", {
           month: "short",
           year: "numeric",
@@ -91,7 +81,6 @@ export async function getComprehensiveReportData() {
       }
     });
 
-    // --- Kelas & Chart Kelas ---
     const className = s.classes?.name || "Tanpa Kelas";
     if (!classMap[className]) classMap[className] = { count: 0, totalAge: 0 };
     classMap[className].count += 1;
@@ -112,7 +101,6 @@ export async function getComprehensiveReportData() {
     };
   });
 
-  // FORMATTING DATA CHARTS
   const attendanceByMonth = Object.entries(attendanceMonthlyMap).map(
     ([month, hadir]) => ({ month, hadir }),
   );

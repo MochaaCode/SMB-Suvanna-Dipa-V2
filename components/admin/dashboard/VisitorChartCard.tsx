@@ -44,7 +44,6 @@ export function VisitorChartCard({ data, topPages }: VisitorChartCardProps) {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* AREA CHART */}
         <div className="flex-1 h-64 min-w-0">
           {data.length === 0 ? (
             <div className="w-full h-full flex items-center justify-center bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
@@ -107,7 +106,6 @@ export function VisitorChartCard({ data, topPages }: VisitorChartCardProps) {
           )}
         </div>
 
-        {/* TOP PAGES LIST */}
         <div className="w-full lg:w-64 space-y-4">
           <h4 className="text-[10px] font-bold uppercase text-slate-500 tracking-wider flex items-center gap-1.5 border-b border-slate-100 pb-2">
             <BarChart2 size={14} /> Halaman Populer

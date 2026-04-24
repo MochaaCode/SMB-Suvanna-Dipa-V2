@@ -63,15 +63,12 @@ export function UserTable({
   isTrashMode = false,
   classes,
 }: UserTableProps) {
-  // STATE KONTROL BARIS TUNGGAL
   const [targetUser, setTargetUser] = useState<ProfileWithEmailAndClass | null>(
     null,
   );
 
-  // STATE KONTROL BULK (BANYAK BARIS)
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  // JENIS MODAL (Ditambah varian Bulk)
   const [modalType, setModalType] = useState<
     | "soft-delete"
     | "restore"
@@ -87,7 +84,6 @@ export function UserTable({
   const [inputValue, setInputValue] = useState("");
   const [isPending, setIsPending] = useState(false);
 
-  // STATE MODAL DETAIL & EDIT
   const [viewUser, setViewUser] = useState<ProfileWithEmailAndClass | null>(
     null,
   );
@@ -97,7 +93,6 @@ export function UserTable({
   );
   const [isEditOpen, setIsEditOpen] = useState(false);
 
-  // PAGINATION
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -110,7 +105,6 @@ export function UserTable({
     return users.slice(startIndex, startIndex + itemsPerPage);
   }, [users, currentPage]);
 
-  // RESET SELECTION KALAU PINDAH MODE / GANTI HALAMAN
   useEffect(() => {
     setCurrentPage(1);
     setSelectedIds([]);
@@ -122,7 +116,6 @@ export function UserTable({
     setInputValue("");
   };
 
-  // LOGIKA CHECKBOX ALL
   const isAllOnPageSelected =
     paginatedUsers.length > 0 &&
     paginatedUsers.every((u) => selectedIds.includes(u.id));
@@ -148,14 +141,12 @@ export function UserTable({
     }
   };
 
-  // EKSEKUTOR AKSI (Support Single & Bulk)
   const executeAction = async () => {
     if ((!targetUser && !modalType?.startsWith("bulk")) || !modalType) return;
 
     const tid = toast.loading("Memproses data...");
     setIsPending(true);
 
-    // Tentukan ID yang akan diproses (Satu atau Banyak)
     const idsToProcess = modalType.startsWith("bulk")
       ? selectedIds
       : [targetUser!.id];
@@ -200,7 +191,6 @@ export function UserTable({
         }
       }
 
-      // Bersihkan state setelah berhasil
       if (modalType.startsWith("bulk")) setSelectedIds([]);
       closeModal();
     } catch (error: any) {
@@ -212,7 +202,6 @@ export function UserTable({
 
   return (
     <div className="w-full overflow-hidden flex flex-col h-full rounded-[1rem] relative">
-      {/* BULK ACTION BAR (Muncul kalau ada yang dicentang) */}
       {selectedIds.length > 0 && (
         <div className="absolute top-0 left-0 right-0 z-10 bg-orange-100 border-b border-orange-200 px-6 py-3 flex items-center justify-between animate-in slide-in-from-top-2">
           <div className="flex items-center gap-2 text-orange-800 font-bold text-sm">
@@ -476,7 +465,6 @@ export function UserTable({
         </div>
       </div>
 
-      {/* MODAL KREDENSIAL */}
       <AppModal
         isOpen={modalType === "credentials"}
         onClose={closeModal}
@@ -559,7 +547,6 @@ export function UserTable({
         </Tabs>
       </AppModal>
 
-      {/* MODAL KONFIRMASI (BISA SINGLE & BULK) */}
       <AlertDialog
         open={[
           "soft-delete",
@@ -579,7 +566,6 @@ export function UserTable({
                 : "Konfirmasi Aksi"}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-sm font-medium text-slate-600 mt-2">
-              {/* Pesan Khusus Hard Delete */}
               {modalType?.includes("hard-delete") && (
                 <div className="space-y-4">
                   <p className="text-red-600 font-bold leading-relaxed bg-red-50 p-3 rounded-[1rem] border border-red-100">
@@ -601,7 +587,6 @@ export function UserTable({
                 </div>
               )}
 
-              {/* Pesan Dinamis Berdasarkan Tipe dan Jumlah */}
               {modalType === "soft-delete" && (
                 <span>
                   Pindahkan <strong>{targetUser?.full_name}</strong> ke tempat

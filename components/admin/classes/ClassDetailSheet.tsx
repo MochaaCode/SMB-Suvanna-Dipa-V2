@@ -3,7 +3,7 @@
 
 import { useTransition, useState, useMemo } from "react";
 import { updateClassStaff, promoteStudentsBulk } from "@/actions/admin/classes";
-import { useDebounce } from "@/hooks/useDebounce"; // IMPORT CUSTOM HOOK KITA
+import { useDebounce } from "@/hooks/useDebounce";
 import {
   Sheet,
   SheetContent,
@@ -39,7 +39,6 @@ import { Input } from "@/components/ui/input";
 import { toast } from "react-hot-toast";
 import { AppButton } from "../../shared/AppButton";
 
-// IMPORT TIPE KETAT
 import type { ClassWithDetails } from "@/actions/admin/classes";
 import type { Profile } from "@/types";
 
@@ -67,7 +66,6 @@ export function ClassDetailSheet({
   const [isPending, startTransition] = useTransition();
   const [searchTerm, setSearchTerm] = useState("");
 
-  // 1. TERAPKAN DEBOUNCE: Nilai ini hanya akan berubah jika user berhenti ngetik selama 300ms
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   const [confirmMove, setConfirmMove] = useState<ConfirmMoveState>({
@@ -80,10 +78,9 @@ export function ClassDetailSheet({
     cls.assistant_ids || [],
   );
 
-  // 2. TERAPKAN USEMEMO: Logika berat ini hanya berjalan JIKA daftar murid, umur maksimal, atau KATA KUNCI DEBOUNCE berubah.
   const filteredStudents = useMemo(() => {
     const currentYear = new Date().getFullYear();
-    const cutoffDate = new Date(currentYear, 6, 1); // 1 Juli
+    const cutoffDate = new Date(currentYear, 6, 1);
 
     return (
       cls.students
@@ -201,7 +198,6 @@ export function ClassDetailSheet({
               </TabsList>
             </div>
 
-            {/* TAB: MURID */}
             <TabsContent
               value="murid"
               className="flex-1 flex flex-col min-h-0 m-0 p-0 overflow-hidden"
@@ -262,7 +258,6 @@ export function ClassDetailSheet({
                           </div>
                         </div>
 
-                        {/* Aksi Pindah Kelas */}
                         <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                           <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1.5 tracking-wider">
                             <MoveRight size={12} /> Mutasi Ke:
@@ -298,7 +293,6 @@ export function ClassDetailSheet({
               </ScrollArea>
             </TabsContent>
 
-            {/* TAB: PENGAJAR */}
             <TabsContent
               value="pengajar"
               className="flex-1 p-6 space-y-6 overflow-y-auto bg-slate-50/30"
@@ -397,7 +391,6 @@ export function ClassDetailSheet({
         </SheetContent>
       </Sheet>
 
-      {/* ALERT DIALOG: KONFIRMASI MUTASI (Radius diubah ke 1rem) */}
       <AlertDialog
         open={confirmMove.isOpen}
         onOpenChange={(io) =>

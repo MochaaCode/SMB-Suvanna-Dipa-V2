@@ -2,10 +2,6 @@
 
 import { createClient } from "@/lib/supabase/server";
 
-/**
- * AMBIL KONTEN UNTUK LANDING PAGE
- * Hanya mengambil konten yang is_published = true
- */
 export async function getPublishedContent() {
   const supabase = await createClient();
 

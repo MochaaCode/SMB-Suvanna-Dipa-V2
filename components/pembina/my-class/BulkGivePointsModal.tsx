@@ -51,7 +51,6 @@ export function BulkGivePointsModal({
     try {
       await bulkGivePointsAction(selectedIds, amount, reason);
       toast.success(`Berhasil membagikan ${amount} poin!`);
-      // Reset form & tutup modal
       setSelectedIds([]);
       setReason("");
       onClose();

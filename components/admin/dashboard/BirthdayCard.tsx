@@ -32,7 +32,6 @@ export function BirthdayCard({ students }: BirthdayCardProps) {
 
   const periodLabel = `${monthNames[startMonthIndex]} - ${monthNames[endMonthIndex]}`;
 
-  // 1. FILTERING DATA
   const birthdayKids = students
     .filter((s) => {
       if (!s.birth_date) return false;
@@ -47,7 +46,6 @@ export function BirthdayCard({ students }: BirthdayCardProps) {
       return dateA.getDate() - dateB.getDate();
     });
 
-  // 2. MENGHITUNG STATISTIK ANALITIK
   const totalKids = birthdayKids.length;
   const maleCount = birthdayKids.filter((k) => k.gender === "Laki-Laki").length;
   const femaleCount = birthdayKids.filter(
@@ -62,7 +60,6 @@ export function BirthdayCard({ students }: BirthdayCardProps) {
 
   return (
     <div className="bg-white p-6 rounded-[1rem] border border-slate-200 shadow-sm space-y-6 flex flex-col w-full lg:col-span-2">
-      {/* HEADER UTAMA */}
       <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-4 gap-4">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-pink-50 rounded-lg text-pink-600 border border-pink-100">
@@ -78,7 +75,6 @@ export function BirthdayCard({ students }: BirthdayCardProps) {
           </div>
         </div>
 
-        {/* STATISTIK RINGKASAN (Fitur Baru) */}
         {totalKids > 0 && (
           <div className="flex flex-wrap items-center gap-2 md:gap-4 bg-slate-50/80 p-2 md:px-4 md:py-2 rounded-lg border border-slate-100">
             <div className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600">
@@ -104,7 +100,6 @@ export function BirthdayCard({ students }: BirthdayCardProps) {
         )}
       </div>
 
-      {/* LIST SISWA */}
       <div className="flex flex-wrap gap-4">
         {totalKids === 0 ? (
           <div className="w-full py-10 flex items-center justify-center bg-slate-50/50 rounded-xl border border-dashed border-slate-200">

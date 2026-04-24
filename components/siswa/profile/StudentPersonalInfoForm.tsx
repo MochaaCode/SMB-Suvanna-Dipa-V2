@@ -38,7 +38,6 @@ export function StudentPersonalInfoForm({
   onSave,
   isPending,
 }: StudentPersonalInfoFormProps) {
-  // Daftar field lengkap sesuai kebutuhan profil siswa
   const fields: Array<{
     id: keyof OwnProfileData;
     label: string;

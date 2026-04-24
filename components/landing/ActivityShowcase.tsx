@@ -19,7 +19,6 @@ export default function ActivityShowcase({ images }: { images: any[] }) {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex gap-6 py-4 overflow-x-auto custom-scrollbar snap-x snap-mandatory pb-8">
           {images.map((img, i) => (
-            // Mengubah rounded-[2.5rem] menjadi rounded-[1rem]
             <div
               key={i}
               className="relative w-80 h-56 shrink-0 rounded-[1rem] overflow-hidden shadow-md border-4 border-white transition-transform duration-500 hover:scale-105 snap-center"

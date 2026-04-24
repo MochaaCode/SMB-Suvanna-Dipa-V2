@@ -35,7 +35,6 @@ export function UserManagementUI({
   const [draftUsers, setDraftUsers] = useState<BulkUserPayload[]>([]);
   const [isTrashMode, setIsTrashMode] = useState(false);
 
-  // STATE FILTERING & SORTING
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [classFilter, setClassFilter] = useState("all");
@@ -43,34 +42,29 @@ export function UserManagementUI({
 
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-  // LOGIKA FILTERING & SORTING MEMOIZED (Super Cepat)
   const processedUsers = useMemo(() => {
     let result = isTrashMode
       ? initialUsers.filter((u) => u.is_deleted)
       : initialUsers.filter((u) => !u.is_deleted);
 
-    // 1. Filter Pencarian Nama
     if (debouncedSearchQuery) {
       result = result.filter((u) =>
         u.full_name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()),
       );
     }
 
-    // 2. Filter Role Akses
     if (roleFilter !== "all") {
       result = result.filter((u) => u.role === roleFilter);
     }
 
-    // 3. Filter Kelas
     if (classFilter !== "all") {
       if (classFilter === "none") {
-        result = result.filter((u) => !u.class_id); // Tidak ada kelas
+        result = result.filter((u) => !u.class_id);
       } else {
         result = result.filter((u) => String(u.class_id) === classFilter);
       }
     }
 
-    // 4. Sorting
     if (sortOrder === "az") {
       result.sort((a, b) =>
         (a.full_name || "").localeCompare(b.full_name || ""),
@@ -106,7 +100,6 @@ export function UserManagementUI({
       />
 
       <AppCard className="p-5 border-slate-200 shadow-sm rounded-[1rem] space-y-4">
-        {/* BARIS 1: PENCARIAN & TOMBOL AKSI UTAMA */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="relative w-full md:w-96">
             <Search
@@ -146,7 +139,6 @@ export function UserManagementUI({
           </div>
         </div>
 
-        {/* BARIS 2: FILTER DROPDOWNS */}
         <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-slate-100">
           <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider mr-2">
             <Filter size={14} /> Filter:

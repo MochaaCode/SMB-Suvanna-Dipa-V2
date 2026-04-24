@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { ClassDetailSheet } from "./ClassDetailSheet";
 import { AppCard } from "../../shared/AppCard";
 
-// IMPORT TIPE
 import type { ClassWithDetails } from "@/actions/admin/classes";
 import type { Profile } from "@/types";
 
@@ -24,7 +23,6 @@ export function ClassCard({
 }: ClassCardProps) {
   return (
     <AppCard className="relative group border border-slate-200 hover:border-orange-300 transition-all rounded-[1rem] bg-white overflow-hidden">
-      {/* Background Icon (Tetap dipertahankan untuk estetika halus) */}
       <div className="absolute -right-6 -top-6 opacity-[0.03] group-hover:rotate-12 group-hover:scale-110 transition-all duration-700 text-orange-900 pointer-events-none">
         <GraduationCap size={160} />
       </div>
@@ -44,7 +42,6 @@ export function ClassCard({
           </Badge>
         </div>
 
-        {/* Info Pengajar */}
         <div className="bg-slate-50/80 rounded-xl p-3.5 border border-slate-100 group/teacher hover:bg-white transition-colors text-left">
           <p className="text-[9px] font-bold uppercase flex items-center gap-1.5 text-slate-500 mb-2.5 tracking-wider leading-none">
             <UserCircle2 size={12} className="text-orange-600" /> Pengajar Utama
@@ -65,7 +62,6 @@ export function ClassCard({
           </div>
         </div>
 
-        {/* Status Promosi */}
         <div
           className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${
             promoCount > 0

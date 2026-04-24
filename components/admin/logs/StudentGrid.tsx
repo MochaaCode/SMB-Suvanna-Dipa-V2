@@ -5,7 +5,6 @@ import { ChevronRight, Star, LayoutGrid, ChevronLeft } from "lucide-react";
 import { StudentActivityModal } from "./StudentActivityModal";
 import { AppButton } from "../../shared/AppButton";
 
-// IMPORT TIPE KETAT
 import type { StudentSummary } from "@/actions/admin/logs";
 
 export function StudentGrid({ students }: { students: StudentSummary[] }) {
@@ -13,11 +12,9 @@ export function StudentGrid({ students }: { students: StudentSummary[] }) {
     null,
   );
 
-  // PAGINATION STATE
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 9; // Menampilkan 3x3 Grid
+  const itemsPerPage = 9;
 
-  // FIX: Menggunakan Derived State murni untuk reset halaman saat pencarian berubah
   const [prevStudents, setPrevStudents] = useState(students);
   if (students !== prevStudents) {
     setPrevStudents(students);
@@ -41,7 +38,6 @@ export function StudentGrid({ students }: { students: StudentSummary[] }) {
         </div>
       </div>
 
-      {/* GRID KARTU SISWA */}
       <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 bg-slate-50/30">
         {currentData.map((s) => (
           <div
@@ -79,7 +75,6 @@ export function StudentGrid({ students }: { students: StudentSummary[] }) {
         ))}
       </div>
 
-      {/* PAGINATION CONTROLS */}
       <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100 bg-white">
         <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
           Menampilkan {students.length === 0 ? 0 : startIndex + 1}-

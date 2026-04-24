@@ -16,6 +16,8 @@ import {
   UserCog,
   Gift,
   BookOpen,
+  FileText,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -32,7 +34,9 @@ export const ADMIN_MENU = [
   { name: "Daftar Kartu RFID", href: "/admin/cards", icon: IdCard },
   { name: "Katalog Produk", href: "/admin/products", icon: Package },
   { name: "Pesanan Masuk", href: "/admin/orders", icon: ShoppingCart },
+  { name: "Konten Publik", href: "/admin/content", icon: Globe },
   { name: "Riwayat Pengguna", href: "/admin/logs", icon: History },
+  { name: "Laporan & Audit", href: "/admin/reports", icon: FileText },
 ];
 
 export const PEMBINA_MENU = [

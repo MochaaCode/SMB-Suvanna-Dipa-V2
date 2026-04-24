@@ -45,7 +45,6 @@ export async function redeemRewardAction(data: RedeemRewardInput) {
 
   console.log("Target User ID:", user.id);
 
-  // Ambil data secara paralel
   const [productRes, profileRes] = await Promise.all([
     supabase
       .from("products")
@@ -70,7 +69,6 @@ export async function redeemRewardAction(data: RedeemRewardInput) {
     return { success: false, error: "Barang tidak tersedia." };
   if (product.stock < 1) return { success: false, error: "Stok habis." };
 
-  // Logic 0 poin: 3 - 0 = 3 tetap sukses
   if ((profile?.points || 0) < product.price) {
     console.warn("Logic Failed: Poin user tidak cukup");
     return { success: false, error: "Poin kurang." };
@@ -78,7 +76,6 @@ export async function redeemRewardAction(data: RedeemRewardInput) {
 
   console.log("Logic Check PASSED. Attempting Database INSERT...");
 
-  // INSERT KE DATABASE
   const { error: orderError } = await supabaseAdmin
     .from("product_orders")
     .insert({
@@ -94,7 +91,6 @@ export async function redeemRewardAction(data: RedeemRewardInput) {
     console.error("Error Message:", orderError.message);
     console.error("Detail Error:", orderError.details);
 
-    // Mapping error trigger database ke pesan yang ramah
     if (orderError.message.includes("stok produk ini sudah habis"))
       return { success: false, error: "Stok produk baru saja habis!" };
     if (orderError.message.includes("Poin tidak cukup"))

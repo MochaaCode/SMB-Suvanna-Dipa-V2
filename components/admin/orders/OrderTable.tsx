@@ -48,11 +48,9 @@ export function OrderTable({
   const router = useRouter();
   const supabase = createClient();
 
-  // PAGINATION STATE
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // REAL-TIME SYNC
   useEffect(() => {
     const channel = supabase
       .channel("orders-realtime")
@@ -69,7 +67,6 @@ export function OrderTable({
     };
   }, [supabase, router]);
 
-  // LOGIKA PAGINATION
   const totalPages = Math.ceil(initialOrders.length / itemsPerPage);
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage;
@@ -227,7 +224,6 @@ export function OrderTable({
         </Table>
       </div>
 
-      {/* PAGINATION FOOTER */}
       <div className="flex items-center justify-between px-6 py-4 bg-slate-50 border-t border-slate-100 mt-auto rounded-b-[1rem]">
         <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
           Menampilkan {paginatedData.length} dari {initialOrders.length} Pesanan

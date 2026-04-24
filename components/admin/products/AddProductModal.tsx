@@ -80,8 +80,6 @@ export default function AddProductModal({
           <AppButton variant="outline" onClick={onClose} disabled={isPending}>
             Batal
           </AppButton>
-          {/* Karena submit button ini di luar form (karena berada di footer AppModal),
-              kita gunakan trik memicu form submission lewat ID */}
           <AppButton
             type="submit"
             form="add-product-form"

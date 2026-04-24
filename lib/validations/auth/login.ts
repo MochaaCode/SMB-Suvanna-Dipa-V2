@@ -17,7 +17,6 @@ export const forgotPasswordSchema = z.object({
 
 export const resetPasswordSchema = z
   .object({
-    // Token wajib ada untuk verifikasi keamanan
     token: z.string().min(1, { message: "Token reset wajib diisi" }),
     newPassword: z.string().min(6, { message: "Password minimal 6 karakter" }),
     confirmPassword: z

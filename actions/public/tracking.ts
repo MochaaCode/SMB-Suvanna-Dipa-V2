@@ -2,11 +2,6 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 
-/**
- * WHY: Kita butuh data analitik real-time untuk Dashboard Admin.
- * HOW: Fungsi ini dipanggil secara diam-diam (background) tiap kali rute halaman berubah.
- * Kita pakai Admin Client agar visitor anonim tetap bisa terekam datanya tanpa di-blokir RLS.
- */
 export async function recordPageView(pathname: string) {
   try {
     const supabaseAdmin = createAdminClient();

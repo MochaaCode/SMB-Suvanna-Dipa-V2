@@ -21,10 +21,8 @@ export function ProfileHeaderSummary({
   isUploading,
   onUpload,
 }: ProfileHeaderSummaryProps) {
-  // STATE BARU: Untuk mendeteksi apakah gambar error/tidak ada
   const [imgError, setImgError] = useState(false);
 
-  // Bikin dinamis sesuai role
   const isSiswa = role === "siswa";
   const displayRole = isSiswa
     ? "Siswa SMB"
@@ -63,7 +61,6 @@ export function ProfileHeaderSummary({
 
         <div className="relative shrink-0">
           <div className="w-28 h-28 rounded-2xl overflow-hidden border-4 border-white shadow-lg bg-slate-100 relative flex items-center justify-center">
-            {/* LOGIKA FALLBACK UI ENTERPRISE */}
             {avatarUrl && !imgError ? (
               <Image
                 src={avatarUrl}
@@ -71,10 +68,9 @@ export function ProfileHeaderSummary({
                 fill
                 className="object-cover"
                 unoptimized
-                onError={() => setImgError(true)} // Jika link rusak, nyalakan error
+                onError={() => setImgError(true)}
               />
             ) : (
-              // Tampilan default jika avatar_url kosong atau error
               <User size={48} className="text-slate-300" strokeWidth={1.5} />
             )}
 
@@ -94,7 +90,7 @@ export function ProfileHeaderSummary({
                 accept="image/*"
                 className="hidden"
                 onChange={(e) => {
-                  setImgError(false); // Reset status error kalau user upload ulang
+                  setImgError(false);
                   onUpload(e.target.files?.[0]);
                 }}
                 disabled={isUploading}

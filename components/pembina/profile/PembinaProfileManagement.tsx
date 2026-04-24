@@ -35,7 +35,6 @@ export function PembinaProfileManagementUI({
       const formDataPayload = new FormData();
       formDataPayload.append("avatar", file);
 
-      // Menggunakan argumen "pembina" untuk revalidasi rute
       const url = await uploadAvatar(
         formDataPayload,
         "pembina",
@@ -55,7 +54,6 @@ export function PembinaProfileManagementUI({
     startTransition(async () => {
       const toastId = toast.loading("Menyimpan perubahan data...");
       try {
-        // Mengirimkan payload dengan argumen "pembina"
         await updateOwnProfile(
           {
             full_name: formData.full_name || "",
@@ -64,7 +62,7 @@ export function PembinaProfileManagementUI({
             birth_place: formData.birth_place || null,
             birth_date: formData.birth_date || null,
             address: formData.address || null,
-            parent_name: formData.parent_name || null, // Diisi null karena pembina gak butuh ini
+            parent_name: formData.parent_name || null,
             parent_phone_number: formData.parent_phone_number || null,
             school_name: formData.school_name || null,
             hobby: formData.hobby || null,
@@ -82,7 +80,6 @@ export function PembinaProfileManagementUI({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700 pb-10">
-      {/* Memanggil Header Shared dengan role "pembina" */}
       <ProfileHeaderSummary
         avatarUrl={formData.avatar_url}
         fullName={formData.full_name}
@@ -91,7 +88,6 @@ export function PembinaProfileManagementUI({
         onUpload={handleUpload}
       />
 
-      {/* Form Biodata Khusus Pembina */}
       <AppCard className="p-0 border-none bg-transparent shadow-none">
         <PembinaPersonalInfoForm
           data={formData}
@@ -103,7 +99,6 @@ export function PembinaProfileManagementUI({
         />
       </AppCard>
 
-      {/* Komponen Keamanan Shared (Email & Password) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <EmailForm initialEmail={initialProfile.email} />
         <PasswordForm />

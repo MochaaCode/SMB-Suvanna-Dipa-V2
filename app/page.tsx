@@ -2,7 +2,6 @@ import BubbleBackground from "@/components/landing/BubbleBackground";
 import ActivityShowcase from "@/components/landing/ActivityShowcase";
 import { getPublishedContent } from "@/actions/public/content";
 
-// Komponen Modular Baru
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import HeroSection from "@/components/landing/HeroSection";
 import AboutSection from "@/components/landing/AboutSection";
@@ -21,9 +20,7 @@ export default async function Home() {
   const testimonial = getContent("testimonial");
   const gallery = getContent("gallery");
   const contact = getContent("contact");
-
-  // WHY: Sebagai Server Component, page.tsx sangat bersih.
-  // HOW: Semua logika Client (interaksi, scroll, animasi) didelegasikan ke komponen anak.
+  
   return (
     <div className="relative flex flex-col min-h-screen font-sans text-slate-800 overflow-x-hidden selection:bg-orange-200 selection:text-orange-900">
       <BubbleBackground />

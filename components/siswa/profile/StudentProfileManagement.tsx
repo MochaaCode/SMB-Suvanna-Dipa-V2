@@ -35,7 +35,6 @@ export function StudentProfileManagementUI({
       const formDataPayload = new FormData();
       formDataPayload.append("avatar", file);
 
-      // Menggunakan argumen "siswa" untuk revalidasi rute yang benar
       const url = await uploadAvatar(
         formDataPayload,
         "siswa",
@@ -55,7 +54,6 @@ export function StudentProfileManagementUI({
     startTransition(async () => {
       const toastId = toast.loading("Menyimpan perubahan data...");
       try {
-        // Mengirimkan payload lengkap beserta argumen "siswa"
         await updateOwnProfile(
           {
             full_name: formData.full_name || "",
@@ -82,7 +80,6 @@ export function StudentProfileManagementUI({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
-      {/* Memanggil Header Shared dengan role "siswa" */}
       <ProfileHeaderSummary
         avatarUrl={formData.avatar_url}
         fullName={formData.full_name}
@@ -91,7 +88,6 @@ export function StudentProfileManagementUI({
         onUpload={handleUpload}
       />
 
-      {/* Form Biodata Khusus Siswa */}
       <AppCard className="p-0 border-none bg-transparent shadow-none">
         <StudentPersonalInfoForm
           data={formData}
@@ -103,7 +99,6 @@ export function StudentProfileManagementUI({
         />
       </AppCard>
 
-      {/* Komponen Keamanan Shared (Email & Password) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <EmailForm initialEmail={initialProfile.email} />
         <PasswordForm />

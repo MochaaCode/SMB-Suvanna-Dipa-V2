@@ -24,6 +24,7 @@ export interface Profile {
   address: string | null;
   phone_number: string | null;
   parent_name: string | null;
+  parent_phone_number: string | null;
   school_name: string | null;
   hobby: string | null;
   role: UserRole;
@@ -32,6 +33,7 @@ export interface Profile {
   is_deleted: boolean;
   created_at: string;
   updated_at: string;
+  avatar_url: string;
 }
 
 export interface Class {
@@ -49,6 +51,7 @@ export interface Class {
 export interface Schedule {
   id: number;
   title: string;
+  class_id: number;
   date: string;
   start_time: string;
   end_time: string;
@@ -106,6 +109,19 @@ export interface PointHistory {
   created_at: string;
 }
 
+export interface PublicContent {
+  id: number;
+  section: string;
+  title: string;
+  content: string;
+  images: string[];
+  display_order: number;
+  is_published: boolean;
+  updated_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface PasswordResetToken {
   id: number;
   user_id: string | null;
@@ -114,6 +130,7 @@ export interface PasswordResetToken {
   expires_at: string;
   is_used: boolean;
   created_at: string;
+  profiles?: Partial<Profile> | null;
 }
 
 export interface DailyVisitorStat {
@@ -813,6 +830,7 @@ export interface VersionHistory {
 export interface AttendanceLogWithProfile extends AttendanceLog {
   profiles?: Partial<Profile> | null;
   classes?: Partial<Class> | null;
+  created_at: string;
 }
 
 export interface ProductOrderWithRelations extends ProductOrder {

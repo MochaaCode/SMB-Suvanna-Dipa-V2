@@ -22,7 +22,6 @@ export function AddCardModal({ open, setOpen }: AddCardModalProps) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  // SAFETY MECHANISM: Sinkronisasi Mode Alat dengan State Modal
   useEffect(() => {
     if (open) {
       toggleDeviceMode("register").catch(console.error);
@@ -81,7 +80,6 @@ export function AddCardModal({ open, setOpen }: AddCardModalProps) {
       }
     >
       <div className="space-y-6 text-left mt-2">
-        {/* STATUS SCANNER BOX */}
         <div className="flex items-center gap-4 bg-orange-50/50 p-4 rounded-[1rem] border border-orange-100">
           <div className="relative flex shrink-0">
             <Radio size={24} className="text-orange-600 animate-pulse" />

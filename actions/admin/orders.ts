@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 
-// IMPORT TIPE KETAT
 import type { ProductOrder, OrderStatus } from "@/types";
 
 export interface OrderWithDetails extends ProductOrder {
@@ -19,7 +18,6 @@ export interface OrderWithDetails extends ProductOrder {
   } | null;
 }
 
-// HELPER: Proteksi Admin
 async function ensureAdmin() {
   const supabase = await createClient();
   const {
@@ -39,9 +37,6 @@ async function ensureAdmin() {
   return createAdminClient();
 }
 
-/**
- * 1. AMBIL SEMUA ORDERAN
- */
 export async function getOrders(): Promise<OrderWithDetails[]> {
   const supabaseAdmin = await ensureAdmin();
   const { data, error } = await supabaseAdmin
@@ -57,14 +52,9 @@ export async function getOrders(): Promise<OrderWithDetails[]> {
 
   if (error) throw new Error("Gagal memuat pesanan.");
 
-  // Type casting hasil join
   return data as unknown as OrderWithDetails[];
 }
 
-/**
- * 2. UPDATE STATUS ORDERAN
- * NOTE: Trigger Database lu akan handle pengembalian poin jika status 'cancelled'
- */
 export async function updateOrderStatus(
   orderId: number,
   newStatus: OrderStatus,
@@ -82,13 +72,10 @@ export async function updateOrderStatus(
   if (error) throw new Error("Gagal update status: " + error.message);
 
   revalidatePath("/admin/orders");
-  revalidatePath("/admin/dashboard"); // Penting jika ada summary order di dashboard
+  revalidatePath("/admin/dashboard");
   return { success: true };
 }
 
-/**
- * 3. HAPUS LOG ORDERAN
- */
 export async function deleteOrderLog(orderId: number) {
   const supabaseAdmin = await ensureAdmin();
   const { error } = await supabaseAdmin

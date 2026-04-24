@@ -28,7 +28,6 @@ export function PembinaPersonalInfoForm({
   onSave,
   isPending,
 }: PembinaPersonalInfoFormProps) {
-  // Daftar field untuk Pembina (Tanpa data sekolah/orang tua)
   const fields: Array<{
     id: keyof OwnProfileData;
     label: string;

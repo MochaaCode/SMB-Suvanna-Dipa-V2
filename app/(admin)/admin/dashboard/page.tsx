@@ -12,7 +12,6 @@ export const metadata: Metadata = {
 export default async function AdminDashboardPage() {
   const supabase = await createClient();
 
-  // 1. Proteksi Rute
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -21,14 +20,10 @@ export default async function AdminDashboardPage() {
     redirect("/login");
   }
 
-  // 2. Pengambilan Data Operasional (Parallel Fetching)
   const dashboardData = await getLiveDashboardData();
-
-  // 3. Ekstraksi Identitas Admin
   const adminName = user.user_metadata?.full_name?.split(" ")[0] || "Admin";
 
   return (
-    // Kita hilangkan div pembungkus p-8 max-w-7xl karena sudah ditangani oleh Layout
     <DashboardUI data={dashboardData} adminName={adminName} />
   );
 }

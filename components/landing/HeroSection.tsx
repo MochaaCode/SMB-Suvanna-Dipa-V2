@@ -5,29 +5,22 @@ import Link from "next/link";
 import { Sparkles, ArrowRight } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
-/**
- * WHY: Kita ingin efek Parallax (elemen bergerak dengan kecepatan berbeda saat di-scroll) untuk kesan 'RICH' dan modern.
- * HOW: Framer Motion's useScroll melacak posisi scroll. useTransform memetakan posisi scroll tersebut ke nilai pergerakan (Y axis).
- */
 export default function HeroSection() {
   const targetRef = useRef<HTMLDivElement>(null);
 
-  // Melacak scroll khusus di dalam area Hero Section ini
   const { scrollYProgress } = useScroll({
     target: targetRef,
     offset: ["start start", "end start"],
   });
 
-  // Parallax Math: Saat di-scroll ke bawah, elemen ini akan bergerak ke atas/bawah dengan persentase tertentu
-  const yText = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]); // Teks turun pelan
-  const yOrbs = useTransform(scrollYProgress, [0, 1], ["0%", "-80%"]); // Bola blur naik cepat
+  const yText = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const yOrbs = useTransform(scrollYProgress, [0, 1], ["0%", "-80%"]);
 
   return (
     <section
       ref={targetRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden px-6 pt-20"
     >
-      {/* Background Orbs (Animasi Parallax menggunakan motion.div) */}
       <motion.div
         style={{ y: yOrbs }}
         className="absolute top-20 left-10 w-64 h-64 bg-orange-200 rounded-full blur-[80px] opacity-40 animate-pulse"
@@ -37,9 +30,8 @@ export default function HeroSection() {
         className="absolute bottom-20 right-10 w-80 h-80 bg-blue-200 rounded-full blur-[100px] opacity-30"
       />
 
-      {/* Konten Utama */}
       <motion.div
-        style={{ y: yText }} // Terapkan efek parallax
+        style={{ y: yText }}
         className="text-center z-10 max-w-5xl"
       >
         <motion.div

@@ -8,7 +8,6 @@ export const metadata: Metadata = {
 };
 
 export default async function ProductsPage() {
-  // Ambil kedua data secara paralel untuk kecepatan maksimal
   const [activeProducts, archivedProducts] = await Promise.all([
     getProducts(),
     getArchivedProducts(),

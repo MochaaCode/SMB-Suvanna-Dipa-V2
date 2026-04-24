@@ -9,9 +9,6 @@ import {
 } from "@/lib/validations/points";
 import { revalidatePath } from "next/cache";
 
-/**
- * FUNGSI BARU: MEMBERIKAN POIN KE BANYAK SISWA SEKALIGUS
- */
 export async function bulkGivePointsAction(
   studentIds: string[],
   amount: number,

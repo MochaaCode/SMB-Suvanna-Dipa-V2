@@ -37,7 +37,6 @@ export function AddScheduleModal({
 }: AddScheduleModalProps) {
   const [isPending, startTransition] = useTransition();
 
-  // 1. Inisialisasi State Default
   const defaultFormData = {
     title: "",
     event_date: "",
@@ -50,7 +49,6 @@ export function AddScheduleModal({
 
   const [formData, setFormData] = useState(defaultFormData);
 
-  // 2. FIX REACT CASCADING RENDER ERROR
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   const [prevInitialData, setPrevInitialData] = useState(initialData);
 
@@ -75,11 +73,10 @@ export function AddScheduleModal({
     }
   }
 
-  // 3. Konfigurasi Tiptap Editor (DENGAN FIX SSR)
   const editor = useEditor({
     extensions: [StarterKit],
     content: formData.content,
-    immediatelyRender: false, // <--- INI DIA OBATNYA BRO!
+    immediatelyRender: false,
     onUpdate: ({ editor }) => {
       setFormData((prev) => ({ ...prev, content: editor.getHTML() }));
     },
@@ -91,7 +88,6 @@ export function AddScheduleModal({
     },
   });
 
-  // 4. Sinkronisasi Tiptap Content
   useEffect(() => {
     if (isOpen && editor) {
       editor.commands.setContent(

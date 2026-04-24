@@ -4,7 +4,6 @@ import { History } from "lucide-react";
 import AttendanceTable from "./AttendanceTable";
 import { AppCard } from "../../shared/AppCard";
 
-// IMPORT TIPE
 import type { AttendanceLogWithProfile } from "@/types";
 
 interface AttendanceTableCardProps {

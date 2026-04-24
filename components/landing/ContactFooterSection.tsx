@@ -8,7 +8,6 @@ import { motion } from "framer-motion";
 export default function ContactFooterSection({ contact }: { contact: any }) {
   return (
     <>
-      {/* SECTION KONTAK */}
       <section id="contact" className="py-24 px-6 bg-transparent">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -62,7 +61,6 @@ export default function ContactFooterSection({ contact }: { contact: any }) {
               </div>
             </div>
           </div>
-          {/* Map Section diubah menjadi 1rem */}
           <div className="w-full min-h-75 bg-white rounded-[1rem] shadow-sm overflow-hidden border border-slate-200 relative group">
             {contact.map_url && (
               <iframe
@@ -85,7 +83,6 @@ export default function ContactFooterSection({ contact }: { contact: any }) {
         </motion.div>
       </section>
 
-      {/* FOOTER ASLI DIKEMBALIKAN */}
       <footer className="bg-slate-900 text-slate-400 py-10 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">

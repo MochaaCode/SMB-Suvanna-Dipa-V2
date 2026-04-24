@@ -37,7 +37,6 @@ export default function AboutSection({
         variants={containerVariants}
         className="grid md:grid-cols-2 gap-16 items-center mb-32"
       >
-        {/* Gambar diubah menjadi 1rem */}
         <motion.div
           variants={itemVariants}
           className="relative aspect-square rounded-[1rem] overflow-hidden shadow-2xl border-8 border-white group"
@@ -70,7 +69,6 @@ export default function AboutSection({
             variants={itemVariants}
             className="grid grid-cols-2 gap-4 pt-4"
           >
-            {/* Box Statistik diubah menjadi 1rem */}
             <div className="p-5 bg-white/80 backdrop-blur-md rounded-[1rem] border border-white shadow-sm hover:bg-orange-50 transition-colors">
               <h4 className="font-black text-orange-500 text-3xl mb-1">
                 {about.active_students || 0}+
@@ -91,7 +89,6 @@ export default function AboutSection({
         </motion.div>
       </motion.div>
 
-      {/* Visi Misi Container diubah menjadi 1rem */}
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}

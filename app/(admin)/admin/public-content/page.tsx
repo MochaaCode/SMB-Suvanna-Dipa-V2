@@ -11,15 +11,12 @@ export const metadata: Metadata = {
 };
 
 export default async function PublicContentPage() {
-  // 1. Ambil semua blok konten publik dari database (CMS)
   const contentData = await getPublicContent();
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
-      {/* COMPONENT UTAMA */}
       <ContentManagementUI initialContent={contentData} />
 
-      {/* FOOTER INFO: WARNING BOX */}
       <div className="bg-orange-50 border border-orange-200 p-5 rounded-[1rem] flex flex-col sm:flex-row items-center sm:items-start gap-4 shadow-sm mt-8">
         <div className="p-3 bg-white rounded-lg text-orange-600 shrink-0 shadow-sm border border-orange-100">
           <AlertTriangle size={20} />

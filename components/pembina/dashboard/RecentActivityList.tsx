@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Clock, UserCheck, ShieldAlert } from "lucide-react";
 import { AppCard } from "@/components/shared/AppCard";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function RecentActivityList({ logs }: { logs: any[] }) {
   if (!logs || logs.length === 0) {
     return (

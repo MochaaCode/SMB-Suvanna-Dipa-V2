@@ -39,7 +39,6 @@ export async function getLiveDashboardData() {
     timeZone: "Asia/Jakarta",
   });
 
-  // HILANGKAN query join `profiles:user_id(full_name)` dari reset_tokens untuk menghindari crash
   const [
     ordersRes,
     attendanceRes,
@@ -91,7 +90,6 @@ export async function getLiveDashboardData() {
       .order("created_at", { ascending: false })
       .limit(50),
 
-    // AMBIL DATA MURNI DULU (TANPA JOIN)
     supabaseAdmin
       .from("password_reset_tokens")
       .select("id, user_id, email, created_at, expires_at, is_used")
@@ -99,7 +97,6 @@ export async function getLiveDashboardData() {
       .limit(5),
   ]);
 
-  // Agregasi Top Pages
   const pageCounts: Record<string, number> = {};
   topPagesRes.data?.forEach((log) => {
     const name = log.page_name || log.page_path;
@@ -111,16 +108,11 @@ export async function getLiveDashboardData() {
     .slice(0, 5)
     .map(([name, views]) => ({ name, views }));
 
-  // ==========================================
-  // LOGIC BYPASS: MANUAL JOIN UNTUK NAMA USER
-  // ==========================================
   const resetLogsRaw = resetTokensRes.data || [];
 
-  // 1. Kumpulkan user_id yang tidak NULL
   const userIdsToFetch = resetLogsRaw.map((r) => r.user_id).filter(Boolean);
 
   let tokenProfiles: any[] = [];
-  // 2. Tarik nama-namanya dari tabel profiles jika ada
   if (userIdsToFetch.length > 0) {
     const { data } = await supabaseAdmin
       .from("profiles")
@@ -129,7 +121,6 @@ export async function getLiveDashboardData() {
     tokenProfiles = data || [];
   }
 
-  // 3. Gabungkan manual
   const resetLogsWithProfiles = resetLogsRaw.map((log) => ({
     ...log,
     profiles: tokenProfiles.find((p) => p.id === log.user_id) || null,

@@ -68,7 +68,6 @@ export function StudentActivityModal({
       variant="orange"
       maxWidth="2xl"
     >
-      {/* INFO CARD */}
       <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-[1rem] border border-slate-200 shadow-sm mb-6 mt-2 text-left">
         <div className="h-12 w-12 rounded-[1rem] bg-orange-100 border border-orange-200 flex items-center justify-center text-orange-600 font-black text-lg">
           {student.full_name?.substring(0, 2).toUpperCase()}
@@ -92,7 +91,6 @@ export function StudentActivityModal({
         </div>
       </div>
 
-      {/* TABS NAVIGATION */}
       <Tabs defaultValue="mutasi" className="w-full">
         <TabsList className="w-full grid grid-cols-3 bg-slate-100 p-1 rounded-[1rem] h-12 mb-4">
           <TabsTrigger
@@ -125,7 +123,6 @@ export function StudentActivityModal({
             </div>
           ) : (
             <ScrollArea className="h-72 custom-scrollbar">
-              {/* TAB 1: MUTASI POIN */}
               <TabsContent value="mutasi" className="m-0 p-4 space-y-3">
                 {logs.mutations.length === 0 ? (
                   <p className="text-center text-sm font-medium text-slate-400 py-10">
@@ -173,7 +170,6 @@ export function StudentActivityModal({
                 )}
               </TabsContent>
 
-              {/* TAB 2: ABSENSI */}
               <TabsContent value="absensi" className="m-0 p-4 space-y-3">
                 {logs.attendance.length === 0 ? (
                   <p className="text-center text-sm font-medium text-slate-400 py-10">
@@ -220,7 +216,6 @@ export function StudentActivityModal({
                 )}
               </TabsContent>
 
-              {/* TAB 3: HADIAH / ORDERS */}
               <TabsContent value="hadiah" className="m-0 p-4 space-y-3">
                 {logs.orders.length === 0 ? (
                   <p className="text-center text-sm font-medium text-slate-400 py-10">

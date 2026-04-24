@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import { UserManagementUI } from "@/components/admin/users/UserManagementUI";
 import { getAllUserEmails } from "@/actions/admin/users";
 
-// IMPORT TIPE
 import type { Profile, Class } from "@/types";
 
 export const metadata: Metadata = {
@@ -12,7 +11,6 @@ export const metadata: Metadata = {
   description: "Kelola pengguna dan akses di sistem",
 };
 
-// Tipe gabungan khusus untuk halaman ini
 export interface ProfileWithEmailAndClass extends Profile {
   email: string;
   classes?: { name: string } | null;
@@ -37,19 +35,17 @@ export default async function UsersPage() {
       </div>
     );
 
-  // Jahit Data & Type Casting
   const usersWithRealEmails: ProfileWithEmailAndClass[] = (
     profilesRes.data as unknown as Profile[]
   ).map((user) => ({
     ...user,
     email: emailMap[user.id] || "Email tidak ditemukan",
-    classes: (user as any).classes, // Relasi spesifik
+    classes: (user as any).classes,
   }));
 
   const classes = (classesRes.data as unknown as Class[]) || [];
 
   return (
-    // Tanpa container p-6 max-w-7xl mx-auto agar menyesuaikan layout global
     <UserManagementUI initialUsers={usersWithRealEmails} classes={classes} />
   );
 }

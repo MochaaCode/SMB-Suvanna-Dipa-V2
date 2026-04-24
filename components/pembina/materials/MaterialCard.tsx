@@ -14,9 +14,7 @@ interface MaterialCardProps {
 }
 
 export function MaterialCard({ item, onOpenModal }: MaterialCardProps) {
-  // Mengecek kolom 'description' sesuai dengan index.ts
   const hasContent = !!item.description && item.description.trim().length > 0;
-  // Menggunakan kolom 'date' sesuai dengan index.ts
   const eventDate = new Date(item.date);
 
   return (
@@ -56,7 +54,6 @@ export function MaterialCard({ item, onOpenModal }: MaterialCardProps) {
           <div className="flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
             <div className="flex items-center gap-1">
               <Clock size={12} />
-              {/* Menggunakan kolom start_time dari index.ts */}
               {item.start_time ? item.start_time.substring(0, 5) : "00:00"} WIB
             </div>
             <div className="w-1 h-1 rounded-full bg-slate-300" />

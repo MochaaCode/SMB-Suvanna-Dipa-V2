@@ -36,9 +36,6 @@ async function ensureAdmin() {
   return supabase;
 }
 
-/**
- * 1. SINGLE UPSERT (Tambah/Edit Satu User) - DIPERBAIKI
- */
 export async function upsertUser(
   formData: Partial<Profile> & { email?: string; password?: string },
 ) {
@@ -85,9 +82,6 @@ export async function upsertUser(
   return { success: true };
 }
 
-/**
- * 2. TOGGLE DELETE (Soft Delete & Recovery)
- */
 export async function toggleDeleteUsers(userIds: string[], status: boolean) {
   const supabase = await ensureAdmin();
 
@@ -102,9 +96,6 @@ export async function toggleDeleteUsers(userIds: string[], status: boolean) {
   return { success: true };
 }
 
-/**
- * 3. BULK CREATE ACCOUNTS (Dengan Rollback System)
- */
 export async function bulkCreateAccounts(usersData: BulkUserPayload[]) {
   await ensureAdmin();
 
@@ -173,9 +164,6 @@ export async function bulkCreateAccounts(usersData: BulkUserPayload[]) {
   return summary;
 }
 
-/**
- * 4. UPDATE KREDENSIAL (Email/Password)
- */
 export async function updateCredentials(
   userId: string,
   updates: { email?: string; password?: string },
@@ -198,9 +186,6 @@ export async function updateCredentials(
   return { success: true };
 }
 
-/**
- * 5. HARD DELETE (Hapus Akun Auth & Profile)
- */
 export async function hardDeleteUsers(userIds: string[]) {
   await ensureAdmin();
 
@@ -219,9 +204,6 @@ export async function hardDeleteUsers(userIds: string[]) {
   return { success: true };
 }
 
-/**
- * 6. AMBIL SEMUA EMAIL
- */
 export async function getAllUserEmails() {
   await ensureAdmin();
 

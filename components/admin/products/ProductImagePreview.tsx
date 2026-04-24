@@ -20,8 +20,6 @@ export function ProductImagePreview({ src, alt }: ProductImagePreviewProps) {
   const [hasError, setHasError] = useState(false);
   const [prevSrc, setPrevSrc] = useState(src);
 
-  // FIX: Mengganti useEffect dengan Derived State.
-  // Jika URL gambar (src) berubah, otomatis reset state error-nya
   if (src !== prevSrc) {
     setPrevSrc(src);
     setHasError(false);
@@ -50,7 +48,7 @@ export function ProductImagePreview({ src, alt }: ProductImagePreviewProps) {
         src={src}
         alt={alt}
         fill
-        unoptimized // FIX FATAL: Bypass proxy Next.js agar browser ambil langsung dari Supabase
+        unoptimized
         className={
           isThumbnail
             ? "object-cover group-hover/preview:scale-105 transition-transform duration-500"
