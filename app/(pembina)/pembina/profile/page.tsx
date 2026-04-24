@@ -5,7 +5,7 @@ import { PembinaProfileManagementUI } from "@/components/pembina/profile/Pembina
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Pengaturan Akun | Pembina",
+  title: "Pengaturan Akun",
 };
 
 export default async function PembinaProfilePage() {

@@ -5,7 +5,7 @@ import { MyClassManagement } from "@/components/pembina/my-class/MyClassManageme
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Kelas Saya | Pembina",
+  title: "Kelas Saya",
 };
 
 export default async function MyClassPage() {

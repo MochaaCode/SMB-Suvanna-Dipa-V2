@@ -5,7 +5,7 @@ import { MaterialManagement } from "@/components/pembina/materials/MaterialManag
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Materi Pembahasan | Pembina",
+  title: "Materi Pembahasan",
 };
 
 export default async function MaterialsPage() {
