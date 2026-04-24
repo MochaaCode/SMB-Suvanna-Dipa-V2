@@ -5,7 +5,7 @@ import { AppCard } from "@/components/shared/AppCard";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
 import Link from "next/link";
-import type { DashboardUpcomingSchedule } from "@/actions/student/dashboard";
+import type { DashboardUpcomingSchedule } from "@/actions/siswa/dashboard";
 
 interface UpcomingAgendaProps {
   schedule: DashboardUpcomingSchedule | null;

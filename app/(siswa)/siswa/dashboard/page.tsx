@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { getStudentDashboardStats } from "@/actions/student/dashboard";
+import { getStudentDashboardStats } from "@/actions/siswa/dashboard";
 import { StudentDashboardManagement } from "@/components/siswa/dashboard/StudentDashboardManagement";
 
 export const dynamic = "force-dynamic";

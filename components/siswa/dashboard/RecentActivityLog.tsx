@@ -5,7 +5,7 @@ import { AppCard } from "@/components/shared/AppCard";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
-import type { DashboardRecentActivity } from "@/actions/student/dashboard";
+import type { DashboardRecentActivity } from "@/actions/siswa/dashboard";
 
 interface RecentActivityLogProps {
   activities: DashboardRecentActivity[];

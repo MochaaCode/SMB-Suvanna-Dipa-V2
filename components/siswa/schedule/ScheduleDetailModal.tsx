@@ -4,7 +4,7 @@ import { AppModal } from "@/components/shared/AppModal";
 import { Clock, MapPin, User, Megaphone, CalendarDays } from "lucide-react";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
-import type { StudentScheduleItem } from "@/actions/student/schedules";
+import type { StudentScheduleItem } from "@/actions/siswa/schedules";
 
 interface ScheduleDetailModalProps {
   isOpen: boolean;

@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { getPembinaDashboardStats } from "@/actions/pembina/dashboard";
-import { PembinaDashboardManagement } from "@/components/teacher/dashboard/PembinaDashboardManagement";
+import { PembinaDashboardManagement } from "@/components/pembina/dashboard/PembinaDashboardManagement";
 
 export const dynamic = "force-dynamic";
 

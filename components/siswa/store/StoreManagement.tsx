@@ -13,7 +13,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { AppCard } from "@/components/shared/AppCard";
 import { Input } from "@/components/ui/input";
 import { ProductCard } from "./ProductCard";
-import { redeemRewardAction } from "@/actions/student/store";
+import { redeemRewardAction } from "@/actions/siswa/store";
 import toast from "react-hot-toast";
 import { AppButton } from "@/components/shared/AppButton";
 import { AppModal } from "@/components/shared/AppModal";

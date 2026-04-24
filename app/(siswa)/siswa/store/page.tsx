@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import { getAvailableProducts } from "@/actions/student/store";
-import { getStudentDashboardStats } from "@/actions/student/dashboard";
+import { getAvailableProducts } from "@/actions/siswa/store";
+import { getStudentDashboardStats } from "@/actions/siswa/dashboard";
 import { StoreManagement } from "@/components/siswa/store/StoreManagement";
 
 export const dynamic = "force-dynamic";

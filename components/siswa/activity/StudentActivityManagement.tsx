@@ -6,7 +6,7 @@ import { History, Package, Coins, CalendarCheck } from "lucide-react";
 import { OrderHistoryTab } from "./OrderHistoryTab";
 import { PointHistoryTab } from "./PointHistoryTab";
 import { AttendanceHistoryTab } from "./AttendanceHistoryTab";
-import type { ActivityData } from "@/actions/student/activity";
+import type { ActivityData } from "@/actions/siswa/activity";
 
 export function StudentActivityManagement({ data }: { data: ActivityData }) {
   return (

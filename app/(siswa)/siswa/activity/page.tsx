@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { getStudentActivityData } from "@/actions/student/activity";
+import { getStudentActivityData } from "@/actions/siswa/activity";
 import { StudentActivityManagement } from "@/components/siswa/activity/StudentActivityManagement";
 
 export const metadata: Metadata = {

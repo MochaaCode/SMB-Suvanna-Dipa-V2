@@ -11,7 +11,7 @@ import { AppCard } from "@/components/shared/AppCard";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import type { StudentScheduleItem } from "@/actions/student/schedules";
+import type { StudentScheduleItem } from "@/actions/siswa/schedules";
 
 interface ScheduleCardProps {
   schedule: StudentScheduleItem;

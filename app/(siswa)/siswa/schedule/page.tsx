@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
-import { getStudentSchedules } from "@/actions/student/schedules";
+import { getStudentSchedules } from "@/actions/siswa/schedules";
 import { StudentScheduleManagement } from "@/components/siswa/schedule/StudentScheduleManagement";
 
 export const dynamic = "force-dynamic";

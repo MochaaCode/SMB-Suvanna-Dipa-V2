@@ -8,7 +8,7 @@ import { VirtualMemberCard } from "./VirtualMemberCard";
 import { OrderTracker } from "./OrderTracker";
 import { UpcomingAgenda } from "./UpcomingAgenda";
 import { RecentActivityLog } from "./RecentActivityLog";
-import type { DashboardStats } from "@/actions/student/dashboard";
+import type { DashboardStats } from "@/actions/siswa/dashboard";
 
 interface StudentDashboardManagementProps {
   data: DashboardStats;

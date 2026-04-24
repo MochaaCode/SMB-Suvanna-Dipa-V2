@@ -5,7 +5,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Inbox } from "lucide-react";
 import { ScheduleCard } from "./ScheduleCard";
 import { ScheduleDetailModal } from "./ScheduleDetailModal";
-import type { StudentScheduleItem } from "@/actions/student/schedules";
+import type { StudentScheduleItem } from "@/actions/siswa/schedules";
 
 interface ScheduleListProps {
   schedules: StudentScheduleItem[];

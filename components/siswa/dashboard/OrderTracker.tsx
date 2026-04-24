@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
 import Link from "next/link";
-import type { DashboardActiveOrder } from "@/actions/student/dashboard";
+import type { DashboardActiveOrder } from "@/actions/siswa/dashboard";
 
 interface OrderTrackerProps {
   activeOrders: DashboardActiveOrder[];

@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { AppCard } from "@/components/shared/AppCard";
 import { Input } from "@/components/ui/input";
 import { ScheduleList } from "./ScheduleList";
-import type { StudentScheduleItem } from "@/actions/student/schedules";
+import type { StudentScheduleItem } from "@/actions/siswa/schedules";
 
 interface StudentScheduleManagementProps {
   schedules: StudentScheduleItem[];

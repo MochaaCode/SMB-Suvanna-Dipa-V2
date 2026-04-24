@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { getOwnProfile } from "@/actions/shared/profile";
-import { PembinaProfileManagementUI } from "@/components/teacher/profile/PembinaProfileManagement";
+import { PembinaProfileManagementUI } from "@/components/pembina/profile/PembinaProfileManagement";
 
 export const dynamic = "force-dynamic";
 
