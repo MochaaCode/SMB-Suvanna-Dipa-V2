@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import type { Schedule } from "@/types";
 
 export interface ScheduleWithRelations extends Schedule {
-  class: { id: number; name: string } | null;
+  classes: { id: number; name: string } | null;
   author: { id: string; full_name: string | null } | null;
   class_id: number;
   event_date: string;
@@ -38,7 +38,7 @@ export async function getSchedules(): Promise<ScheduleWithRelations[]> {
   const { data, error } = await supabase
     .from("schedules")
     .select(
-      `*, class:classes ( id, name ), author:profiles!author_id ( id, full_name )`,
+      `*, classes ( id, name ), author:profiles!author_id ( id, full_name )`,
     )
     .order("event_date", { ascending: true });
 
@@ -109,14 +109,6 @@ export async function hardDeleteSchedule(id: number) {
 
 export async function toggleAttendanceActive(id: number, status: boolean) {
   const { supabase } = await ensureAdmin();
-
-  if (status === true) {
-    await supabase
-      .from("schedules")
-      .update({ is_active: false })
-      .neq("id", id)
-      .eq("is_active", true);
-  }
 
   const { error } = await supabase
     .from("schedules")

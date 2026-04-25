@@ -829,6 +829,13 @@ export interface VersionHistory {
   is_major: boolean;
 }
 
+export interface ScheduleWithClasses extends Schedule {
+  classes?: {
+    id: number;
+    name: string;
+  } | null;
+}
+
 export interface AttendanceLogWithProfile extends AttendanceLog {
   profiles?: Partial<Profile> | null;
   classes?: Partial<Class> | null;

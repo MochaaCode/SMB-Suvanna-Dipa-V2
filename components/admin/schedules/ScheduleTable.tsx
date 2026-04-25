@@ -96,7 +96,7 @@ export function ScheduleTable({
       await toggleAttendanceActive(id, !currentStatus);
 
       if (!currentStatus) {
-        toast.success("Sesi aktif! Sesi lain otomatis ditutup.", { id: tid });
+        toast.success("Sesi berhasil diaktifkan!", { id: tid });
       } else {
         toast.success("Sesi berhasil dinonaktifkan!", { id: tid });
       }
@@ -225,9 +225,9 @@ export function ScheduleTable({
                     </TableCell>
 
                     <TableCell className="align-middle text-center">
-                      {item.class ? (
+                      {item.classes ? (
                         <Badge className="bg-slate-100 text-slate-700 border-slate-200 rounded-[1rem] shadow-none font-bold text-[10px] px-2.5">
-                          Kelas {item.class.name}
+                          Kelas {item.classes.name}
                         </Badge>
                       ) : (
                         <Badge
