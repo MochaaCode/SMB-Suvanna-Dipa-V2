@@ -7,6 +7,8 @@ const ROLE_MAP: Record<string, { path: string; dash: string }> = {
   siswa: { path: "/siswa", dash: "/siswa/dashboard" },
 };
 
+const SISWA_GL_ALLOWED_PATHS = ["/pembina/my-class"];
+
 export async function middleware(req: NextRequest) {
   const { supabaseResponse, user } = await updateSession(req);
   const urlPath = req.nextUrl.pathname;
@@ -18,12 +20,22 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/login", req.url));
 
   if (user) {
-    const config = ROLE_MAP[user.app_metadata?.role as string];
+    const role = user.app_metadata?.role as string;
+    const config = ROLE_MAP[role];
+
     if (
       config &&
       (urlPath === "/login" ||
         (isProtected && !urlPath.startsWith(config.path)))
     ) {
+      const isSiswaAccessingGLPage =
+        role === "siswa" &&
+        SISWA_GL_ALLOWED_PATHS.some((p) => urlPath.startsWith(p));
+
+      if (isSiswaAccessingGLPage) {
+        return supabaseResponse;
+      }
+
       return NextResponse.redirect(new URL(config.dash, req.url));
     }
   }

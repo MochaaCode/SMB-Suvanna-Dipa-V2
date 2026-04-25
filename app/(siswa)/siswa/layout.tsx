@@ -38,12 +38,21 @@ export default async function SiswaLayout({
     redirect("/");
   }
 
+  const { data: glClass } = await supabase
+    .from("classes")
+    .select("id")
+    .contains("assistant_ids", [user.id])
+    .eq("is_deleted", false)
+    .maybeSingle();
+
+  const isAssistant = !!glClass;
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-slate-50 font-sans text-slate-900">
-      <MobileNav role="siswa" />
+      <MobileNav role="siswa" isAssistant={isAssistant} />
 
       <div className="hidden md:block shrink-0">
-        <Sidebar role="siswa" />
+        <Sidebar role="siswa" isAssistant={isAssistant} />
       </div>
 
       <main className="flex-1 flex flex-col min-w-0 overflow-x-hidden pt-16 md:pt-0 h-screen md:h-auto overflow-y-auto">
