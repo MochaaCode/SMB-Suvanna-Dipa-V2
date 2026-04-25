@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 import type { Profile } from "@/types";
 
@@ -65,18 +66,42 @@ export async function bulkGivePointsAction(
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Sesi berakhir.");
 
-  for (const id of studentIds) {
-    await supabase.rpc("increment_points", {
-      row_id: id,
-      amount_to_add: amount,
-    });
+  const supabaseAdmin = createAdminClient();
 
-    await supabase.from("point_history").insert({
-      user_id: id,
-      amount: amount,
-      type: "earning",
-      description: reason || "Reward dari Pembina",
-    });
+  const historyData = studentIds.map((id) => ({
+    user_id: id,
+    amount: amount,
+    type: "earning",
+    description: reason || "Reward dari Pembina",
+    given_by: user.id,
+  }));
+
+  const { error: histErr } = await supabaseAdmin
+    .from("point_history")
+    .insert(historyData);
+
+  if (histErr)
+    throw new Error("Gagal mencatat riwayat poin: " + histErr.message);
+
+  for (const id of studentIds) {
+    const { data: current, error: readErr } = await supabaseAdmin
+      .from("profiles")
+      .select("points")
+      .eq("id", id)
+      .single();
+
+    if (readErr)
+      throw new Error("Gagal membaca poin siswa: " + readErr.message);
+
+    const newTotal = (current?.points || 0) + amount;
+
+    const { error: updateErr } = await supabaseAdmin
+      .from("profiles")
+      .update({ points: newTotal, updated_at: new Date().toISOString() })
+      .eq("id", id);
+
+    if (updateErr)
+      throw new Error("Gagal memperbarui poin siswa: " + updateErr.message);
   }
 
   revalidatePath("/pembina/my-class");
