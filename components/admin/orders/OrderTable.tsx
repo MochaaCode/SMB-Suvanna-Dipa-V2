@@ -175,48 +175,76 @@ export function OrderTable({
                 </TableCell>
 
                 <TableCell className="px-6 py-4 text-center">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <AppButton
-                        variant="secondary"
-                        size="icon"
-                        className="h-8 w-8 rounded-lg border-slate-200"
-                      >
-                        <MoreVertical size={14} />
-                      </AppButton>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="rounded-[1rem] p-1.5 shadow-xl border-slate-200 w-48"
+                  {order.status === "selesai" ||
+                  order.status === "dibatalkan" ? (
+                    <div
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider
+                        ${order.status === "selesai" ? "bg-green-50 text-green-600 border border-green-100" : "bg-slate-50 text-slate-400 border border-slate-200"}
+                      `}
                     >
-                      <DropdownMenuLabel className="text-[10px] font-black text-slate-400 uppercase px-3 py-2">
-                        Update Pesanan
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator className="bg-slate-100" />
-                      <DropdownMenuItem
-                        onClick={() => handleStatusUpdate(order.id, "diproses")}
-                        className="p-2.5 rounded-lg font-bold text-xs cursor-pointer hover:bg-blue-50 text-blue-700"
+                      {order.status === "selesai" ? (
+                        <CheckCircle2 size={12} />
+                      ) : (
+                        <XCircle size={12} />
+                      )}
+                      {order.status === "selesai" ? "Selesai" : "Dibatalkan"}
+                    </div>
+                  ) : (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <AppButton
+                          variant="secondary"
+                          size="icon"
+                          className="h-8 w-8 rounded-lg border-slate-200"
+                        >
+                          <MoreVertical size={14} />
+                        </AppButton>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="end"
+                        className="rounded-[1rem] p-1.5 shadow-xl border-slate-200 w-48"
                       >
-                        <Clock size={14} className="mr-2" /> Proses Pesanan
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleStatusUpdate(order.id, "selesai")}
-                        className="p-2.5 rounded-lg font-bold text-xs cursor-pointer hover:bg-green-50 text-green-700"
-                      >
-                        <CheckCircle2 size={14} className="mr-2" /> Tandai
-                        Selesai
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator className="bg-slate-100" />
-                      <DropdownMenuItem
-                        onClick={() =>
-                          handleStatusUpdate(order.id, "dibatalkan")
-                        }
-                        className="p-2.5 rounded-lg font-bold text-xs cursor-pointer hover:bg-red-50 text-red-600"
-                      >
-                        <XCircle size={14} className="mr-2" /> Batalkan (Refund)
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        <DropdownMenuLabel className="text-[10px] font-black text-slate-400 uppercase px-3 py-2">
+                          Update Pesanan
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator className="bg-slate-100" />
+
+                        {order.status === "pending" && (
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleStatusUpdate(order.id, "diproses")
+                            }
+                            className="p-2.5 rounded-lg font-bold text-xs cursor-pointer hover:bg-blue-50 text-blue-700"
+                          >
+                            <Clock size={14} className="mr-2" /> Proses Pesanan
+                          </DropdownMenuItem>
+                        )}
+
+                        {order.status === "diproses" && (
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleStatusUpdate(order.id, "selesai")
+                            }
+                            className="p-2.5 rounded-lg font-bold text-xs cursor-pointer hover:bg-green-50 text-green-700"
+                          >
+                            <CheckCircle2 size={14} className="mr-2" /> Tandai
+                            Selesai
+                          </DropdownMenuItem>
+                        )}
+
+                        <DropdownMenuSeparator className="bg-slate-100" />
+                        <DropdownMenuItem
+                          onClick={() =>
+                            handleStatusUpdate(order.id, "dibatalkan")
+                          }
+                          className="p-2.5 rounded-lg font-bold text-xs cursor-pointer hover:bg-red-50 text-red-600"
+                        >
+                          <XCircle size={14} className="mr-2" /> Batalkan
+                          (Refund)
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
