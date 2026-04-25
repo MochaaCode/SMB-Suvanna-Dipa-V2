@@ -34,7 +34,7 @@ export const ADMIN_MENU = [
   { name: "Daftar Kartu RFID", href: "/admin/cards", icon: IdCard },
   { name: "Katalog Produk", href: "/admin/products", icon: Package },
   { name: "Pesanan Masuk", href: "/admin/orders", icon: ShoppingCart },
-  { name: "Konten Publik", href: "/admin/content", icon: Globe },
+  { name: "Konten Publik", href: "/admin/public-content", icon: Globe },
   { name: "Riwayat Pengguna", href: "/admin/logs", icon: History },
   { name: "Laporan & Audit", href: "/admin/reports", icon: FileText },
 ];
