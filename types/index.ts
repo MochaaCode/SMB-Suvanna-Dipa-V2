@@ -57,6 +57,8 @@ export interface Schedule {
   end_time: string;
   type: string;
   description: string | null;
+  content: string | null;
+  materials: string | null;
   speaker_id: string | null;
   is_active: boolean;
   is_deleted: boolean;

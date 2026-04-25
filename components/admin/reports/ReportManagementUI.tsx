@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { exportMultipleSheetsToExcel } from "@/lib/export";
 import {
   Download,
@@ -17,6 +17,7 @@ import { PageHeader } from "../../shared/PageHeader";
 import { ReportMetricCard } from "./ReportMetricCard";
 import { ReportsTable } from "./ReportTable";
 import { ReportCharts } from "./ReportCharts";
+import { useDebounce } from "@/hooks/useDebounce";
 
 import type { RichReportData, ChartAnalytics } from "@/actions/admin/reports";
 
@@ -29,9 +30,16 @@ interface ReportsManagementProps {
 
 export function ReportsManagement({ data }: ReportsManagementProps) {
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 300);
 
-  const filteredData = data.tableData.filter((item) =>
-    item["Nama Lengkap"].toLowerCase().includes(search.toLowerCase()),
+  const filteredData = useMemo(
+    () =>
+      data.tableData.filter((item) =>
+        item["Nama Lengkap"]
+          .toLowerCase()
+          .includes(debouncedSearch.toLowerCase()),
+      ),
+    [data.tableData, debouncedSearch],
   );
 
   const totalStudents = data.tableData.length;
