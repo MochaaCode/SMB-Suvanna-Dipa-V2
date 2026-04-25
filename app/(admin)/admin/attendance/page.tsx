@@ -15,26 +15,25 @@ export const metadata: Metadata = {
 };
 
 export default async function AttendancePage() {
-  const activeSchedule = await getSchedules().then((schedules) =>
-    schedules.find((s) => s.is_active && !s.is_deleted),
+  const allSchedules = await getSchedules();
+  const activeSchedules = allSchedules.filter(
+    (s) => s.is_active && !s.is_deleted,
   );
 
-  if (!activeSchedule) {
+  if (activeSchedules.length === 0) {
     return <AttendanceEmptyState />;
   }
 
-  const [initialLogs, stats, eligibleStudents] = await Promise.all([
-    getTodayAttendanceLogs(activeSchedule.id),
-    getAttendanceStats(activeSchedule.id),
-    getEligibleStudents(activeSchedule.class_id),
-  ]);
-
-  return (
-    <AttendanceManagementUI
-      activeSchedule={activeSchedule}
-      initialLogs={initialLogs}
-      stats={stats}
-      eligibleStudents={eligibleStudents}
-    />
+  const sessionData = await Promise.all(
+    activeSchedules.map(async (schedule) => {
+      const [logs, stats, eligibleStudents] = await Promise.all([
+        getTodayAttendanceLogs(schedule.id),
+        getAttendanceStats(schedule.id),
+        getEligibleStudents(schedule.class_id),
+      ]);
+      return { schedule, logs, stats, eligibleStudents };
+    }),
   );
+
+  return <AttendanceManagementUI sessions={sessionData} />;
 }
