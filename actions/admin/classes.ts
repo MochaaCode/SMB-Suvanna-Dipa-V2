@@ -186,12 +186,78 @@ export async function getAvailablePembina() {
   return data as unknown as Pick<Profile, "id" | "full_name" | "avatar_url">[];
 }
 
+export async function getAvailableGL(): Promise<
+  Pick<Profile, "id" | "full_name" | "avatar_url">[]
+> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, full_name, avatar_url")
+    .eq("role", "siswa")
+    .is("class_id", null)
+    .eq("is_deleted", false)
+    .order("full_name", { ascending: true });
+
+  if (error) throw new Error(error.message);
+
+  return data as unknown as Pick<Profile, "id" | "full_name" | "avatar_url">[];
+}
+
 export async function updateClassStaff(
   classId: number,
   teacherId: string | null,
   assistantIds: string[],
 ) {
   const supabase = await ensureAdmin();
+
+  if (teacherId) {
+    const { data: existingTeacherClass } = await supabase
+      .from("classes")
+      .select("id, name")
+      .eq("teacher_id", teacherId)
+      .neq("id", classId)
+      .eq("is_deleted", false)
+      .maybeSingle();
+
+    if (existingTeacherClass) {
+      throw new Error(
+        `Pembina ini sudah menjadi Pengajar Utama di Kelas ${(existingTeacherClass as { id: number; name: string }).name}. Satu pembina hanya bisa mengajar di satu kelas.`,
+      );
+    }
+  }
+
+  if (assistantIds.length > 0) {
+    const { data: allOtherClasses } = await supabase
+      .from("classes")
+      .select("id, name, assistant_ids")
+      .neq("id", classId)
+      .eq("is_deleted", false);
+
+    for (const aId of assistantIds) {
+      const conflictClass = (
+        allOtherClasses as
+          | { id: number; name: string; assistant_ids: string[] | null }[]
+          | null
+      )?.find((c) => c.assistant_ids?.includes(aId));
+
+      if (conflictClass) {
+        const { data: glProfile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", aId)
+          .single();
+
+        const glName =
+          (glProfile as { full_name: string | null } | null)?.full_name ||
+          "Kakak GL ini";
+
+        throw new Error(
+          `${glName} sudah menjadi Kakak GL di Kelas ${conflictClass.name}. Satu Kakak GL hanya bisa mengisi satu kelas.`,
+        );
+      }
+    }
+  }
 
   const { error } = await supabase
     .from("classes")

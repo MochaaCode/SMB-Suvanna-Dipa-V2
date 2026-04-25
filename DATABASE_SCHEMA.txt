@@ -118,6 +118,7 @@
 | schedules             | is_active             | boolean                  | YES         | false                                           |
 | schedules             | start_time            | time without time zone   | YES         | '09:20:00'::time without time zone              |
 | schedules             | end_time              | time without time zone   | YES         | '11:00:00'::time without time zone              |
+| schedules             | materials             | text                     | YES         | null                                            |
 | v_attendance_details  | log_id                | bigint                   | YES         | null                                            |
 | v_attendance_details  | student_name          | text                     | YES         | null                                            |
 | v_attendance_details  | student_buddhist_name | text                     | YES         | null                                            |

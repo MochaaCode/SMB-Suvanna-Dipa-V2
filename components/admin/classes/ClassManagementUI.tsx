@@ -15,12 +15,14 @@ interface ClassManagementUIProps {
   classes: ClassWithDetails[];
   promotions: PromotionSuggestion[];
   allPembina: Pick<Profile, "id" | "full_name" | "avatar_url">[];
+  allGL: Pick<Profile, "id" | "full_name" | "avatar_url">[];
 }
 
 export function ClassManagementUI({
   classes,
   promotions,
   allPembina,
+  allGL,
 }: ClassManagementUIProps) {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-top-4 duration-700">
@@ -50,6 +52,7 @@ export function ClassManagementUI({
               promotions.filter((p) => p.currentClassId === cls.id).length
             }
             allPembina={allPembina}
+            allGL={allGL}
             allClasses={classes}
           />
         ))}

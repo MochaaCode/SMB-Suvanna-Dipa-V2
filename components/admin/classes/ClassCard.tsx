@@ -12,6 +12,7 @@ interface ClassCardProps {
   cls: ClassWithDetails;
   promoCount: number;
   allPembina: Pick<Profile, "id" | "full_name" | "avatar_url">[];
+  allGL: Pick<Profile, "id" | "full_name" | "avatar_url">[];
   allClasses: ClassWithDetails[];
 }
 
@@ -19,6 +20,7 @@ export function ClassCard({
   cls,
   promoCount,
   allPembina,
+  allGL,
   allClasses,
 }: ClassCardProps) {
   return (
@@ -88,6 +90,7 @@ export function ClassCard({
         <ClassDetailSheet
           cls={cls}
           allPembina={allPembina}
+          allGL={allGL}
           allClasses={allClasses}
         />
       </div>

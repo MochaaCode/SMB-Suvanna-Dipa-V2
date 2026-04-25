@@ -45,6 +45,7 @@ import type { Profile } from "@/types";
 interface ClassDetailSheetProps {
   cls: ClassWithDetails;
   allPembina: Pick<Profile, "id" | "full_name" | "avatar_url">[];
+  allGL: Pick<Profile, "id" | "full_name" | "avatar_url">[];
   allClasses: ClassWithDetails[];
 }
 
@@ -61,6 +62,7 @@ interface ConfirmMoveState {
 export function ClassDetailSheet({
   cls,
   allPembina,
+  allGL,
   allClasses,
 }: ClassDetailSheetProps) {
   const [isPending, startTransition] = useTransition();
@@ -328,7 +330,7 @@ export function ClassDetailSheet({
                     </span>
                   )}
                   {selectedAssistants.map((id) => {
-                    const asisten = allPembina.find((p) => p.id === id);
+                    const asisten = allGL.find((p) => p.id === id);
                     return (
                       <div
                         key={id}
@@ -361,8 +363,10 @@ export function ClassDetailSheet({
                   }}
                   value=""
                 >
-                  <option value="">+ Tambah Asisten Baru</option>
-                  {allPembina
+                  <option value="">
+                    + Tambah Kakak GL (dari Kelas Alumni)
+                  </option>
+                  {allGL
                     .filter(
                       (p) =>
                         !selectedAssistants.includes(p.id) &&

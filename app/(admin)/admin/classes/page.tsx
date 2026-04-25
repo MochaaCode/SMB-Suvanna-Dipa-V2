@@ -3,6 +3,7 @@ import {
   getClassesWithDetails,
   getPromotionSuggestions,
   getAvailablePembina,
+  getAvailableGL,
 } from "@/actions/admin/classes";
 
 import { ClassManagementUI } from "@/components/admin/classes/ClassManagementUI";
@@ -13,10 +14,11 @@ export const metadata: Metadata = {
 };
 
 export default async function ClassesPage() {
-  const [classes, promotions, allPembina] = await Promise.all([
+  const [classes, promotions, allPembina, allGL] = await Promise.all([
     getClassesWithDetails(),
     getPromotionSuggestions(),
     getAvailablePembina(),
+    getAvailableGL(),
   ]);
 
   return (
@@ -24,6 +26,7 @@ export default async function ClassesPage() {
       classes={classes}
       promotions={promotions}
       allPembina={allPembina}
+      allGL={allGL}
     />
   );
 }
