@@ -122,15 +122,20 @@ export function PairingModal({ uid, onClose, users }: PairingModalProps) {
               </button>
             </PopoverTrigger>
             <PopoverContent
-              className="w-(--radix-popover-trigger-width) p-0 rounded-[1rem] border-slate-200 shadow-xl"
+              className="p-0 rounded-[1rem] border-slate-200 shadow-xl"
               align="start"
+              style={{ width: "var(--radix-popover-trigger-width)" }}
+              avoidCollisions={false}
             >
               <Command className="rounded-[1rem]">
                 <CommandInput
                   placeholder="Ketik nama untuk mencari..."
                   className="h-11 border-none focus:ring-0"
                 />
-                <CommandList className="max-h-64 custom-scrollbar">
+                <CommandList
+                  style={{ maxHeight: "220px", overflowY: "auto" }}
+                  className="custom-scrollbar"
+                >
                   <CommandEmpty className="py-6 text-center text-xs font-medium text-slate-400">
                     Pengguna tidak ditemukan.
                   </CommandEmpty>

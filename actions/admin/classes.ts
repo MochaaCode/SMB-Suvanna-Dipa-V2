@@ -191,11 +191,19 @@ export async function getAvailableGL(): Promise<
 > {
   const supabase = await createClient();
 
+  const { data: classData } = await supabase
+    .from("classes")
+    .select("id")
+    .ilike("name", "Lulus")
+    .single();
+
+  if (!classData) return [];
+
   const { data, error } = await supabase
     .from("profiles")
     .select("id, full_name, avatar_url")
     .eq("role", "siswa")
-    .is("class_id", null)
+    .eq("class_id", classData.id)
     .eq("is_deleted", false)
     .order("full_name", { ascending: true });
 
