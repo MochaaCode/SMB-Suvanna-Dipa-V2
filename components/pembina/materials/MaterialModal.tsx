@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import toast from "react-hot-toast";
 import { updateMaterialContent } from "@/actions/pembina/materials";
+import { BookOpen, Info } from "lucide-react";
 import type { ExtendedSchedule } from "@/actions/pembina/materials";
 
 interface MaterialModalProps {
@@ -21,7 +22,7 @@ export function MaterialModal({ selectedSched, onClose }: MaterialModalProps) {
 
   useEffect(() => {
     if (selectedSched) {
-      setMateriText(selectedSched.description || "");
+      setMateriText(selectedSched.materials || "");
     }
   }, [selectedSched]);
 
@@ -45,6 +46,10 @@ export function MaterialModal({ selectedSched, onClose }: MaterialModalProps) {
     }
   };
 
+  const hasAdminContent =
+    !!selectedSched?.content &&
+    (selectedSched.content as string).trim().length > 0;
+
   return (
     <AppModal
       isOpen={!!selectedSched}
@@ -53,29 +58,48 @@ export function MaterialModal({ selectedSched, onClose }: MaterialModalProps) {
       variant="orange"
     >
       <form onSubmit={handleSaveMateri} className="space-y-4 pt-2">
-        <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 mb-2">
+        <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
           <p className="text-[10px] font-black text-slate-400 uppercase mb-1">
             Topik Pertemuan
           </p>
           <p className="text-sm font-bold text-slate-700">
             {selectedSched?.title}
           </p>
+          {selectedSched?.class && (
+            <p className="text-[10px] text-slate-400 mt-0.5">
+              Kelas {(selectedSched.class as any).name}
+            </p>
+          )}
         </div>
+
+        {hasAdminContent && (
+          <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl">
+            <p className="text-[10px] font-black text-blue-400 uppercase mb-2 flex items-center gap-1">
+              <BookOpen size={10} /> Konten dari Admin (Read Only)
+            </p>
+            <div
+              className="prose prose-xs max-w-none text-slate-700 text-xs leading-relaxed"
+              dangerouslySetInnerHTML={{
+                __html: selectedSched?.content as string,
+              }}
+            />
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
-            Isi Pembahasan / Materi
+            Materi Pembahasan Kelas
           </Label>
           <Textarea
             value={materiText}
             onChange={(e) => setMateriText(e.target.value)}
-            placeholder="Contoh: Pembahasan sila ke-1, bawa buku catatan, kerjakan hal 10..."
-            className="min-h-50 rounded-2xl border-slate-200 focus-visible:ring-orange-500 text-sm leading-relaxed"
-            required
+            placeholder="Contoh: Siswa membahas sila ke-1, mengerjakan soal halaman 10, membawa buku catatan minggu depan..."
+            className="min-h-40 rounded-2xl border-slate-200 focus-visible:ring-orange-500 text-sm leading-relaxed"
           />
-          <p className="text-[9px] text-slate-400 italic">
-            *Materi ini akan langsung dapat dilihat oleh siswa di halaman jadwal
-            mereka.
+          <p className="text-[9px] text-slate-400 italic flex items-start gap-1">
+            <Info size={10} className="mt-0.5 shrink-0" />
+            Materi ini dapat dilihat oleh siswa di halaman jadwal mereka.
+            Opsional — kosongkan jika belum ada materi.
           </p>
         </div>
 

@@ -31,28 +31,16 @@ export async function getPembinaMaterials(): Promise<ExtendedSchedule[]> {
     const { data: schedules, error: schedErr } = await supabase
       .from("schedules")
       .select(
-        "id, title, description:content, date:event_date, is_active, is_deleted, created_at, updated_at, class_id, class:classes(name)",
+        "id, title, content, materials, date:event_date, is_active, is_deleted, is_announcement, created_at, updated_at, class_id, start_time, end_time, author_id, schedule_id, class:classes(name)",
       )
       .in("class_id", classIds)
       .eq("is_deleted", false)
+      .eq("is_announcement", false)
       .order("event_date", { ascending: false });
 
     if (schedErr) throw new Error(schedErr.message);
 
-    const formattedSchedules = (schedules || []).map((s: any) => ({
-      ...s,
-      start_time: s.date
-        ? new Date(s.date).toLocaleTimeString("id-ID", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })
-        : "00:00",
-      end_time: "00:00",
-      type: "Materi Kelas",
-      speaker_id: null,
-    }));
-
-    return formattedSchedules as unknown as ExtendedSchedule[];
+    return (schedules || []) as unknown as ExtendedSchedule[];
   } catch (error: any) {
     throw new Error("Gagal memuat daftar materi: " + error.message);
   }
@@ -60,7 +48,7 @@ export async function getPembinaMaterials(): Promise<ExtendedSchedule[]> {
 
 export async function updateMaterialContent(
   scheduleId: number,
-  description: string,
+  materials: string,
 ) {
   const supabase = await createClient();
   const {
@@ -69,10 +57,27 @@ export async function updateMaterialContent(
 
   if (!user) throw new Error("Sesi berakhir.");
 
+  const { data: schedule } = await supabase
+    .from("schedules")
+    .select("class_id")
+    .eq("id", scheduleId)
+    .single();
+
+  if (!schedule) return { success: false, error: "Jadwal tidak ditemukan." };
+
+  const { data: myClass } = await supabase
+    .from("classes")
+    .select("id")
+    .eq("id", schedule.class_id)
+    .or(`teacher_id.eq.${user.id},assistant_ids.cs.{${user.id}}`)
+    .single();
+
+  if (!myClass) return { success: false, error: "Akses ditolak." };
+
   const { error } = await supabase
     .from("schedules")
     .update({
-      content: description,
+      materials: materials,
       updated_at: new Date().toISOString(),
     })
     .eq("id", scheduleId);
