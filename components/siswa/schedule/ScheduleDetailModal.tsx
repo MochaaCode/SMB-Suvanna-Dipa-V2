@@ -1,7 +1,14 @@
 "use client";
 
 import { AppModal } from "@/components/shared/AppModal";
-import { Clock, MapPin, User, Megaphone, CalendarDays } from "lucide-react";
+import {
+  Clock,
+  MapPin,
+  User,
+  Megaphone,
+  CalendarDays,
+  BookOpen,
+} from "lucide-react";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale";
 import type { StudentScheduleItem } from "@/actions/siswa/schedules";
@@ -79,6 +86,17 @@ export function ScheduleDetailModal({
                 "Tidak ada deskripsi rinci untuk kegiatan ini.",
             }}
           />
+
+          {!schedule.is_announcement && schedule.materials && (
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-2xl">
+              <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                <BookOpen size={11} /> Materi Pembahasan dari Pembina
+              </p>
+              <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
+                {schedule.materials}
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4 text-xs font-medium text-slate-500">

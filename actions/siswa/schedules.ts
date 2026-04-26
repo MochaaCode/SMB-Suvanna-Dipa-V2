@@ -7,6 +7,7 @@ export interface StudentScheduleItem {
   title: string;
   event_date: string;
   content: string | null;
+  materials: string | null;
   is_announcement: boolean;
   is_active: boolean;
   class: { name: string } | null;
@@ -45,7 +46,8 @@ export async function getStudentSchedules(): Promise<StudentScheduleItem[]> {
         id, 
         title, 
         event_date, 
-        content, 
+        content,
+        materials,
         is_announcement, 
         is_active,
         class:classes(name),

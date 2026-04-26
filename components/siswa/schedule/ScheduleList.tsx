@@ -10,9 +10,14 @@ import type { StudentScheduleItem } from "@/actions/siswa/schedules";
 interface ScheduleListProps {
   schedules: StudentScheduleItem[];
   searchQuery: string;
+  emptyMessage?: string;
 }
 
-export function ScheduleList({ schedules, searchQuery }: ScheduleListProps) {
+export function ScheduleList({
+  schedules,
+  searchQuery,
+  emptyMessage,
+}: ScheduleListProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -59,7 +64,7 @@ export function ScheduleList({ schedules, searchQuery }: ScheduleListProps) {
           <p className="text-slate-400 text-sm font-medium italic mt-1 px-10">
             {searchQuery
               ? "Coba gunakan kata kunci pencarian yang lain."
-              : "Belum ada agenda terdekat yang dijadwalkan."}
+              : emptyMessage || "Belum ada agenda terdekat yang dijadwalkan."}
           </p>
         </div>
       )}
