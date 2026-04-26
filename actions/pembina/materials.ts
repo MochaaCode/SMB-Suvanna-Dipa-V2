@@ -2,10 +2,24 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
-import type { Schedule } from "@/types";
 
-export interface ExtendedSchedule extends Schedule {
+export interface ExtendedSchedule {
+  id: number;
+  title: string;
+  content: string | null;
+  materials: string | null;
+  event_date: string;
+  start_time: string | null;
+  end_time: string | null;
+  is_active: boolean;
+  is_deleted: boolean;
+  is_announcement: boolean;
+  class_id: number | null;
+  author_id: string | null;
+  created_at: string;
+  updated_at: string;
   class: { name: string } | null;
 }
 
@@ -31,7 +45,7 @@ export async function getPembinaMaterials(): Promise<ExtendedSchedule[]> {
     const { data: schedules, error: schedErr } = await supabase
       .from("schedules")
       .select(
-        "id, title, content, materials, date:event_date, is_active, is_deleted, is_announcement, created_at, updated_at, class_id, start_time, end_time, author_id, schedule_id, class:classes(name)",
+        "id, title, content, materials, event_date, start_time, end_time, is_active, is_deleted, is_announcement, class_id, author_id, created_at, updated_at, class:classes!schedules_class_id_fkey(name)",
       )
       .in("class_id", classIds)
       .eq("is_deleted", false)
@@ -40,7 +54,17 @@ export async function getPembinaMaterials(): Promise<ExtendedSchedule[]> {
 
     if (schedErr) throw new Error(schedErr.message);
 
-    return (schedules || []) as unknown as ExtendedSchedule[];
+    const mapped = (schedules || []).map((s: any) => ({
+      ...s,
+      content:
+        s.content === null
+          ? null
+          : typeof s.content === "string"
+            ? s.content
+            : JSON.stringify(s.content),
+    }));
+
+    return mapped as ExtendedSchedule[];
   } catch (error: any) {
     throw new Error("Gagal memuat daftar materi: " + error.message);
   }
@@ -74,15 +98,22 @@ export async function updateMaterialContent(
 
   if (!myClass) return { success: false, error: "Akses ditolak." };
 
-  const { error } = await supabase
+  const adminClient = createAdminClient();
+
+  const { data: updated, error } = await adminClient
     .from("schedules")
     .update({
-      materials: materials,
+      materials,
       updated_at: new Date().toISOString(),
     })
-    .eq("id", scheduleId);
+    .eq("id", scheduleId)
+    .select("id");
 
   if (error) return { success: false, error: error.message };
+
+  if (!updated || updated.length === 0) {
+    return { success: false, error: "Gagal memperbarui materi. Coba lagi." };
+  }
 
   revalidatePath("/pembina/materials");
   revalidatePath("/siswa/schedule");

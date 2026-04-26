@@ -22,7 +22,7 @@ interface MaterialCardProps {
 export function MaterialCard({ item, onOpenModal }: MaterialCardProps) {
   const hasMaterials = !!item.materials && item.materials.trim().length > 0;
   const hasContent = !!item.content && item.content.trim().length > 0;
-  const eventDate = new Date(item.date);
+  const eventDate = new Date(item.event_date);
 
   return (
     <AppCard className="p-0 overflow-hidden border-slate-200 hover:border-orange-300 transition-all group">
