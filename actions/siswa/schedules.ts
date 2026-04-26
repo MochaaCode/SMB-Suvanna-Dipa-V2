@@ -6,6 +6,8 @@ export interface StudentScheduleItem {
   id: number;
   title: string;
   event_date: string;
+  start_time: string | null;
+  end_time: string | null;
   content: string | null;
   materials: string | null;
   is_announcement: boolean;
@@ -34,29 +36,42 @@ export async function getStudentSchedules(): Promise<StudentScheduleItem[]> {
 
     const classId = profile?.class_id;
 
-    const todayWIB = new Date().toLocaleDateString("en-CA", {
-      timeZone: "Asia/Jakarta",
-    });
-    const startOfDay = `${todayWIB}T00:00:00+07:00`;
+    const now = new Date(
+      new Date().toLocaleString("en-US", { timeZone: "Asia/Jakarta" }),
+    );
+    const sevenDaysAgo = new Date(now);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const oneMonthAhead = new Date(now);
+    oneMonthAhead.setMonth(oneMonthAhead.getMonth() + 1);
+
+    const startRange = sevenDaysAgo.toISOString();
+    const endRange = oneMonthAhead.toISOString();
 
     const { data, error } = await supabase
       .from("schedules")
       .select(
         `
-        id, 
-        title, 
-        event_date, 
+        id,
+        title,
+        event_date,
+        start_time,
+        end_time,
         content,
         materials,
-        is_announcement, 
+        is_announcement,
         is_active,
         class:classes(name),
-        author:profiles!author_id(full_name)
+        author:profiles!schedules_author_id_fkey(full_name)
       `,
       )
       .eq("is_deleted", false)
-      .gte("event_date", startOfDay)
-      .or(`class_id.eq.${classId},class_id.is.null`)
+      .gte("event_date", startRange)
+      .lte("event_date", endRange)
+      .or(
+        classId
+          ? `class_id.eq.${classId},class_id.is.null`
+          : "class_id.is.null",
+      )
       .order("event_date", { ascending: true });
 
     if (error) throw error;
