@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
@@ -15,6 +16,7 @@ export interface DashboardUpcomingSchedule {
   title: string;
   event_date: string;
   content: string | null;
+  is_announcement: boolean;
 }
 
 export interface DashboardRecentActivity {
@@ -36,6 +38,7 @@ export interface DashboardStats {
   totalAttendance: number;
   activeOrders: DashboardActiveOrder[];
   upcomingSchedule: DashboardUpcomingSchedule | null;
+  upcomingMaterial: DashboardUpcomingSchedule | null;
   recentActivities: DashboardRecentActivity[];
 }
 
@@ -56,16 +59,18 @@ export async function getStudentDashboardStats(): Promise<DashboardStats> {
     });
     const startOfDay = `${todayWIB}T00:00:00+07:00`;
 
-    const [profileRes, attRes, ordersRes, scheduleRes, activityRes] =
-      await Promise.all([
-        supabase
-          .from("profiles")
-          .select(
-            "id, full_name, buddhist_name, points, classes!profiles_class_id_fkey(name)",
-          )
-          .eq("id", user.id)
-          .single(),
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select(
+        "id, full_name, buddhist_name, points, class_id, classes!profiles_class_id_fkey(name)",
+      )
+      .eq("id", user.id)
+      .single();
 
+    const classId = (profile as any)?.class_id;
+
+    const [attRes, ordersRes, scheduleRes, materialRes, activityRes] =
+      await Promise.all([
         supabase
           .from("attendance_logs")
           .select("id", { count: "exact", head: true })
@@ -82,9 +87,25 @@ export async function getStudentDashboardStats(): Promise<DashboardStats> {
 
         supabase
           .from("schedules")
-          .select("id, title, event_date, content")
+          .select("id, title, event_date, content, is_announcement")
           .eq("is_deleted", false)
+          .eq("is_announcement", true)
           .gte("event_date", startOfDay)
+          .order("event_date", { ascending: true })
+          .limit(1)
+          .maybeSingle(),
+
+        supabase
+          .from("schedules")
+          .select("id, title, event_date, content, is_announcement")
+          .eq("is_deleted", false)
+          .eq("is_announcement", false)
+          .gte("event_date", startOfDay)
+          .or(
+            classId
+              ? `class_id.eq.${classId},class_id.is.null`
+              : "class_id.is.null",
+          )
           .order("event_date", { ascending: true })
           .limit(1)
           .maybeSingle(),
@@ -105,8 +126,7 @@ export async function getStudentDashboardStats(): Promise<DashboardStats> {
       classes: { name: string } | { name: string }[] | null;
     };
 
-    const profileData = profileRes.data as unknown as ProfileWithClass | null;
-
+    const profileData = profile as unknown as ProfileWithClass | null;
     const cls = Array.isArray(profileData?.classes)
       ? profileData?.classes[0]
       : profileData?.classes;
@@ -123,6 +143,8 @@ export async function getStudentDashboardStats(): Promise<DashboardStats> {
       activeOrders: (ordersRes.data as unknown as DashboardActiveOrder[]) || [],
       upcomingSchedule:
         (scheduleRes.data as unknown as DashboardUpcomingSchedule) || null,
+      upcomingMaterial:
+        (materialRes.data as unknown as DashboardUpcomingSchedule) || null,
       recentActivities:
         (activityRes.data as unknown as DashboardRecentActivity[]) || [],
     };

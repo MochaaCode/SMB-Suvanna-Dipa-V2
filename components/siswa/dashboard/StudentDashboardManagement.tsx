@@ -7,6 +7,7 @@ import { MetricCard } from "@/components/shared/dashboard/MetricCard";
 import { VirtualMemberCard } from "./VirtualMemberCard";
 import { OrderTracker } from "./OrderTracker";
 import { UpcomingAgenda } from "./UpcomingAgenda";
+import { UpcomingMaterial } from "./UpcomingMaterial";
 import { RecentActivityLog } from "./RecentActivityLog";
 import type { DashboardStats } from "@/actions/siswa/dashboard";
 
@@ -49,8 +50,10 @@ export function StudentDashboardManagement({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         <UpcomingAgenda schedule={data.upcomingSchedule} />
-        <RecentActivityLog activities={data.recentActivities} />
+        <UpcomingMaterial material={data.upcomingMaterial} />
       </div>
+
+      <RecentActivityLog activities={data.recentActivities} />
     </div>
   );
 }
