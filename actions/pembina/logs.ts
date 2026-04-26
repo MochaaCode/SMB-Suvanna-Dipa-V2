@@ -48,7 +48,7 @@ export async function getPembinaActivityLogs(): Promise<PembinaLogsData> {
     const { data: myClasses } = await supabase
       .from("classes")
       .select("id")
-      .eq("teacher_id", user.id)
+      .or(`teacher_id.eq.${user.id},assistant_ids.cs.{${user.id}}`)
       .eq("is_deleted", false);
 
     const classIds = myClasses?.map((c) => c.id) || [];
@@ -74,21 +74,29 @@ export async function getPembinaActivityLogs(): Promise<PembinaLogsData> {
       supabase
         .from("attendance_logs")
         .select(
-          "id, status, scan_time, method, profiles!inner(full_name), schedules(title)",
+          "id, status, scan_time, method, profiles!profile_id(full_name), schedules!schedule_id(title)",
         )
         .in("profile_id", studentIds)
+        .eq("is_deleted", false)
         .order("scan_time", { ascending: false })
         .limit(100),
 
       supabase
         .from("point_history")
         .select(
-          "id, amount, type, description, created_at, profiles!inner(full_name)",
+          "id, amount, type, description, created_at, profiles!user_id(full_name)",
         )
         .in("user_id", studentIds)
         .order("created_at", { ascending: false })
         .limit(100),
     ]);
+
+    if (attendanceRes.error) {
+      console.error("Attendance query error:", attendanceRes.error);
+    }
+    if (pointsRes.error) {
+      console.error("Points query error:", pointsRes.error);
+    }
 
     return {
       attendance: (attendanceRes.data ||
