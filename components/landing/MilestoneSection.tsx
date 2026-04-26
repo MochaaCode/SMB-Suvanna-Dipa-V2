@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
 
 export default function MilestoneSection({
@@ -27,6 +26,7 @@ export default function MilestoneSection({
               besar agama Buddha di SMB Suvanna Dipa.
             </p>
           </motion.header>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {milestone.items?.map((item: any, idx: number) => (
               <motion.div
@@ -37,17 +37,18 @@ export default function MilestoneSection({
                 transition={{ delay: idx * 0.1 }}
                 className="group bg-white/80 backdrop-blur-md rounded-[1rem] overflow-hidden border border-white shadow-sm hover:shadow-xl transition-all"
               >
-                <div className="relative h-48 w-full bg-slate-200">
-                  <Image
-                    src={item.img || "/images/placeholder.jpg"}
-                    alt={item.title}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    unoptimized
-                  />
-                </div>
-                <div className="p-6">
-                  <h4 className="font-bold text-lg mb-2">{item.title}</h4>
+                <div className="h-2 bg-linear-to-r from-orange-400 to-amber-400" />
+
+                <div className="p-6 flex flex-col gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center shrink-0">
+                    <span className="text-sm font-black text-orange-500">
+                      {String(idx + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+
+                  <h4 className="font-bold text-lg text-slate-800 group-hover:text-orange-600 transition-colors leading-tight">
+                    {item.title}
+                  </h4>
                   <p className="text-xs text-slate-500 leading-relaxed">
                     {item.desc}
                   </p>
