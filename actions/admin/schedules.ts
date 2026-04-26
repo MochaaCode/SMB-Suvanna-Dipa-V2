@@ -100,6 +100,12 @@ export async function restoreSchedule(id: number) {
 
 export async function hardDeleteSchedule(id: number) {
   const { supabase } = await ensureAdmin();
+
+  await supabase
+    .from("attendance_logs")
+    .update({ schedule_id: null })
+    .eq("schedule_id", id);
+
   const { error } = await supabase.from("schedules").delete().eq("id", id);
 
   if (error) throw new Error(error.message);
