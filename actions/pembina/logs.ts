@@ -74,17 +74,16 @@ export async function getPembinaActivityLogs(): Promise<PembinaLogsData> {
       supabase
         .from("attendance_logs")
         .select(
-          "id, status, scan_time, method, profiles!profile_id(full_name), schedules!schedule_id(title)",
+          "id, status, scan_time, method, profiles!attendance_logs_profile_id_fkey(full_name), schedules!attendance_logs_schedule_id_fkey(title)",
         )
         .in("profile_id", studentIds)
-        .eq("is_deleted", false)
         .order("scan_time", { ascending: false })
         .limit(100),
 
       supabase
         .from("point_history")
         .select(
-          "id, amount, type, description, created_at, profiles!user_id(full_name)",
+          "id, amount, type, description, created_at, profiles!point_history_user_id_fkey(full_name)",
         )
         .in("user_id", studentIds)
         .order("created_at", { ascending: false })
