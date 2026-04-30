@@ -32,14 +32,14 @@ export default function ForgotPasswordForm() {
       const result = await forgotPasswordAction(email);
 
       if (result.success) {
-        toast.success("Token 8-digit berhasil dikirim!", { id: tid });
+        toast.success("Kode verifikasi berhasil dikirim!", { id: tid });
         router.push(`/reset-password?email=${encodeURIComponent(email)}`);
       } else {
         toast.error(result.error as string, { id: tid });
         setIsLoading(false);
       }
     } catch (error) {
-      toast.error("Gagal terhubung ke peladen.", { id: tid });
+      toast.error("Gagal terhubung ke server.", { id: tid });
       setIsLoading(false);
     }
   };
@@ -75,14 +75,14 @@ export default function ForgotPasswordForm() {
             variants={itemVariants}
             className="text-3xl font-black text-slate-900 tracking-tight mb-2"
           >
-            Pemulihan Akses
+            Lupa Kata Sandi
           </motion.h1>
           <motion.p
             variants={itemVariants}
             className="text-slate-500 text-sm font-medium mb-8 leading-relaxed"
           >
-            Masukkan alamat email terdaftar Anda. Kami akan mengirimkan token
-            8-digit rahasia untuk memulihkan akun.
+            Masukkan alamat email kamu yang terdaftar. Kami akan mengirimkan
+            kode 8-digit untuk mengatur ulang kata sandi.
           </motion.p>
 
           <form onSubmit={onSubmit} className="space-y-6">
@@ -111,7 +111,7 @@ export default function ForgotPasswordForm() {
               {isLoading ? (
                 <Loader2 className="animate-spin" size={18} />
               ) : (
-                "Kirim Token 8-Digit"
+                "Kirim Kode Verifikasi"
               )}
             </motion.button>
           </form>
@@ -127,11 +127,11 @@ export default function ForgotPasswordForm() {
           className="text-orange-500 mb-6 relative z-10"
         />
         <h3 className="text-2xl font-bold text-white tracking-tight text-center relative z-10">
-          Protokol Keamanan Berstandar
+          Verifikasi Keamanan
         </h3>
         <p className="text-slate-400 text-sm text-center mt-4 max-w-xs relative z-10 leading-relaxed">
-          Menggunakan verifikasi Token OTP 8-Digit (Time-Based One-Time
-          Password) yang kedaluwarsa secara otomatis.
+          Kode verifikasi 8-digit yang dikirim ke email kamu akan
+          kedaluwarsa secara otomatis demi keamanan.
         </p>
       </div>
     </motion.div>

@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import { Sparkles, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
 export default function HeroSection() {
@@ -38,16 +38,16 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 border border-orange-100 text-orange-600 rounded-full text-xs font-bold mb-6 uppercase tracking-widest shadow-sm"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 border border-orange-100 text-orange-600 rounded-full text-xs font-bold mb-8 md:mb-6 uppercase tracking-widest shadow-sm"
         >
-          <Sparkles size={14} className="animate-pulse" /> Saddha, Sila, Sippa
+          Saddha, Sila, Sippa
         </motion.div>
 
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-          className="text-5xl md:text-7xl font-extrabold mb-6 leading-[1.1] text-slate-800 tracking-tight"
+          className="text-[1.7rem] md:text-5xl lg:text-[3.5rem] font-extrabold mb-8 md:mb-6 leading-[1.4] md:leading-[1.3] text-slate-800 tracking-wide md:tracking-wider"
         >
           Selamat Datang! <br />
           <span className="text-transparent bg-clip-text bg-linear-to-r from-orange-500 to-amber-500">
@@ -72,9 +72,9 @@ export default function HeroSection() {
         >
           <Link
             href="#about"
-            className="px-8 py-4 bg-slate-900 text-white rounded-xl font-bold flex items-center gap-2 group hover:bg-slate-800 transition-all hover:shadow-xl hover:shadow-slate-900/20 active:scale-95"
+            className="px-6 py-3 md:px-8 md:py-4 bg-slate-900 text-white rounded-xl font-bold flex items-center justify-center gap-2 group hover:bg-slate-800 hover:-translate-y-1 hover:scale-105 hover:shadow-2xl hover:shadow-slate-900/30 transition-all duration-300 ease-out active:scale-95 max-w-xs mx-auto sm:max-w-none"
           >
-            Mulai Menjelajah{" "}
+            Kenali Lebih Dekat{" "}
             <ArrowRight
               size={18}
               className="group-hover:translate-x-1 transition-transform"

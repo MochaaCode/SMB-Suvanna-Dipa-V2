@@ -13,7 +13,7 @@
 | Aryadhana Aristawidya | aryadhana@smb.test | aryadhana.20070627 |
 | Brandon Kho Wijaya | brandon@smb.test | brandon.20120225 |
 | Cherry Lim | cherry@smb.test | cherry.20111227 |
-| Clareta Fioren | clareta@smb.test | clareta.20120629 |
+| Clareta Fioren | clareta@smb.test | clareta.20120629 |    
 | Cristhoper Ritchie | cristhoper@smb.test | cristhoper.20110404 |
 | Davin Daniswara Herlianto | davin@smb.test | davin.20121105 |
 | Edward Sheehan Tahir | edward@smb.test | edward.20170413 |

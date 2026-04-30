@@ -29,17 +29,18 @@ export default function AboutSection({
   };
 
   return (
-    <section id="about" className="py-24 px-6 max-w-7xl mx-auto">
+    <section id="about" className="py-24 bg-white">
+      <div className="px-6 max-w-7xl mx-auto">
       <motion.div
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
+        viewport={{ once: false, margin: "-100px" }}
         variants={containerVariants}
-        className="grid md:grid-cols-2 gap-16 items-center mb-32"
+        className="grid md:grid-cols-2 gap-16 items-center mb-12"
       >
         <motion.div
           variants={itemVariants}
-          className="relative aspect-square rounded-[1rem] overflow-hidden shadow-2xl border-8 border-white group"
+          className="relative aspect-square rounded-[1rem] overflow-hidden shadow-2xl shadow-orange-500/40 border-4 border-orange-500 group hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(249,115,22,0.6)] transition-all duration-500 ease-out"
         >
           <Image
             src="/images/smbsd-bg-hd.jpg"
@@ -51,17 +52,14 @@ export default function AboutSection({
         </motion.div>
 
         <motion.div variants={containerVariants} className="space-y-6">
-          <motion.div variants={itemVariants} className="space-y-2">
-            <h4 className="text-orange-500 font-bold text-sm uppercase tracking-tighter">
+          <motion.div variants={itemVariants} className="mb-4 text-center md:text-left">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-orange-500 leading-[1.1]">
               Tentang Suvanna Dipa
-            </h4>
-            <h2 className="text-4xl font-extrabold text-slate-900 leading-[1.1]">
-              Membangun Fondasi Dharma di Era Digital
             </h2>
           </motion.div>
           <motion.p
             variants={itemVariants}
-            className="text-slate-600 leading-relaxed text-justify whitespace-pre-wrap"
+            className="text-slate-900 font-bold leading-relaxed text-justify"
           >
             {about.description || "Deskripsi Vihara belum diisi..."}
           </motion.p>
@@ -69,19 +67,19 @@ export default function AboutSection({
             variants={itemVariants}
             className="grid grid-cols-2 gap-4 pt-4"
           >
-            <div className="p-5 bg-white/80 backdrop-blur-md rounded-[1rem] border border-white shadow-sm hover:bg-orange-50 transition-colors">
+            <div className="p-5 bg-white/80 backdrop-blur-md rounded-[1rem] border-2 border-orange-400 shadow-sm hover:-translate-y-1 hover:scale-105 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300 ease-out">
               <h4 className="font-black text-orange-500 text-3xl mb-1">
                 {about.active_students || 0}+
               </h4>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
-                Murid Aktif
+              <p className="text-[10px] text-slate-900 font-bold uppercase tracking-widest">
+                Siswa Aktif
               </p>
             </div>
-            <div className="p-5 bg-white/80 backdrop-blur-md rounded-[1rem] border border-white shadow-sm hover:bg-blue-50 transition-colors">
-              <h4 className="font-black text-blue-500 text-3xl mb-1">
-                {about.founded_year || 2004}
+            <div className="p-5 bg-white/80 backdrop-blur-md rounded-[1rem] border-2 border-orange-400 shadow-sm hover:-translate-y-1 hover:scale-105 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300 ease-out">
+              <h4 className="font-black text-orange-500 text-3xl mb-1">
+                {about.founded_year || 2008}
               </h4>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+              <p className="text-[10px] text-slate-900 font-bold uppercase tracking-widest">
                 Tahun Berdiri
               </p>
             </div>
@@ -92,22 +90,16 @@ export default function AboutSection({
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
+        viewport={{ once: false, margin: "-100px" }}
         transition={{ duration: 0.8 }}
-        className="bg-white/70 backdrop-blur-xl rounded-[1rem] p-12 md:p-20 shadow-sm border border-white"
+        className="pt-12"
       >
-        <h3 className="text-3xl font-bold text-center mb-16 underline decoration-orange-300 decoration-4 underline-offset-8">
+        <h3 className="text-2xl md:text-3xl font-extrabold text-orange-500 text-center mb-10 leading-[1.1]">
           Visi & Misi
         </h3>
         <div className="space-y-20">
-          <div className="max-w-3xl mx-auto text-center space-y-6">
-            <div className="inline-flex p-3 bg-orange-50 rounded-[1rem] text-orange-500 mb-2">
-              <Award size={32} />
-            </div>
-            <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-orange-500">
-              Visi Utama
-            </h4>
-            <p className="text-xl md:text-2xl font-medium text-slate-800 leading-relaxed italic">
+          <div className="w-full text-center mb-12">
+            <p className="text-base md:text-lg font-serif font-medium text-slate-800 leading-relaxed italic">
               &quot;{vision.visi || "Visi belum diisi..."}&quot;
             </p>
           </div>
@@ -115,31 +107,31 @@ export default function AboutSection({
             {vision.misi?.map((text: string, idx: number) => (
               <div
                 key={idx}
-                className="relative p-8 bg-white/80 backdrop-blur-md rounded-[1rem] border border-white shadow-sm hover:bg-orange-50 transition-colors"
+                className="relative p-6 bg-white/80 backdrop-blur-md rounded-[1rem] border-2 border-orange-400 shadow-sm hover:bg-orange-50 hover:-translate-y-1 hover:scale-105 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300 ease-out"
               >
-                <span className="absolute -top-4 -left-4 w-10 h-10 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold shadow-lg">
+                <span className="absolute -top-5 left-1/2 -translate-x-1/2 w-10 h-10 bg-orange-500 text-white rounded-full flex items-center justify-center font-bold shadow-lg">
                   {idx + 1}
                 </span>
-                <p className="text-sm text-slate-600 leading-relaxed text-justify">
+                <p className="text-sm text-slate-900 leading-relaxed text-center font-bold pt-4">
                   {text}
                 </p>
               </div>
             ))}
           </div>
-          <div className="space-y-8 text-center">
-            <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400">
-              Our Core Values
+          <div className="space-y-8 text-center mt-20">
+            <h4 className="text-2xl md:text-3xl font-extrabold text-orange-500 text-center mb-10 leading-[1.1]">
+              Nilai-Nilai Inti
             </h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {values.items?.map((item: any, idx: number) => (
                 <div
                   key={idx}
-                  className="p-4 bg-white/80 backdrop-blur-md rounded-[1rem] border border-white shadow-sm flex flex-col items-center hover:border-orange-200 transition-all"
+                  className="p-3 bg-white/80 backdrop-blur-md rounded-[1rem] border-2 border-orange-400 shadow-sm flex flex-col items-center hover:bg-orange-50 hover:-translate-y-1 hover:scale-105 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300 ease-out"
                 >
                   <span className="text-xl font-black text-orange-500">
                     {item.l}
                   </span>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">
+                  <span className="text-[10px] font-bold text-slate-900 uppercase tracking-tighter">
                     {item.v}
                   </span>
                 </div>
@@ -148,6 +140,7 @@ export default function AboutSection({
           </div>
         </div>
       </motion.div>
+      </div>
     </section>
   );
 }

@@ -74,7 +74,7 @@ export default function ResetPasswordForm() {
       });
 
       if (result.success) {
-        toast.success("Kredensial berhasil diperbarui! Silakan masuk.", {
+        toast.success("Kata sandi berhasil diubah! Silakan masuk kembali.", {
           id: tid,
         });
         router.push("/login");
@@ -82,7 +82,7 @@ export default function ResetPasswordForm() {
         toast.error(result.error as string, { id: tid });
       }
     } catch (error) {
-      toast.error("Kegagalan enkripsi sistem.", { id: tid });
+      toast.error("Terjadi kesalahan sistem.", { id: tid });
     } finally {
       setIsLoading(false);
     }
@@ -106,12 +106,12 @@ export default function ResetPasswordForm() {
           className="text-orange-500 mb-6 relative z-10"
         />
         <h3 className="text-2xl font-bold text-white tracking-tight text-center relative z-10">
-          Validasi & Enkripsi
+          Atur Ulang Kata Sandi
         </h3>
         <p className="text-slate-400 text-sm text-center mt-4 max-w-xs relative z-10 leading-relaxed">
-          Masukkan token 8-digit yang telah dikirim ke{" "}
-          <strong>{targetEmail}</strong> beserta kombinasi alfanumerik baru
-          Anda.
+           Masukkan kode 8-digit yang telah dikirim ke{" "}
+           <strong>{targetEmail}</strong> beserta kata sandi baru
+           kamu.
         </p>
       </div>
 
@@ -125,13 +125,13 @@ export default function ResetPasswordForm() {
           variants={itemVariants}
           className="text-3xl font-black text-slate-900 tracking-tight mb-2"
         >
-          Validasi Token
+           Atur Ulang Kata Sandi
         </motion.h1>
         <motion.p
           variants={itemVariants}
           className="text-slate-500 text-sm font-medium mb-6 leading-relaxed flex flex-col items-start"
         >
-          <span>Token otorisasi telah dikirim ke email Anda.</span>
+           <span>Kode verifikasi telah dikirim ke email kamu.</span>
           <button
             type="button"
             onClick={handleResendToken}
@@ -147,7 +147,7 @@ export default function ResetPasswordForm() {
         <form onSubmit={onSubmit} className="space-y-5">
           <motion.div variants={itemVariants} className="space-y-2">
             <label className="text-xs font-bold uppercase tracking-wider text-orange-600">
-              Token 8-Digit
+               Kode Verifikasi 8-Digit
             </label>
             <input
               type="text"

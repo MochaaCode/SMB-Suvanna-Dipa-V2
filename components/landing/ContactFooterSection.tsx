@@ -12,12 +12,12 @@ export default function ContactFooterSection({ contact }: { contact: any }) {
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
+          viewport={{ once: false }}
           className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16"
         >
           <div className="space-y-8">
             <h2 className="text-4xl font-bold text-slate-900">
-              Mari Berjumpa!
+              Hubungi Kami
             </h2>
             <div className="space-y-4">
               <div className="flex items-center gap-4 p-5 bg-white/80 backdrop-blur-md rounded-[1rem] border border-white shadow-sm hover:border-green-200 transition-colors">
@@ -96,7 +96,7 @@ export default function ContactFooterSection({ contact }: { contact: any }) {
                   pelayanan terpadu dan sistematis. Saddha, Sila, Sippa.
                 </p>
                 <p className="text-xs pt-4 border-t border-slate-800">
-                  © 2026 SMB Suvanna Dipa. All rights reserved.
+                  © 2026 SMB Suvanna Dipa. Hak cipta dilindungi.
                 </p>
               </div>
             </div>
@@ -120,7 +120,7 @@ export default function ContactFooterSection({ contact }: { contact: any }) {
                       href="#activity"
                       className="hover:text-orange-400 transition-colors"
                     >
-                      Program Kerja
+                      Kegiatan
                     </Link>
                   </li>
                 </ul>

@@ -9,7 +9,7 @@ export default function LandingNavbar() {
 
   return (
     <header
-      className={`fixed top-0 w-full z-50 transition-all duration-500 ${isScrolled ? "bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm py-2" : "bg-transparent py-4"}`}
+      className={`fixed top-0 w-full z-50 transition-all duration-500 ${isScrolled ? "bg-white/90 backdrop-blur-md border-b border-orange-300 shadow-[0_4px_6px_-1px_rgba(249,115,22,0.3)] py-2" : "bg-transparent py-4"}`}
     >
       <nav className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -21,7 +21,7 @@ export default function LandingNavbar() {
             className="object-contain transition-all duration-300"
           />
         </div>
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium">
+        <div className="hidden md:flex items-center gap-8 text-sm font-bold">
           <Link
             href="#about"
             className="text-slate-700 hover:text-orange-500 transition-colors"
@@ -43,9 +43,9 @@ export default function LandingNavbar() {
         </div>
         <Link
           href="/login"
-          className="px-6 py-2.5 bg-orange-500 text-white rounded-[1rem] font-semibold text-sm hover:bg-orange-600 hover:shadow-lg hover:shadow-orange-200 transition-all active:scale-95"
+          className="px-6 py-2.5 bg-orange-500 text-white rounded-[1rem] font-bold text-sm hover:bg-orange-600 hover:-translate-y-1 hover:scale-105 hover:shadow-xl hover:shadow-orange-500/30 transition-all duration-300 ease-out active:scale-95"
         >
-          Masuk Ke Portal
+          Masuk
         </Link>
       </nav>
     </header>
