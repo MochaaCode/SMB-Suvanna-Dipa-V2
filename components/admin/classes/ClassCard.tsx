@@ -57,35 +57,20 @@ export function ClassCard({
                 {cls.teacher?.full_name || "Belum Ditentukan"}
               </p>
               <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-medium leading-none">
-                <Users size={12} /> {cls.assistant_ids?.length || 0} Asisten
-                (GL)
+                <Users size={12} /> {cls.assistant_ids?.length || 0} Ketua Kelas
               </div>
             </div>
           </div>
         </div>
 
-        <div
-          className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${
-            promoCount > 0
-              ? "bg-red-50 border-red-200"
-              : "bg-green-50 border-green-200"
-          }`}
-        >
-          <div
-            className={`h-1.5 w-1.5 rounded-full ${
-              promoCount > 0 ? "bg-red-500 animate-pulse" : "bg-green-500"
-            }`}
-          />
-          <span
-            className={`text-[10px] font-bold tracking-wide uppercase ${
-              promoCount > 0 ? "text-red-700" : "text-green-700"
-            }`}
-          >
-            {promoCount > 0
-              ? `${promoCount} Siswa Perlu Promosi`
-              : "Kesesuaian Usia Aman"}
-          </span>
-        </div>
+        {promoCount > 0 && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg border bg-red-50 border-red-200">
+            <div className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+            <span className="text-[10px] font-bold tracking-wide uppercase text-red-700">
+              {promoCount} Siswa Perlu Promosi
+            </span>
+          </div>
+        )}
 
         <ClassDetailSheet
           cls={cls}

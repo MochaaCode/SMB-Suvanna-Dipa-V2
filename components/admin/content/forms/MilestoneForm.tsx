@@ -53,9 +53,9 @@ export function MilestoneForm({
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h3 className="text-xl font-bold text-slate-800">Milestone Dharma</h3>
+          <h3 className="text-xl font-bold text-slate-800">Kegiatan Dharma</h3>
           <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mt-1">
-            Kegiatan rutin dan hari besar (Waisak, Kathina, dll). Hanya judul &
+            Kegiatan rutin dan hari besar (Waisak, Kathina, dll). Kelola judul &
             deskripsi.
           </p>
         </div>
@@ -72,7 +72,7 @@ export function MilestoneForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-h-150 overflow-y-auto pr-3 custom-scrollbar">
         {items.length === 0 && (
           <div className="col-span-full text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-slate-400 font-semibold text-sm">
-            Belum ada data kegiatan milestone
+            Belum ada data kegiatan
           </div>
         )}
 
@@ -123,7 +123,7 @@ export function MilestoneForm({
           leftIcon={<Save size={16} />}
           className="h-11"
         >
-          Simpan Perubahan Milestone
+          Simpan Perubahan
         </AppButton>
       </div>
     </div>

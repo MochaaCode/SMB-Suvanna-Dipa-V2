@@ -14,7 +14,7 @@ export function StudentActivityManagement({ data }: { data: ActivityData }) {
       <PageHeader
         title="AKTIVITAS"
         highlightText="SAYA"
-        subtitle="Pantau riwayat kehadiran, poin, dan pesanan kamu di sini."
+        subtitle="Pantau riwayat kehadiran, poin, dan penukaran hadiah Anda di sini."
         icon={<History size={24} />}
         themeColor="orange"
       />

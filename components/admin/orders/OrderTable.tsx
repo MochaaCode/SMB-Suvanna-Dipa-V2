@@ -36,6 +36,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { AppButton } from "../../shared/AppButton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 import type { OrderWithDetails } from "@/actions/admin/orders";
 import type { OrderStatus } from "@/types";
@@ -50,6 +60,16 @@ export function OrderTable({
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [isPending, setIsPending] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    orderId: number | null;
+    status: OrderStatus | null;
+  }>({
+    isOpen: false,
+    orderId: null,
+    status: null,
+  });
 
   useEffect(() => {
     const channel = supabase
@@ -73,13 +93,19 @@ export function OrderTable({
     return initialOrders.slice(start, start + itemsPerPage);
   }, [initialOrders, currentPage]);
 
-  const handleStatusUpdate = async (id: number, status: OrderStatus) => {
+  const handleStatusUpdate = async () => {
+    if (!confirmDialog.orderId || !confirmDialog.status) return;
+
+    setIsPending(true);
     const tid = toast.loading(`Mengubah status pesanan...`);
     try {
-      await updateOrderStatus(id, status);
-      toast.success(`Pesanan berhasil di-${status}!`, { id: tid });
+      await updateOrderStatus(confirmDialog.orderId, confirmDialog.status);
+      toast.success(`Pesanan berhasil diperbarui!`, { id: tid });
+      setConfirmDialog({ isOpen: false, orderId: null, status: null });
     } catch (err: any) {
       toast.error(err.message, { id: tid });
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -89,20 +115,20 @@ export function OrderTable({
         <Table>
           <TableHeader className="bg-slate-50/50">
             <TableRow className="border-b border-slate-100">
-              <TableHead className="w-60 text-xs font-bold uppercase tracking-wider py-4">
+              <TableHead className="w-60 px-6 text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
                 Informasi Pembeli
               </TableHead>
-              <TableHead className="text-xs font-bold uppercase tracking-wider py-4">
+              <TableHead className="text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
                 Item Produk
               </TableHead>
-              <TableHead className="text-center text-xs font-bold uppercase tracking-wider py-4">
+              <TableHead className="text-center text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
                 Harga Poin
               </TableHead>
-              <TableHead className="text-center text-xs font-bold uppercase tracking-wider py-4">
+              <TableHead className="text-center text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
                 Status
               </TableHead>
-              <TableHead className="w-20 text-center text-xs font-bold uppercase tracking-wider py-4">
-                Aksi
+              <TableHead className="w-20 text-center text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
+                Aksi Cepat
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -193,9 +219,9 @@ export function OrderTable({
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <AppButton
-                          variant="secondary"
+                          variant="ghost"
                           size="icon"
-                          className="h-8 w-8 rounded-lg border-slate-200"
+                          className="h-8 w-8 rounded-[1rem] text-slate-400 hover:text-slate-600 hover:bg-slate-50"
                         >
                           <MoreVertical size={14} />
                         </AppButton>
@@ -212,7 +238,11 @@ export function OrderTable({
                         {order.status === "pending" && (
                           <DropdownMenuItem
                             onClick={() =>
-                              handleStatusUpdate(order.id, "diproses")
+                              setConfirmDialog({
+                                isOpen: true,
+                                orderId: order.id,
+                                status: "diproses",
+                              })
                             }
                             className="p-2.5 rounded-lg font-bold text-xs cursor-pointer hover:bg-blue-50 text-blue-700"
                           >
@@ -223,7 +253,11 @@ export function OrderTable({
                         {order.status === "diproses" && (
                           <DropdownMenuItem
                             onClick={() =>
-                              handleStatusUpdate(order.id, "selesai")
+                              setConfirmDialog({
+                                isOpen: true,
+                                orderId: order.id,
+                                status: "selesai",
+                              })
                             }
                             className="p-2.5 rounded-lg font-bold text-xs cursor-pointer hover:bg-green-50 text-green-700"
                           >
@@ -235,7 +269,11 @@ export function OrderTable({
                         <DropdownMenuSeparator className="bg-slate-100" />
                         <DropdownMenuItem
                           onClick={() =>
-                            handleStatusUpdate(order.id, "dibatalkan")
+                            setConfirmDialog({
+                              isOpen: true,
+                              orderId: order.id,
+                              status: "dibatalkan",
+                            })
                           }
                           className="p-2.5 rounded-lg font-bold text-xs cursor-pointer hover:bg-red-50 text-red-600"
                         >
@@ -280,6 +318,55 @@ export function OrderTable({
           </AppButton>
         </div>
       </div>
+      <AlertDialog
+        open={confirmDialog.isOpen}
+        onOpenChange={(open) =>
+          setConfirmDialog((prev) => ({ ...prev, isOpen: open }))
+        }
+      >
+        <AlertDialogContent className="rounded-[1rem] p-8 border-slate-200 shadow-xl max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-bold text-slate-800">
+              {confirmDialog.status === "selesai" && "Selesaikan Pesanan?"}
+              {confirmDialog.status === "diproses" && "Proses Pesanan?"}
+              {confirmDialog.status === "dibatalkan" && "Batalkan Pesanan?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm font-medium text-slate-600 mt-2 leading-relaxed text-left">
+              {confirmDialog.status === "selesai" &&
+                "Pesanan akan ditandai sebagai selesai dan tidak dapat diubah lagi."}
+              {confirmDialog.status === "diproses" &&
+                "Ubah status pesanan menjadi sedang diproses?"}
+              {confirmDialog.status === "dibatalkan" &&
+                "Pesanan akan dibatalkan dan poin siswa akan dikembalikan secara otomatis. Aksi ini tidak dapat dibatalkan."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-6">
+            <AlertDialogCancel asChild>
+              <AppButton
+                variant="outline"
+                disabled={isPending}
+                className="h-10 text-xs rounded-[1rem]"
+              >
+                Kembali
+              </AppButton>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <AppButton
+                variant={
+                  confirmDialog.status === "dibatalkan" ? "red" : "orange"
+                }
+                onClick={handleStatusUpdate}
+                isLoading={isPending}
+                className="h-10 text-xs rounded-[1rem]"
+              >
+                {confirmDialog.status === "selesai" && "Ya, Selesaikan"}
+                {confirmDialog.status === "diproses" && "Ya, Proses"}
+                {confirmDialog.status === "dibatalkan" && "Ya, Batalkan"}
+              </AppButton>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

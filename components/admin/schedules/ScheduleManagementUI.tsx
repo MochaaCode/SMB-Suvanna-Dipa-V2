@@ -60,16 +60,16 @@ export function ScheduleManagementUI({
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-700">
       <PageHeader
-        title={isTrashMode ? "TEMPAT SAMPAH" : "JADWAL &"}
-        highlightText={isTrashMode ? "JADWAL" : "MATERI"}
+        title={isTrashMode ? "DATA DIHAPUS" : "KELOLA"}
+        highlightText={isTrashMode ? "JADWAL" : "JADWAL"}
         icon={isTrashMode ? <Trash2 size={24} /> : <CalendarDays size={24} />}
         subtitle={
           isTrashMode ? (
-            "Data jadwal dan pengumuman yang telah dihapus"
+            "Data jadwal dan pengumuman yang telah dihapus."
           ) : (
             <>
-              <BookOpen size={14} className="text-orange-500" /> Agenda Mingguan
-              & Pengumuman Pembelajaran Siswa
+              <BookOpen size={14} className="text-orange-500" /> Agenda mingguan
+              dan pengumuman untuk siswa.
             </>
           )
         }
@@ -90,26 +90,26 @@ export function ScheduleManagementUI({
           />
         </div>
 
-        <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto justify-end">
           <AppButton
             variant={isTrashMode ? "secondary" : "red"}
             onClick={() => setIsTrashMode(!isTrashMode)}
-            className="h-10 text-xs rounded-[1rem]"
+            className="w-full sm:w-auto h-10 text-xs rounded-[1rem]"
             leftIcon={
               isTrashMode ? <ArrowLeft size={16} /> : <Trash2 size={16} />
             }
           >
-            {isTrashMode ? "Kembali" : "Tempat Sampah"}
+            {isTrashMode ? "Kembali" : "Hapus"}
           </AppButton>
 
           {!isTrashMode && (
             <AppButton
               onClick={() => setIsModalOpen(true)}
               variant="default"
-              className="h-10 text-xs font-bold rounded-[1rem]"
+              className="w-full sm:w-auto h-10 text-xs font-bold rounded-[1rem]"
               leftIcon={<Plus size={16} />}
             >
-              Buat Informasi Baru
+              Tambah Informasi
             </AppButton>
           )}
         </div>
@@ -124,14 +124,7 @@ export function ScheduleManagementUI({
           onValueChange={(value: any) => setActiveTab(value)}
           className="w-full"
         >
-          <div className="p-4 bg-white border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <LayoutGrid size={16} className="text-orange-500" />
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500 hidden sm:block">
-                Database Informasi
-              </h2>
-            </div>
-
+          <div className="p-4 bg-white border-b border-slate-100 flex items-center justify-center w-full">
             <TabsList className="bg-slate-100 p-1 rounded-[1rem] h-10">
               <TabsTrigger
                 value="materi"

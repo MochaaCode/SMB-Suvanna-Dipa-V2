@@ -112,7 +112,7 @@ export function ScheduleTable({
     try {
       if (confirmDialog.actionType === "delete") {
         await deleteSchedule(confirmDialog.id);
-        toast.success("Data dipindahkan ke tempat sampah.", { id: tid });
+        toast.success("Data dipindahkan ke data terhapus.", { id: tid });
       } else if (confirmDialog.actionType === "restore") {
         await restoreSchedule(confirmDialog.id);
         toast.success("Data berhasil dipulihkan.", { id: tid });
@@ -139,7 +139,7 @@ export function ScheduleTable({
             className={isTrashMode ? "bg-red-50" : `bg-${themeColor}-50/30`}
           >
             <TableRow className="border-slate-200">
-              <TableHead className="w-48 text-xs text-center font-bold uppercase tracking-wider text-slate-500 py-4">
+              <TableHead className="w-48 px-6 text-xs text-center font-bold uppercase tracking-wider text-slate-500 py-4">
                 Waktu Pelaksanaan
               </TableHead>
               <TableHead className="text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
@@ -156,7 +156,7 @@ export function ScheduleTable({
               )}
 
               <TableHead className="w-44 text-center text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
-                Aksi
+                Aksi Cepat
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -208,20 +208,10 @@ export function ScheduleTable({
                       </div>
                     </TableCell>
 
-                    <TableCell className="align-top">
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
-                            <User size={10} /> Oleh:{" "}
-                            {item.author?.full_name || "Admin"}
-                          </span>
-                        </div>
-                        <p
-                          className={`text-sm font-bold leading-tight text-slate-800`}
-                        >
-                          {item.title}
-                        </p>
-                      </div>
+                    <TableCell className="align-middle">
+                      <p className="text-sm font-bold leading-tight text-slate-800">
+                        {item.title}
+                      </p>
                     </TableCell>
 
                     <TableCell className="align-middle text-center">
@@ -276,9 +266,9 @@ export function ScheduleTable({
                         {!isTrashMode ? (
                           <>
                             <AppButton
-                              variant="secondary"
+                              variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-slate-600 border border-slate-200 bg-white hover:text-slate-900 hover:bg-slate-100 rounded-[1rem]"
+                              className="h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-[1rem]"
                               onClick={() => {
                                 setSelectedSchedule(item);
                                 setIsViewOpen(true);
@@ -288,9 +278,9 @@ export function ScheduleTable({
                               <Eye size={14} />
                             </AppButton>
                             <AppButton
-                              variant="secondary"
+                              variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-orange-600 border border-slate-200 bg-white hover:text-orange-700 hover:bg-orange-50 hover:border-orange-200 rounded-[1rem]"
+                              className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-[1rem]"
                               onClick={() => {
                                 setSelectedSchedule(item);
                                 setIsEditOpen(true);
@@ -300,9 +290,9 @@ export function ScheduleTable({
                               <Pencil size={14} />
                             </AppButton>
                             <AppButton
-                              variant="secondary"
+                              variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-red-600 border border-slate-200 bg-white hover:text-red-700 hover:bg-red-50 hover:border-red-200 rounded-[1rem]"
+                              className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-[1rem]"
                               onClick={() =>
                                 setConfirmDialog({
                                   isOpen: true,
@@ -408,7 +398,7 @@ export function ScheduleTable({
               {confirmDialog.actionType === "restore" &&
                 "Data akan diaktifkan kembali dan muncul di daftar agenda/pengumuman siswa."}
               {confirmDialog.actionType === "delete" &&
-                "Pindahkan data ini ke tempat sampah sementara?"}
+                "Pindahkan data ini ke data terhapus sementara?"}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-6">

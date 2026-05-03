@@ -28,6 +28,16 @@ import { PairingModal } from "./PairingModal";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { AppButton } from "../../shared/AppButton";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 
 import type { CardWithProfile } from "@/actions/admin/cards";
 import type { Profile } from "@/types";
@@ -41,8 +51,15 @@ export function CardTable({ initialCards, availableUsers }: CardTableProps) {
   const [cards, setCards] = useState<CardWithProfile[]>(initialCards);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUid, setSelectedUid] = useState<string | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    actionType: "delete" | "lost" | null;
+    uid: string | null;
+  }>({ isOpen: false, actionType: null, uid: null });
+
   const debouncedSearch = useDebounce(searchTerm, 300);
   const router = useRouter();
+  const [isPending, setIsPending] = useState(false);
   const supabase = createClient();
 
   const [prevInitialCards, setPrevInitialCards] = useState(initialCards);
@@ -88,29 +105,23 @@ export function CardTable({ initialCards, availableUsers }: CardTableProps) {
     }
   };
 
-  const handleMarkLost = async (uid: string) => {
-    if (
-      confirm("Tandai kartu ini sebagai hilang? Akses pengguna akan dicabut.")
-    ) {
-      const tid = toast.loading("Memperbarui status...");
-      try {
-        await markCardAsLost(uid);
+  const executeAction = async () => {
+    if (!confirmDialog.uid || !confirmDialog.actionType) return;
+    setIsPending(true);
+    const tid = toast.loading("Memproses aksi...");
+    try {
+      if (confirmDialog.actionType === "lost") {
+        await markCardAsLost(confirmDialog.uid);
         toast.success("Kartu ditandai hilang.", { id: tid });
-      } catch (err: any) {
-        toast.error(err.message, { id: tid });
+      } else if (confirmDialog.actionType === "delete") {
+        await deleteCard(confirmDialog.uid);
+        toast.success("Kartu dihapus dari inventaris.", { id: tid });
       }
-    }
-  };
-
-  const handleDelete = async (uid: string) => {
-    if (confirm("Hapus kartu dari inventaris secara permanen?")) {
-      const tid = toast.loading("Menghapus data...");
-      try {
-        await deleteCard(uid);
-        toast.success("Kartu dihapus.", { id: tid });
-      } catch (err: any) {
-        toast.error(err.message, { id: tid });
-      }
+      setConfirmDialog({ isOpen: false, actionType: null, uid: null });
+    } catch (error: any) {
+      toast.error(error.message, { id: tid });
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -129,27 +140,23 @@ export function CardTable({ initialCards, availableUsers }: CardTableProps) {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="hidden sm:flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-          <Activity size={12} className="text-green-500 animate-pulse" /> Live
-          Sync Active
-        </div>
       </div>
 
       <div className="overflow-x-auto min-h-100">
         <Table>
           <TableHeader className="bg-slate-50/50">
             <TableRow className="border-slate-100">
-              <TableHead className="w-40 text-center text-xs font-bold uppercase py-4">
+              <TableHead className="w-40 px-6 text-center text-xs font-bold uppercase text-slate-500 py-4">
                 UID RFID
               </TableHead>
-              <TableHead className="text-xs font-bold uppercase py-4">
+              <TableHead className="text-xs font-bold uppercase text-slate-500 py-4">
                 Pemilik Kartu
               </TableHead>
-              <TableHead className="text-center text-xs font-bold uppercase py-4">
+              <TableHead className="text-center text-xs font-bold uppercase text-slate-500 py-4">
                 Status
               </TableHead>
-              <TableHead className="w-44 text-center text-xs font-bold uppercase py-4">
-                Tindakan
+              <TableHead className="w-44 text-center text-xs font-bold uppercase text-slate-500 py-4">
+                Aksi Cepat
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -184,7 +191,7 @@ export function CardTable({ initialCards, availableUsers }: CardTableProps) {
                           {card.profile.full_name}
                         </p>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                          Role: {card.profile.role}
+                          Peran: {card.profile.role}
                         </p>
                       </div>
                     ) : (
@@ -210,8 +217,8 @@ export function CardTable({ initialCards, availableUsers }: CardTableProps) {
                       {card.profile ? (
                         <AppButton
                           size="icon"
-                          variant="secondary"
-                          className="text-orange-600 hover:bg-orange-50 border border-slate-200 h-8 w-8 rounded-[1rem]"
+                          variant="ghost"
+                          className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 h-8 w-8 rounded-[1rem]"
                           onClick={() => handleUnpair(card.uid)}
                           title="Lepas Kaitan"
                         >
@@ -232,9 +239,15 @@ export function CardTable({ initialCards, availableUsers }: CardTableProps) {
                       {card.status !== "hilang" && (
                         <AppButton
                           size="icon"
-                          variant="secondary"
-                          className="text-amber-500 hover:bg-amber-50 border border-slate-200 h-8 w-8 rounded-[1rem]"
-                          onClick={() => handleMarkLost(card.uid)}
+                          variant="ghost"
+                          className="text-amber-500 hover:text-amber-600 hover:bg-amber-50 h-8 w-8 rounded-[1rem]"
+                          onClick={() =>
+                            setConfirmDialog({
+                              isOpen: true,
+                              actionType: "lost",
+                              uid: card.uid,
+                            })
+                          }
                           title="Tandai Hilang"
                         >
                           <AlertTriangle size={14} />
@@ -243,9 +256,15 @@ export function CardTable({ initialCards, availableUsers }: CardTableProps) {
 
                       <AppButton
                         size="icon"
-                        variant="secondary"
-                        className="text-slate-400 hover:text-red-600 hover:bg-red-50 border border-slate-200 h-8 w-8 rounded-[1rem]"
-                        onClick={() => handleDelete(card.uid)}
+                        variant="ghost"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8 rounded-[1rem]"
+                        onClick={() =>
+                          setConfirmDialog({
+                            isOpen: true,
+                            actionType: "delete",
+                            uid: card.uid,
+                          })
+                        }
                         title="Hapus Kartu"
                       >
                         <Trash2 size={14} />
@@ -264,6 +283,49 @@ export function CardTable({ initialCards, availableUsers }: CardTableProps) {
         onClose={() => setSelectedUid(null)}
         users={availableUsers}
       />
+
+      <AlertDialog
+        open={confirmDialog.isOpen}
+        onOpenChange={(open) =>
+          setConfirmDialog((prev) => ({ ...prev, isOpen: open }))
+        }
+      >
+        <AlertDialogContent className="rounded-[1rem] p-8 border-slate-200 shadow-xl max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-bold text-slate-800">
+              {confirmDialog.actionType === "lost"
+                ? "Tandai Kartu Hilang?"
+                : "Hapus Kartu?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm font-medium text-slate-600 mt-2 leading-relaxed">
+              {confirmDialog.actionType === "lost"
+                ? "Tandai kartu ini sebagai hilang? Akses pengguna yang terhubung akan langsung dicabut demi keamanan."
+                : "Hapus data kartu ini secara permanen dari inventaris? Aksi ini tidak dapat dibatalkan."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-6">
+            <AlertDialogCancel asChild>
+              <AppButton
+                variant="outline"
+                disabled={isPending}
+                className="h-10 text-xs rounded-[1rem]"
+              >
+                Batal
+              </AppButton>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <AppButton
+                variant={confirmDialog.actionType === "lost" ? "orange" : "red"}
+                onClick={executeAction}
+                isLoading={isPending}
+                className="h-10 text-xs rounded-[1rem]"
+              >
+                {confirmDialog.actionType === "lost" ? "Ya, Tandai Hilang" : "Ya, Hapus Permanen"}
+              </AppButton>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -205,7 +205,7 @@ export function AddUserModal({
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    Role Akses
+                    Peran Akses
                   </Label>
                   <Select name="role" defaultValue="siswa">
                     <SelectTrigger className="h-11 rounded-[1rem] border-slate-200 bg-white font-medium text-sm focus:ring-orange-500">

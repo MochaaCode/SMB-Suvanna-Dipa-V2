@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
@@ -26,36 +27,36 @@ import { useState } from "react";
 import type { UserRole } from "@/types";
 
 export const ADMIN_MENU = [
-  { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-  { name: "Manajemen Kelas", href: "/admin/classes", icon: GraduationCap },
-  { name: "Manajemen Pengguna", href: "/admin/users", icon: Users },
-  { name: "Jadwal Kegiatan", href: "/admin/schedules", icon: Calendar },
-  { name: "Log Kehadiran", href: "/admin/attendance", icon: CheckSquare },
-  { name: "Daftar Kartu RFID", href: "/admin/cards", icon: IdCard },
-  { name: "Katalog Produk", href: "/admin/products", icon: Package },
-  { name: "Pesanan Masuk", href: "/admin/orders", icon: ShoppingCart },
-  { name: "Konten Publik", href: "/admin/public-content", icon: Globe },
-  { name: "Riwayat Pengguna", href: "/admin/logs", icon: History },
-  { name: "Laporan & Audit", href: "/admin/reports", icon: FileText },
+  { name: "Dasbor", href: "/admin/dashboard", icon: LayoutDashboard },
+  { name: "Kelola Kelas", href: "/admin/classes", icon: GraduationCap },
+  { name: "Kelola Pengguna", href: "/admin/users", icon: Users },
+  { name: "Kelola Jadwal", href: "/admin/schedules", icon: Calendar },
+  { name: "Kelola Presensi", href: "/admin/attendance", icon: CheckSquare },
+  { name: "Kelola Kartu RFID", href: "/admin/cards", icon: IdCard },
+  { name: "Kelola Hadiah", href: "/admin/products", icon: Package },
+  { name: "Penukaran Poin", href: "/admin/orders", icon: ShoppingCart },
+  { name: "Kelola Konten Publik", href: "/admin/public-content", icon: Globe },
+  { name: "Log Aktivitas", href: "/admin/logs", icon: History },
+  { name: "Laporan", href: "/admin/reports", icon: FileText },
 ];
 
 export const PEMBINA_MENU = [
-  { name: "Dashboard", href: "/pembina/dashboard", icon: LayoutDashboard },
+  { name: "Dasbor", href: "/pembina/dashboard", icon: LayoutDashboard },
   { name: "Kelas Saya", href: "/pembina/my-class", icon: GraduationCap },
-  { name: "Materi Pembahasan", href: "/pembina/materials", icon: BookOpen },
-  { name: "Riwayat Aktivitas", href: "/pembina/logs", icon: History },
+  { name: "Materi", href: "/pembina/materials", icon: BookOpen },
+  { name: "Riwayat", href: "/pembina/logs", icon: History },
 ];
 
 export const SISWA_MENU = [
-  { name: "Dashboard", href: "/siswa/dashboard", icon: LayoutDashboard },
-  { name: "Jadwal SMB", href: "/siswa/schedule", icon: Calendar },
+  { name: "Dasbor", href: "/siswa/dashboard", icon: LayoutDashboard },
+  { name: "Jadwal", href: "/siswa/schedule", icon: Calendar },
   { name: "Tukar Poin", href: "/siswa/store", icon: Gift },
-  { name: "Aktivitas Saya", href: "/siswa/activity", icon: History },
+  { name: "Aktivitas", href: "/siswa/activity", icon: History },
 ];
 
 export const GL_MENU = [
   {
-    name: "Monitoring Kelas (GL)",
+    name: "Pantau Kelas",
     href: "/pembina/my-class",
     icon: GraduationCap,
   },
@@ -106,15 +107,21 @@ export default function Sidebar({ role, isAssistant = false }: SidebarProps) {
     <aside className="w-72 h-screen bg-white border-r border-slate-100 flex flex-col sticky top-0 overflow-hidden">
       <div className="p-8 pb-6">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-orange-600 rounded-2xl flex items-center justify-center shadow-lg shadow-orange-200">
-            <GraduationCap className="text-white" size={24} />
+          <div className="w-10 h-10 rounded-2xl flex items-center justify-center overflow-hidden border border-orange-300">
+            <Image
+              src="/images/logo-smb.png"
+              alt="Logo SMB"
+              width={40}
+              height={40}
+              className="object-contain"
+            />
           </div>
           <div className="flex flex-col">
             <span className="text-xl font-black text-slate-800 tracking-tighter leading-none">
-              SUVANNADIPA
+              Suvanna Dipa
             </span>
             <span className="text-[10px] font-bold text-orange-600 uppercase tracking-[0.2em] mt-1">
-              {role} Portal
+              {role.charAt(0).toUpperCase() + role.slice(1)}
             </span>
           </div>
         </div>
@@ -147,9 +154,6 @@ export default function Sidebar({ role, isAssistant = false }: SidebarProps) {
                 )}
               />
               <span className="tracking-tight">{item.name}</span>
-              {isActive && (
-                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-              )}
             </Link>
           );
         })}

@@ -6,7 +6,7 @@ interface PageHeaderProps {
   title: string;
   highlightText?: string;
   icon: ReactNode;
-  subtitle: ReactNode;
+  subtitle?: ReactNode;
   themeColor?: "orange" | "blue" | "green" | "red" | "slate";
   rightContent?: ReactNode;
 }
@@ -15,7 +15,6 @@ export function PageHeader({
   title,
   highlightText,
   icon,
-  subtitle,
   themeColor = "orange",
   rightContent,
 }: PageHeaderProps) {
@@ -50,23 +49,20 @@ export function PageHeader({
   const theme = colorMap[themeColor];
 
   return (
-    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-6 md:p-7 rounded-[1rem] border border-slate-100 shadow-sm transition-all">
-      <div className="space-y-1.5">
-        <div className="flex items-center gap-3.5">
+    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 md:p-5 rounded-[1rem] border border-slate-100 shadow-sm transition-all">
+      <div className="space-y-1 min-w-0">
+        <div className="flex items-center gap-2.5">
           <div
-            className={`p-3 rounded-xl border shadow-inner ${theme.bg} ${theme.border} ${theme.text}`}
+            className={`p-2 rounded-xl border shadow-inner shrink-0 ${theme.bg} ${theme.border} ${theme.text}`}
           >
             {icon}
           </div>
-          <h1 className="text-2xl font-black text-slate-800 italic tracking-tighter uppercase leading-none">
+          <h1 className="text-lg font-black text-orange-600 tracking-tighter uppercase leading-none">
             {title}{" "}
             {highlightText && (
               <span className={theme.text}>{highlightText}</span>
             )}
           </h1>
-        </div>
-        <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center gap-2 ml-1">
-          {subtitle}
         </div>
       </div>
 

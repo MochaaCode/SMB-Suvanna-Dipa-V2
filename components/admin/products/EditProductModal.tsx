@@ -68,10 +68,10 @@ export default function EditProductModal({ product }: EditProductModalProps) {
   return (
     <>
       <AppButton
-        variant="secondary"
+        variant="ghost"
         size="icon"
         onClick={() => setIsOpen(true)}
-        className="h-8 w-8 text-blue-600 hover:bg-blue-50 border border-slate-200 bg-white transition-all"
+        className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-all rounded-[1rem]"
         title="Edit Produk"
       >
         <Edit3 size={14} />
@@ -85,7 +85,7 @@ export default function EditProductModal({ product }: EditProductModalProps) {
         }}
         title="Edit Detail Hadiah"
         description={`Memperbarui detail produk ${product.name}`}
-        variant="slate"
+        variant="orange"
         maxWidth="md"
         footer={
           <div className="w-full flex justify-end gap-3">

@@ -131,23 +131,23 @@ export default function AttendanceTable({
   return (
     <div className="w-full flex flex-col rounded-[1rem]">
       <div className="overflow-x-auto max-h-125 custom-scrollbar">
-        <Table>
+        <Table className="min-w-[700px]">
           <TableHeader className="bg-slate-50/50 sticky top-0 z-10 backdrop-blur-sm">
             <TableRow className="border-slate-200">
-              <TableHead className="w-56 text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
+              <TableHead className="w-56 text-xs font-bold uppercase tracking-wider text-slate-500 py-4 px-6">
                 Siswa
               </TableHead>
-              <TableHead className="text-xs font-bold uppercase tracking-wider text-slate-500 py-4 text-center">
+              <TableHead className="text-xs font-bold uppercase tracking-wider text-slate-500 py-4 px-6 text-center">
                 Waktu Scan
               </TableHead>
-              <TableHead className="text-center text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
+              <TableHead className="text-center text-xs font-bold uppercase tracking-wider text-slate-500 py-4 px-6">
                 Status
               </TableHead>
-              <TableHead className="text-center text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
+              <TableHead className="text-center text-xs font-bold uppercase tracking-wider text-slate-500 py-4 px-6">
                 Metode
               </TableHead>
-              <TableHead className="w-24 text-center text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
-                Aksi
+              <TableHead className="w-24 text-center text-xs font-bold uppercase tracking-wider text-slate-500 py-4 px-6">
+                Aksi Cepat
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -221,9 +221,9 @@ export default function AttendanceTable({
 
                   <TableCell className="px-6 py-4 text-center">
                     <AppButton
-                      variant="secondary"
+                      variant="ghost"
                       size="icon"
-                      className="h-8 w-8 text-slate-600 border border-slate-200 bg-white hover:text-orange-600 hover:bg-orange-50 hover:border-orange-200 rounded-[1rem] mx-auto opacity-0 group-hover:opacity-100 transition-all"
+                      className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-[1rem] mx-auto opacity-0 group-hover:opacity-100 transition-all"
                       onClick={() => handleOpenEdit(log)}
                       title="Revisi"
                     >

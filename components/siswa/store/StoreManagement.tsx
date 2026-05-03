@@ -76,7 +76,7 @@ export function StoreManagement({
       <PageHeader
         title="KATALOG"
         highlightText="PRODUK"
-        subtitle="Tukarkan poin hasil kerajinanmu dengan hadiah menarik."
+        subtitle="Tukarkan poin Anda dengan berbagai hadiah menarik."
         icon={<Gift size={24} className="text-orange-500" />}
         themeColor="orange"
       />

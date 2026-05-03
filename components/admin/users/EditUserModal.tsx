@@ -220,7 +220,7 @@ export function EditUserModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
                 <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  Role Sistem
+                  Peran Sistem
                 </Label>
                 <Select
                   value={formData.role || "siswa"}

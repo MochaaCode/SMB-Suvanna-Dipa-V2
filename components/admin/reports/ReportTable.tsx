@@ -25,16 +25,16 @@ export function ReportsTable({ data }: { data: RichReportData[] }) {
       <Table>
         <TableHeader className="bg-slate-50/80 sticky top-0 z-10 shadow-sm">
           <TableRow>
-            <TableHead className="font-bold uppercase text-xs tracking-wider">
+            <TableHead className="px-6 font-bold uppercase text-xs tracking-wider text-slate-500">
               Profil Siswa
             </TableHead>
-            <TableHead className="font-bold uppercase text-xs tracking-wider">
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-slate-500">
               Kontak
             </TableHead>
-            <TableHead className="font-bold uppercase text-xs tracking-wider text-center">
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-center text-slate-500">
               Kehadiran
             </TableHead>
-            <TableHead className="font-bold uppercase text-xs tracking-wider text-center">
+            <TableHead className="font-bold uppercase text-xs tracking-wider text-center text-slate-500">
               Poin & Hadiah
             </TableHead>
           </TableRow>

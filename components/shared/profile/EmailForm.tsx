@@ -60,7 +60,7 @@ export function EmailForm({ initialEmail }: EmailFormProps) {
         className="w-full h-11"
         leftIcon={<Save size={16} />}
       >
-        Update Email Login
+        Perbarui Email Login
       </AppButton>
     </AppCard>
   );

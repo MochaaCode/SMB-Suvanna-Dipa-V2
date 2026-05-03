@@ -88,12 +88,12 @@ export function UserManagementUI({
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
       <PageHeader
-        title={isTrashMode ? "TEMPAT" : "DAFTAR"}
-        highlightText={isTrashMode ? "SAMPAH" : "PENGGUNA"}
+        title={isTrashMode ? "DATA" : "KELOLA"}
+        highlightText={isTrashMode ? "DIHAPUS" : "PENGGUNA"}
         subtitle={
           isTrashMode
-            ? "Data pengguna terhapus sementara"
-            : "Kelola database Siswa, Pembina, & Admin"
+            ? "Data pengguna yang terhapus sementara."
+            : "Kelola data akun siswa, pembina, dan admin."
         }
         icon={isTrashMode ? <Trash2 size={24} /> : <Users size={24} />}
         themeColor={isTrashMode ? "red" : "orange"}
@@ -114,23 +114,23 @@ export function UserManagementUI({
             />
           </div>
 
-          <div className="flex items-center gap-3 w-full md:w-auto justify-end shrink-0">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto justify-end shrink-0">
             <AppButton
               variant={isTrashMode ? "secondary" : "red"}
               onClick={() => setIsTrashMode(!isTrashMode)}
-              className="h-10 text-xs rounded-[1rem]"
+              className="w-full sm:w-auto h-10 text-xs rounded-[1rem]"
               leftIcon={
                 isTrashMode ? <ArrowLeft size={16} /> : <Trash2 size={16} />
               }
             >
-              {isTrashMode ? "Kembali" : "Tempat Sampah"}
+              {isTrashMode ? "Kembali" : "Hapus"}
             </AppButton>
 
             {!isTrashMode && (
               <AppButton
                 onClick={() => setIsModalOpen(true)}
                 variant="default"
-                className="h-10 text-xs rounded-[1rem]"
+                className="w-full sm:w-auto h-10 text-xs rounded-[1rem]"
                 leftIcon={<Plus size={16} />}
               >
                 Tambah Pengguna
@@ -139,17 +139,17 @@ export function UserManagementUI({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-slate-100">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider mr-2">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-3 pt-3 border-t border-slate-100 w-full">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 sm:mb-0 sm:mr-2">
             <Filter size={14} /> Filter:
           </div>
 
           <Select value={roleFilter} onValueChange={setRoleFilter}>
-            <SelectTrigger className="h-9 w-35 rounded-[1rem] border-slate-200 bg-slate-50 font-bold text-xs text-slate-600 focus:ring-orange-500">
-              <SelectValue placeholder="Semua Role" />
+            <SelectTrigger className="h-9 w-full sm:w-35 rounded-[1rem] border-slate-200 bg-slate-50 font-bold text-xs text-slate-600 focus:ring-orange-500">
+              <SelectValue placeholder="Semua Peran" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Semua Role</SelectItem>
+              <SelectItem value="all">Semua Peran</SelectItem>
               <SelectItem value="siswa">Siswa</SelectItem>
               <SelectItem value="pembina">Pembina</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
@@ -157,7 +157,7 @@ export function UserManagementUI({
           </Select>
 
           <Select value={classFilter} onValueChange={setClassFilter}>
-            <SelectTrigger className="h-9 w-45 rounded-[1rem] border-slate-200 bg-slate-50 font-bold text-xs text-slate-600 focus:ring-orange-500">
+            <SelectTrigger className="h-9 w-full sm:w-45 rounded-[1rem] border-slate-200 bg-slate-50 font-bold text-xs text-slate-600 focus:ring-orange-500">
               <SelectValue placeholder="Semua Kelas" />
             </SelectTrigger>
             <SelectContent>
@@ -172,7 +172,7 @@ export function UserManagementUI({
           </Select>
 
           <Select value={sortOrder} onValueChange={setSortOrder}>
-            <SelectTrigger className="h-9 w-35 rounded-[1rem] border-slate-200 bg-slate-50 font-bold text-xs text-slate-600 focus:ring-orange-500">
+            <SelectTrigger className="h-9 w-full sm:w-35 rounded-[1rem] border-slate-200 bg-slate-50 font-bold text-xs text-slate-600 focus:ring-orange-500">
               <SelectValue placeholder="Urutkan" />
             </SelectTrigger>
             <SelectContent>

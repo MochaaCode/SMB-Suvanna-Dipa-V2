@@ -66,9 +66,9 @@ export function ReportsManagement({ data }: ReportsManagementProps) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Audit &"
-        highlightText="Laporan"
-        subtitle="Analitik komprehensif, performa, dan eksport data induk"
+        title="LAPORAN"
+        highlightText=""
+        subtitle="Lihat laporan performa, analitik, dan ekspor data utama."
         icon={<FileSpreadsheet size={24} />}
         themeColor="orange"
         rightContent={

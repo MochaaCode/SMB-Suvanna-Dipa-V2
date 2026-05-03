@@ -168,7 +168,7 @@ export function UserTable({
           case "bulk-soft-delete":
             await toggleDeleteUsers(idsToProcess, true);
             toast.success(
-              `${idsToProcess.length} Pengguna dipindahkan ke tempat sampah.`,
+              `${idsToProcess.length} Pengguna dipindahkan ke data terhapus.`,
               { id: tid },
             );
             break;
@@ -209,6 +209,13 @@ export function UserTable({
             {selectedIds.length} Pengguna Terpilih
           </div>
           <div className="flex items-center gap-2">
+            <AppButton
+              variant="secondary"
+              className="h-8 text-xs rounded-[1rem] bg-white border-orange-200 text-orange-700 hover:bg-orange-50"
+              onClick={() => setSelectedIds([])}
+            >
+              Batal
+            </AppButton>
             {isTrashMode ? (
               <>
                 <AppButton
@@ -266,7 +273,7 @@ export function UserTable({
                 Kelas
               </TableHead>
               <TableHead className="w-44 text-center text-xs font-bold uppercase tracking-wider text-slate-500 py-4">
-                Aksi
+                Aksi Cepat
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -352,9 +359,9 @@ export function UserTable({
                         {!isTrashMode ? (
                           <>
                             <AppButton
-                              variant="secondary"
+                              variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-orange-600 hover:text-orange-700 hover:bg-orange-50 bg-white border border-slate-200 rounded-[1rem]"
+                              className="h-8 w-8 text-orange-600 hover:text-orange-700 hover:bg-orange-50 rounded-[1rem]"
                               onClick={() => {
                                 setTargetUser(user);
                                 setModalType("credentials");
@@ -364,9 +371,9 @@ export function UserTable({
                               <ShieldCheck size={14} />
                             </AppButton>
                             <AppButton
-                              variant="secondary"
+                              variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded-[1rem]"
+                              className="h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-[1rem]"
                               onClick={() => {
                                 setViewUser(user);
                                 setIsDetailOpen(true);
@@ -376,9 +383,9 @@ export function UserTable({
                               <Eye size={14} />
                             </AppButton>
                             <AppButton
-                              variant="secondary"
+                              variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 bg-white border border-slate-200 rounded-[1rem]"
+                              className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-[1rem]"
                               onClick={() => {
                                 setEditTarget(user);
                                 setIsEditOpen(true);
@@ -388,9 +395,9 @@ export function UserTable({
                               <Edit size={14} />
                             </AppButton>
                             <AppButton
-                              variant="secondary"
+                              variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 bg-white border border-slate-200 rounded-[1rem]"
+                              className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-[1rem]"
                               onClick={() => {
                                 setTargetUser(user);
                                 setModalType("soft-delete");
@@ -589,14 +596,14 @@ export function UserTable({
 
               {modalType === "soft-delete" && (
                 <span>
-                  Pindahkan <strong>{targetUser?.full_name}</strong> ke tempat
-                  sampah sementara?
+                  Pindahkan <strong>{targetUser?.full_name}</strong> ke data
+                  terhapus sementara?
                 </span>
               )}
               {modalType === "bulk-soft-delete" && (
                 <span>
                   Pindahkan <strong>{selectedIds.length} pengguna</strong>{" "}
-                  terpilih ke tempat sampah sementara?
+                  terpilih ke data terhapus sementara?
                 </span>
               )}
 

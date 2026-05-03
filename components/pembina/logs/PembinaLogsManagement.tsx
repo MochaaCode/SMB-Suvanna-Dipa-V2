@@ -13,7 +13,7 @@ export function PembinaLogsManagement({ data }: { data: PembinaLogsData }) {
       <PageHeader
         title="RIWAYAT"
         highlightText="AKTIVITAS"
-        subtitle="Pantau log presensi dan mutasi poin khusus siswa di kelas Anda."
+        subtitle="Pantau riwayat kehadiran dan perubahan poin siswa di kelas Anda."
         icon={<History size={24} />}
         themeColor="orange"
       />

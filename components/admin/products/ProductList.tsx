@@ -116,9 +116,9 @@ export default function ProductList({
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <AppButton
-                          variant="secondary"
+                          variant="ghost"
                           size="icon"
-                          className="h-9 w-9 rounded-lg text-slate-400 hover:text-red-600 border-slate-200"
+                          className="h-9 w-9 rounded-[1rem] text-slate-400 hover:text-red-600 hover:bg-red-50"
                         >
                           <Trash2 size={16} />
                         </AppButton>
@@ -154,18 +154,18 @@ export default function ProductList({
                   <div className="flex gap-2">
                     <AppButton
                       onClick={() => handleRestore(product.id)}
-                      variant="secondary"
+                      variant="ghost"
                       size="icon"
-                      className="h-9 w-9 rounded-lg text-green-600 border-slate-200 bg-green-50/50"
+                      className="h-9 w-9 rounded-[1rem] text-green-600 hover:text-green-700 hover:bg-green-50"
                     >
                       <RotateCcw size={16} />
                     </AppButton>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <AppButton
-                          variant="secondary"
+                          variant="ghost"
                           size="icon"
-                          className="h-9 w-9 rounded-lg text-red-600 border-slate-200 bg-red-50/50"
+                          className="h-9 w-9 rounded-[1rem] text-red-600 hover:text-red-700 hover:bg-red-50"
                         >
                           <ShieldAlert size={16} />
                         </AppButton>

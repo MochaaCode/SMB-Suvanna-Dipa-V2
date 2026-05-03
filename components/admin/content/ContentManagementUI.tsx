@@ -43,12 +43,23 @@ export function ContentManagementUI({
     (initialContent.find((c) => c.section === section)?.content ||
       {}) as unknown as T;
 
+  const sectionNames: Record<string, string> = {
+    about: "Tentang Kami",
+    vision: "Visi & Misi",
+    values: "Nilai Inti",
+    milestone: "Kegiatan Dharma",
+    testimonial: "Testimoni",
+    gallery: "Galeri Kegiatan",
+    contact: "Kontak & Lokasi",
+  };
+
   const handleSave = (section: string, payload: unknown) => {
     startTransition(async () => {
-      const tid = toast.loading(`Menyimpan section ${section}...`);
+      const label = sectionNames[section] || section;
+      const tid = toast.loading(`Menyimpan ${label}...`);
       try {
         await updatePublicContent(section, payload as Record<string, unknown>);
-        toast.success(`Section ${section} berhasil diperbarui!`, { id: tid });
+        toast.success(`${label} berhasil diperbarui!`, { id: tid });
       } catch (error: any) {
         toast.error(error.message, { id: tid });
       }
@@ -58,20 +69,20 @@ export function ContentManagementUI({
   const TABS_CONFIG = [
     { id: "about", icon: Users, label: "Tentang Kami" },
     { id: "vision", icon: Target, label: "Visi & Misi" },
-    { id: "values", icon: HeartHandshake, label: "Core Values" },
-    { id: "milestone", icon: Flag, label: "Milestone" },
+    { id: "values", icon: HeartHandshake, label: "Nilai Inti" },
+    { id: "milestone", icon: Flag, label: "Kegiatan Dharma" },
     { id: "testimonial", icon: MessageSquare, label: "Testimoni" },
-    { id: "gallery", icon: ImageIcon, label: "Galeri Ceria" },
-    { id: "contact", icon: MapPin, label: "Kontak" },
+    { id: "gallery", icon: ImageIcon, label: "Galeri Kegiatan" },
+    { id: "contact", icon: MapPin, label: "Kontak & Lokasi" },
   ];
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
       <PageHeader
-        title="KONTEN"
-        highlightText="LANDING PAGE"
+        title="KELOLA KONTEN"
+        highlightText="PUBLIK"
         icon={<Globe size={24} />}
-        subtitle="Atur Informasi Landing Page Public SMB Suvanna Dipa"
+        subtitle="Kelola informasi yang ditampilkan pada halaman utama situs web."
         themeColor="orange"
       />
 

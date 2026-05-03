@@ -106,7 +106,7 @@ export default function ForgotPasswordForm() {
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold uppercase tracking-widest rounded-[1rem] transition-colors flex items-center justify-center gap-2 disabled:opacity-70"
+              className="w-full py-3.5 bg-slate-900 hover:bg-orange-600 text-white text-sm font-bold uppercase tracking-widest rounded-[1rem] transition-colors shadow-md flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <Loader2 className="animate-spin" size={18} />

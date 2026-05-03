@@ -47,33 +47,33 @@ export function ProductManagementUI({
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-700">
       <PageHeader
-        title={isTrashMode ? "TEMPAT" : "KATALOG"}
-        highlightText={isTrashMode ? "SAMPAH" : "PRODUK"}
+        title={isTrashMode ? "DATA" : "KELOLA"}
+        highlightText={isTrashMode ? "TERHAPUS" : "HADIAH"}
         icon={isTrashMode ? <Trash2 size={24} /> : <Store size={24} />}
         subtitle={
           isTrashMode
-            ? "Manajemen produk yang telah ditarik dari toko"
-            : "Kelola barang hadiah Point Shop untuk memotivasi siswa"
+            ? "Daftar hadiah yang telah ditarik dari toko."
+            : "Kelola daftar hadiah untuk memotivasi siswa."
         }
         themeColor={isTrashMode ? "red" : "orange"}
         rightContent={
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
             <AppButton
               variant={isTrashMode ? "secondary" : "red"}
               onClick={() => setIsTrashMode(!isTrashMode)}
               leftIcon={
                 isTrashMode ? <ArrowLeft size={16} /> : <Trash2 size={16} />
               }
-              className="font-bold rounded-[1rem] h-10 text-xs"
+              className="font-bold rounded-[1rem] h-10 text-xs w-full sm:w-auto"
             >
-              {isTrashMode ? "Kembali ke Toko" : "Tempat Sampah"}
+              {isTrashMode ? "Kembali ke Toko" : "Data Terhapus"}
             </AppButton>
 
             {!isTrashMode && (
               <AppButton
                 onClick={() => setIsAddModalOpen(true)}
                 leftIcon={<Plus size={16} />}
-                className="font-bold shadow-md rounded-[1rem] h-10 text-xs"
+                className="font-bold shadow-md rounded-[1rem] h-10 text-xs w-full sm:w-auto"
               >
                 Tambah Produk
               </AppButton>
@@ -104,8 +104,8 @@ export function ProductManagementUI({
             {searchQuery
               ? "Produk Tidak Ditemukan"
               : isTrashMode
-                ? "Tempat Sampah Kosong"
-                : "Katalog Masih Kosong"}
+                ? "Data Terhapus Kosong"
+                : "Belum ada hadiah yang terdaftar di toko."}
           </h3>
           <p className="text-slate-500 max-w-sm mb-8 font-medium leading-relaxed text-sm px-6">
             {searchQuery

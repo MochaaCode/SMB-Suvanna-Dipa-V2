@@ -69,16 +69,16 @@ export function CardManagementUI({
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-700">
       <PageHeader
-        title="INVENTARIS"
+        title="KELOLA"
         highlightText="KARTU RFID"
-        subtitle="Manajemen identitas fisik dan otentikasi kartu akses siswa"
+        subtitle="Kelola data kartu RFID dan hak akses siswa."
         icon={<CreditCard size={24} />}
         themeColor="orange"
         rightContent={
           <AppButton
             onClick={() => setAddModalOpen(true)}
             leftIcon={<Plus size={16} />}
-            className="font-bold rounded-[1rem]"
+            className="text-xs h-10 font-bold rounded-[1rem] w-full sm:w-auto"
           >
             Daftar Kartu Baru
           </AppButton>
@@ -108,13 +108,7 @@ export function CardManagementUI({
         ))}
       </div>
 
-      <div className="flex items-center gap-3 px-2 pt-2">
-        <LayoutGrid size={16} className="text-orange-500" />
-        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-          Database Inventaris Kartu
-        </h2>
-        <div className="h-px bg-slate-200 grow ml-2" />
-      </div>
+
 
       <AppCard
         noPadding

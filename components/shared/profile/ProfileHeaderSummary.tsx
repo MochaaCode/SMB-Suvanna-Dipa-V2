@@ -29,15 +29,19 @@ export function ProfileHeaderSummary({
     : role === "admin"
       ? "Admin"
       : "Pembina";
-  const accessLevel = isSiswa ? "Akses Pelajar" : "Level Akses Penuh (Root)";
+  const accessLevel = isSiswa
+    ? "Akses Pelajar"
+    : role === "admin"
+      ? "Akses Penuh"
+      : "Akses Pengajar";
   const subTitle = isSiswa
     ? "Kelola identitas personal dan akses portal siswa Anda"
-    : "Kontrol akses dan identitas personal sistem";
+    : "Kelola identitas personal dan akses akun Anda";
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="PENGATURAN"
+        title="PROFIL DAN"
         highlightText="AKUN"
         icon={<UserCog size={24} />}
         subtitle={subTitle}
@@ -81,7 +85,7 @@ export function ProfileHeaderSummary({
                 <>
                   <Camera size={24} className="mb-1" />
                   <span className="text-[10px] font-bold uppercase tracking-wider">
-                    Update Foto
+                    Ubah Foto
                   </span>
                 </>
               )}

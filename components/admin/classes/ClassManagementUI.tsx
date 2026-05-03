@@ -27,21 +27,12 @@ export function ClassManagementUI({
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-top-4 duration-700">
       <PageHeader
-        title="MANAJEMEN"
+        title="KELOLA"
         highlightText="KELAS"
-        subtitle="Kelola Penempatan & Promosi Siswa SMB Suvanna Dipa"
         icon={<GraduationCap size={24} />}
-        themeColor="orange"
         rightContent={<PromotionAlarm promotions={promotions} />}
       />
 
-      <div className="flex items-center gap-3 px-2">
-        <LayoutGrid size={16} className="text-orange-500" />
-        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-          Daftar Kelas Aktif
-        </h2>
-        <div className="h-px bg-slate-200 grow ml-2" />
-      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {classes.map((cls) => (

@@ -39,7 +39,7 @@ export function CoreValuesForm({
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h3 className="text-xl font-bold text-slate-800">Core Values</h3>
+          <h3 className="text-xl font-bold text-slate-800">Nilai Inti</h3>
           <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mt-1">
             Nilai-nilai dasar (F.R.I.E.N.D.L.Y) SMB Suvanna Dipa.
           </p>
@@ -50,14 +50,14 @@ export function CoreValuesForm({
           leftIcon={<Plus size={16} />}
           className="text-orange-600 hover:text-orange-700 hover:bg-orange-50 bg-white border border-slate-200 h-10 shrink-0"
         >
-          Tambah Value
+          Tambah Nilai
         </AppButton>
       </div>
 
       <div className="space-y-4 max-w-4xl">
         {items.length === 0 && (
           <div className="text-center py-8 bg-slate-50 rounded-lg border border-dashed border-slate-200 text-slate-400 font-semibold text-sm">
-            Belum ada Core Values
+            Belum ada Nilai Inti
           </div>
         )}
 

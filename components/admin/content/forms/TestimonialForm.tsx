@@ -98,7 +98,7 @@ export function TestimonialForm({
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">
-                    Status / Role
+                    Status / Peran
                   </label>
                   <Input
                     value={item.role}
@@ -131,7 +131,7 @@ export function TestimonialForm({
           leftIcon={<Save size={16} />}
           className="h-11"
         >
-          Simpan Perubahan Testimoni
+          Simpan Perubahan
         </AppButton>
       </div>
     </div>

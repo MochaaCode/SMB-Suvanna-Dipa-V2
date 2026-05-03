@@ -41,9 +41,14 @@ export function PembinaDashboardManagement({
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
       <PageHeader
-        title="Beranda Kelas "
-        highlightText={data?.className || "Pembina"}
-        subtitle="Pantau aktivitas siswa, kehadiran, dan momen spesial di kelas Anda."
+        title="DASBOR"
+        highlightText={data?.className || "KELAS"}
+        subtitle={
+          <>
+            Namo Buddhaya, Pembina{" "}
+            <span className="text-orange-600 font-bold">{data?.className || ""}</span>.
+          </>
+        }
         icon={<LayoutDashboard size={24} />}
         themeColor="orange"
       />

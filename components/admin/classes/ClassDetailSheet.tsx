@@ -320,7 +320,7 @@ export function ClassDetailSheet({
 
               <div className="space-y-2.5 text-left">
                 <label className="text-[11px] font-bold uppercase text-slate-500 tracking-wider flex items-center gap-1.5">
-                  <Users size={14} className="text-orange-500" /> Group Leaders
+                  <Users size={14} className="text-orange-500" /> Ketua Kelas
                   (Asisten)
                 </label>
                 <div className="flex flex-wrap gap-2 min-h-11 p-2.5 bg-white rounded-[1rem] border border-slate-200 shadow-sm">
@@ -364,7 +364,7 @@ export function ClassDetailSheet({
                   value=""
                 >
                   <option value="">
-                    + Tambah Kakak GL (dari Kelas Alumni)
+                    + Tambah Ketua Kelas (dari Kelas Lulus)
                   </option>
                   {allGL
                     .filter(

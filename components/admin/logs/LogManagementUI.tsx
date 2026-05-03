@@ -27,10 +27,10 @@ export function LogManagementUI({ students }: { students: StudentSummary[] }) {
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
       <PageHeader
-        title="REKAM JEJAK"
+        title="LOG"
         highlightText="AKTIVITAS"
         icon={<History size={24} />}
-        subtitle="Audit Transaksi Poin, Kehadiran, & Penukaran Hadiah"
+        subtitle="Pantau riwayat transaksi poin, kehadiran, dan penukaran hadiah."
         themeColor="orange"
         rightContent={
           <div className="relative group w-full md:w-72">

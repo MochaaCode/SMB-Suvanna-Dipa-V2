@@ -89,9 +89,9 @@ export function GalleryForm({
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="border-b border-slate-200 pb-4 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h3 className="text-xl font-bold text-slate-800">Galeri Ceria</h3>
+          <h3 className="text-xl font-bold text-slate-800">Galeri Kegiatan</h3>
           <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mt-1">
-            Foto-foto yang akan berjalan otomatis (Marquee).
+            Foto-foto kegiatan yang akan ditampilkan di halaman utama.
           </p>
         </div>
         <AppButton
@@ -141,7 +141,7 @@ export function GalleryForm({
 
             <div className="space-y-2 pr-10">
               <label className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">
-                Upload Foto
+                Unggah Foto
               </label>
               <div className="flex gap-2 items-center">
                 <Input
@@ -185,7 +185,7 @@ export function GalleryForm({
           leftIcon={<Save size={16} />}
           className="h-11"
         >
-          Simpan Perubahan Galeri
+          Simpan Perubahan
         </AppButton>
       </div>
     </div>

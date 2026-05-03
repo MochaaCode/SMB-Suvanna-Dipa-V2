@@ -21,9 +21,16 @@ export function StudentDashboardManagement({
   return (
     <div className="w-full space-y-8 pb-10 animate-in fade-in duration-700">
       <PageHeader
-        title="SOTTHI"
-        highlightText="HOTU"
-        subtitle={`Selamat datang kembali, ${data.studentInfo.fullName.split(" ")[0]}!`}
+        title="DASBOR"
+        highlightText=""
+        subtitle={
+          <>
+            Namo Buddhaya,{" "}
+            <span className="text-orange-600 font-bold">
+              {data.studentInfo.fullName.split(" ")[0]}
+            </span>.
+          </>
+        }
         icon={<Sparkles className="text-orange-500" size={24} />}
         themeColor="orange"
       />

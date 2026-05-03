@@ -146,7 +146,7 @@ export default function ResetPasswordForm() {
 
         <form onSubmit={onSubmit} className="space-y-5">
           <motion.div variants={itemVariants} className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-wider text-orange-600">
+            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                Kode Verifikasi 8-Digit
             </label>
             <input
@@ -217,7 +217,7 @@ export default function ResetPasswordForm() {
               newPassword.length < 6 ||
               newPassword !== confirmPassword
             }
-            className="w-full py-3.5 mt-4 bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold uppercase tracking-widest rounded-[1rem] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:bg-slate-400"
+            className="w-full py-3.5 mt-4 bg-slate-900 hover:bg-orange-600 text-white text-sm font-bold uppercase tracking-widest rounded-[1rem] transition-colors shadow-md flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <Loader2 className="animate-spin" size={18} />

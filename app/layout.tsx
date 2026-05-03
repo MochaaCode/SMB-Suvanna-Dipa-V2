@@ -27,6 +27,7 @@ export default function RootLayout({
         "antialiased",
         plusJakartaSans.variable,
         "font-sans",
+        "scroll-smooth scroll-pt-20"
       )}
     >
       <body className="min-h-full flex flex-col bg-slate-50/50 text-slate-900">

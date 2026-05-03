@@ -51,7 +51,7 @@ export function MyClassManagement({ data }: MyClassProps) {
       <PageHeader
         title="KELAS"
         highlightText="SAYA"
-        subtitle={`Manajemen siswa dan aktivitas di ${data.classInfo.name}`}
+        subtitle={`Kelola data siswa dan aktivitas di ${data.classInfo.name}.`}
         icon={<GraduationCap size={24} />}
         themeColor="orange"
       />

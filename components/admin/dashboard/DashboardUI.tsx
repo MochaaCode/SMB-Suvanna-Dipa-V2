@@ -39,17 +39,14 @@ export function DashboardUI({ data, adminName }: DashboardUIProps) {
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
       <PageHeader
-        title="DASHBOARD"
-        highlightText="ADMIN"
+        title="DASBOR"
+        highlightText=""
         icon={<LayoutGrid size={24} />}
         themeColor="orange"
         subtitle={
           <>
-            <Sparkles size={12} className="text-orange-400" />
             Namo Buddhaya,{" "}
-            <span className="text-orange-600 font-bold">{adminName}</span>.
-            Memantau {data.liveAttendance.length} Kehadiran & {latestViews}{" "}
-            Kunjungan Web hari ini.
+            <span className="text-orange-600 font-bold">{adminName}</span>
           </>
         }
       />

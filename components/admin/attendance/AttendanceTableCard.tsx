@@ -24,9 +24,6 @@ export default function AttendanceTableCard({
           </div>
           <h2 className="text-sm font-bold text-slate-800">
             Log Aktivitas RFID{" "}
-            <span className="text-orange-500 font-medium text-xs ml-1">
-              (Real-time)
-            </span>
           </h2>
         </div>
       </div>

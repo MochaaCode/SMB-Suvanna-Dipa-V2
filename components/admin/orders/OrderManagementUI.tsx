@@ -75,10 +75,10 @@ export function OrderManagementUI({
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-700">
       <PageHeader
-        title="MANAJEMEN"
-        highlightText="PESANAN"
+        title="PENUKARAN"
+        highlightText="POIN"
         icon={<ShoppingBag size={24} />}
-        subtitle="Pantau dan kelola penukaran poin hadiah siswa secara real-time"
+        subtitle="Pantau dan kelola penukaran poin siswa secara langsung."
         themeColor="orange"
       />
 
